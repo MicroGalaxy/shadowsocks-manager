@@ -32,7 +32,7 @@ const run = async () => {
     type = 'rust';
     shadowsocks = spawn('ssmanager', [ '-m', method, '-U', '--manager-address', config.shadowsocks.address, ...pluginOptions]);
   } else {
-    shadowsocks = spawn('ss-manager', [ '-v', '-m', method, '-u', '--manager-address', config.shadowsocks.address, ...pluginOptions]);
+    shadowsocks = spawn('ss-manager', [ '-v', '-m', method, '-u', '--manager-address', config.shadowsocks.address,'-s','0.0.0.0','-s','::0', ...pluginOptions]);
   }
 
   shadowsocks.stdout.on('data', (data) => {
