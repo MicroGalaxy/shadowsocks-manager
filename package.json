@@ -66,7 +66,7 @@
     "request-promise": "^4.2.6",
     "simple-get": "^3.1.0",
     "socks": "^2.6.1",
-    "sqlite3": "^5.0.0",
+    "sqlite3": "^5.0.2",
     "uuid": "^3.4.0",
     "web-push": "^3.4.4",
     "ws": "^6.2.1"
