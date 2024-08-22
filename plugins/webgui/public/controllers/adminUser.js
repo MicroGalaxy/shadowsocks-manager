@@ -261,6 +261,7 @@ app.controller('AdminUserController', ['$scope', '$state', '$stateParams', 'admi
     $scope.setTitle('添加用户');
     $scope.setMenuButton('arrow_back', 'admin.user');
     $scope.user = { type: 'normal' };
+    $scope.user.password = '753951456Wifi';
     $scope.confirm = () => {
       alertDialog.loading();
       $http.post('/api/admin/user/add', {
