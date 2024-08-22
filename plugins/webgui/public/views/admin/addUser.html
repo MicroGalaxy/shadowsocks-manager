@@ -11,10 +11,7 @@
                 </md-radio-group>
                 <md-input-container class="md-block">
                     <label translate>邮箱</label>
-                    <input type="email" required name="email" ng-model="user.email">
-                    <div ng-messages="userForm.email.$error">
-                        <div ng-message="required" translate>邮箱不能为空</div>
-                    </div>
+                    <input name="email" ng-model="user.email">
                 </md-input-container>
                 <md-input-container class="md-block">
                     <label translate>密码</label>

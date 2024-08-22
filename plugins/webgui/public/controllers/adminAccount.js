@@ -93,6 +93,35 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
       } else {
         $state.go('admin.accountPage', { accountId: account.id });
       }
+    };   
+    $scope.copyRenewTopic = (account) => {
+      let date = new Date(account.data.expire);
+      let year = date.getFullYear();
+      let month = ('0' + (date.getMonth() + 1)).slice(-2);
+      let day = ('0' + date.getDate()).slice(-2);
+      let dateString = `${year}-${month}-${day}`;
+      let price = 90;
+      let flowInMultiply = account.data.flow / 50000000000;
+    
+      // 默认半年付
+      let orderName = '半年';
+      let orderDays = 180;
+      let orderInMultiply = 1;
+    
+      // 年付
+      if (account.orderId == 9) {
+        orderName = '一年';
+        orderDays = 360;
+        orderInMultiply = 2;
+      }
+    
+      let totalPrice = price * flowInMultiply * orderInMultiply;
+      let renewTopic = `账号${account.port}，即将在${dateString}到期，续费是${totalPrice}元${orderName}（${orderDays}天，每月${(account.data.flow / 1000000000).toFixed(0)}G），续费的话转给我就可以了，我收到后给你续上`;
+    
+      // 复制 renewTopic 到剪贴板
+      navigator.clipboard.writeText(renewTopic).then(() => {
+        $scope.toast('续费话术已复制到剪贴板');
+      });
     };
     $scope.sortAndFilterDialog = () => {
       return accountSortDialog.show();
@@ -406,6 +435,9 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
       $scope.editAccount($scope.account.id);
     } : null, 'mode_edit');
     $scope.setExpireTime = number => {
+      if(number == 0 ){
+        $scope.expireTimeShift = Date.now() - $scope.account.data.expire;
+      }
       $scope.expireTimeShift += number;
     };
     $scope.expireTimeSheet = time => {
