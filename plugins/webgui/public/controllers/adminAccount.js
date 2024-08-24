@@ -440,6 +440,12 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
       }
       $scope.expireTimeShift += number;
     };
+    $scope.copyCurrentTime = () => {
+      let expireTimeTopic = `账号：${$scope.account.port}\n到期时间：${$filter('date')($scope.account.data.expire, 'yyyy-MM-dd HH:mm')}\n剩余时间：${$filter('timeago')($scope.account.data.expire)}`;
+      navigator.clipboard.writeText(expireTimeTopic).then(() => {
+        $scope.toast('到期时间已复制到剪贴板');
+      });
+    };
     $scope.expireTimeSheet = time => {
       if($scope.id !== 1) { return; }
       if(!time) { return; }
