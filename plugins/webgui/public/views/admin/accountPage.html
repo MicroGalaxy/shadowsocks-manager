@@ -145,6 +145,7 @@
                 <div layout="row" layout-align="center center" layout-wrap ng-if="servers.length">
                     <div flex-lg="10"></div>
                     <div flex="70" flex-md="80" flex-sm="100" flex-xs="100">
+                        <md-button class="md-primary" ng-click="downloadShadowsocksR()">{{ '下载ShadowsocksR' | translate }}</md-button>
                         <md-button class="md-primary" ng-click="subscribe(account.id)" ng-if="config.subscribe">{{ '订阅链接' | translate }}</md-button>
                         <md-button ng-show="isSS(server)" class="md-primary" ng-click="showQrcodeDialog(server, account)">{{ '账号二维码' | translate }}</md-button>
                         <md-button ng-show="isWG(server)" class="md-primary" ng-click="showWireGuard(server, account)">{{ '账号二维码' | translate }}</md-button>

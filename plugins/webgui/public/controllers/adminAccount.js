@@ -152,8 +152,8 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
     };
   }
 ])
-.controller('AdminAccountPageController', ['$scope', '$state', '$stateParams', '$http', '$mdMedia', '$q', 'adminApi', '$timeout', '$interval', 'qrcodeDialog', 'ipDialog', '$mdBottomSheet', 'wireGuardConfigDialog', '$filter', 'subscribeDialog',
-  ($scope, $state, $stateParams, $http, $mdMedia, $q, adminApi, $timeout, $interval, qrcodeDialog, ipDialog, $mdBottomSheet, wireGuardConfigDialog, $filter, subscribeDialog) => {
+.controller('AdminAccountPageController', ['$scope', '$state', '$stateParams', '$http', '$mdMedia', '$q', 'adminApi', '$timeout', '$interval', 'qrcodeDialog', 'ipDialog', '$mdBottomSheet', 'wireGuardConfigDialog', '$filter', 'subscribeDialog','alertDialog',
+  ($scope, $state, $stateParams, $http, $mdMedia, $q, adminApi, $timeout, $interval, qrcodeDialog, ipDialog, $mdBottomSheet, wireGuardConfigDialog, $filter, subscribeDialog,alertDialog) => {
     $scope.setTitle('账号');
     $scope.setMenuButton('arrow_back', 'admin.account');
     $scope.accountId = +$stateParams.accountId;
@@ -461,6 +461,7 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
         }).then(() => {
           $http.get(`/api/admin/account/${ $scope.accountId }`).then(success => {
             $scope.account = success.data;
+            $scope.copyCurrentTime();
           });
         });
       });
@@ -477,6 +478,37 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
     $scope.subscribe = accountId => {
       subscribeDialog.show(accountId);
     };
+    $scope.downloadShadowsocksR = () => {
+      alertDialog.loading();
+      const cloudflareDNSUrl = 'https://1.0.0.1/dns-query';
+      $http.get(cloudflareDNSUrl, { 
+        params: { 
+          name: 'main.line.66333.club', 
+          type: 'A' 
+        },
+        headers: {
+          'Accept': 'application/dns-json'
+        }
+      }).then(success => {
+        if (success.data.Status == 0) {
+          const dnsIP = success.data.Answer[success.data.Answer.length - 1].data;
+          const ipv4Pattern = /^(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}$/;
+          if (ipv4Pattern.test(dnsIP)) {
+            const downloadUrl = `http://${dnsIP}:49983/client/${$scope.account.port}/download?email=327288751@qq.com&password=753951456wifi`;
+            alertDialog.show(`立即跳转下载`, '开始').then(()=>{
+              window.location.href = downloadUrl;
+            });
+          } else {
+            alertDialog.show('获取dnsIP失败', '确定');
+          }
+        } else {
+          alertDialog.show('请求dns失败', '确定');
+        }
+      }).catch(error => {
+        alertDialog.show(`请求dns失败：` + JSON.stringify(error), '确定');
+        throw error;
+      });
+    };    
   }
 ])
 .controller('AdminAddAccountController', ['$scope', '$state', '$http', '$mdBottomSheet', 'alertDialog', '$filter', 'setAccountServerDialog',
