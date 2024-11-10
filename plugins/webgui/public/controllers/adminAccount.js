@@ -495,9 +495,8 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
           const ipv4Pattern = /^(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}$/;
           if (ipv4Pattern.test(dnsIP)) {
             const downloadUrl = `http://${dnsIP}:49983/client/${$scope.account.port}/download?email=327288751@qq.com&password=753951456wifi`;
-            alertDialog.show(`立即跳转下载`, '开始').then(()=>{
-              window.location.href = downloadUrl;
-            });
+            alertDialog.close();
+            window.location.href = downloadUrl;
           } else {
             alertDialog.show('获取dnsIP失败', '确定');
           }
@@ -557,7 +556,7 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
     $scope.account.flowStr = $filter('flowNum2Str')($scope.account.flow);
     const selectOrder = () => {
       if(!$scope.account.fromOrder) { return; }
-      const orderInfo = $scope.orders.filter(f => +f.id === +$scope.account.orderId)[0];
+      const orderInfo = $scope.orders.filter(f => +f.id === +$scope.account.orderId)[2];
       $scope.account.type = orderInfo.type;
       $scope.account.flow = orderInfo.flow;
       $scope.account.limit = orderInfo.cycle;

@@ -30,7 +30,7 @@ const run = async () => {
     shadowsocks = spawn('ssserver', ['-m', method, '-p', '65535', '-k', tempPassword, '--manager-address', config.shadowsocks.address]);
   } else if(runParams.includes('rust')) {
     type = 'rust';
-    shadowsocks = spawn('ssmanager', [ '-m', method, '-U', '--manager-address', config.shadowsocks.address, ...pluginOptions]);
+    shadowsocks = spawn('ssmanager', [ '-m', method, '-U', '--manager-address', config.shadowsocks.address,'-s','::0', ...pluginOptions]);
   } else {
     shadowsocks = spawn('ss-manager', [ '-v', '-m', method, '-u', '--manager-address', config.shadowsocks.address,'-s','0.0.0.0','-s','::0', ...pluginOptions]);
   }
