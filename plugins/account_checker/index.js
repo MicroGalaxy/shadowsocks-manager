@@ -463,14 +463,14 @@ cron.minute(async () => {
           port: server.port + server.shift,
           password: server.password,
         });
-        if(result.isGfw && !tags.includes('#_hide') && tags.includes('#autohide')) {
+        if(result.isGfw && !tags.includes('#_hide')) {
           await webguiTag.addTags('server', server.id, ['#_hide']);
           isTelegram && telegram.push(`服务器[${ server.id }][${ server.name }]已离线`);
         } else if (tags.includes('#_hide')) {
           await webguiTag.delTags('server', server.id, ['#_hide']);
           isTelegram && telegram.push(`服务器[${ server.id }][${ server.name }]已重新上线`);
         }
-        if(result.isGfw && !tags.includes('#_pause') && tags.includes('#autopause')) {
+        if(result.isGfw && !tags.includes('#_pause')) {
           await webguiTag.addTags('server', server.id, ['#_pause']);
         } else if (tags.includes('#_pause')) {
           await webguiTag.delTags('server', server.id, ['#_pause']);
@@ -482,11 +482,11 @@ cron.minute(async () => {
           await checkServerStatus(server, retry + 1);
           return;
         }
-        if(!tags.includes('#_hide') && tags.includes('#autohide')) {
+        if(!tags.includes('#_hide')) {
           await webguiTag.addTags('server', server.id, ['#_hide']);
           isTelegram && telegram.push(`服务器[${ server.id }][${ server.name }]已离线`);
         }
-        if(!tags.includes('#_pause') && tags.includes('#autopause')) {
+        if(!tags.includes('#_pause')) {
           await webguiTag.addTags('server', server.id, ['#_pause']);
         }
       }
