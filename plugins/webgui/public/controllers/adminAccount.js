@@ -556,7 +556,7 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
     $scope.account.flowStr = $filter('flowNum2Str')($scope.account.flow);
     const selectOrder = () => {
       if(!$scope.account.fromOrder) { return; }
-      const orderInfo = $scope.orders.filter(f => +f.id === +$scope.account.orderId)[2];
+      const orderInfo = $scope.orders.filter(f => +f.id === +$scope.account.orderId)[0];
       $scope.account.type = orderInfo.type;
       $scope.account.flow = orderInfo.flow;
       $scope.account.limit = orderInfo.cycle;
