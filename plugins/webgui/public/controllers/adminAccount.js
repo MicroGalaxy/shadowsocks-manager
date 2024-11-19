@@ -135,21 +135,31 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
       });
     });
     $scope.accountColor = account => {
-      if(account.type === 1) {
+      const now = Date.now(); // 当前时间戳
+    
+      if (account.type === 1) {
         return {
           background: 'blue-50', 'border-color': 'blue-300',
         };
-      } else if(account.data && account.data.expire <= Date.now()) {
+      } else if (account.data && account.data.expire <= now) {
         return {
           background: 'red-50', 'border-color': 'red-300',
         };
-      } else if(account.autoRemove) {
+      } else if (account.data && account.data.expire > now) {
+        // 按需计算第 7 天的结束时间
+        const sevenDaysEnd = new Date(new Date().setHours(23, 59, 59, 999) + 7 * 24 * 60 * 60 * 1000).getTime();
+        if (account.data.expire <= sevenDaysEnd) {
+          return {
+            background: 'yellow-50', 'border-color': 'yellow-300',
+          };
+        }
+      } else if (account.autoRemove) {
         return {
           background: 'lime-50', 'border-color': 'lime-300',
         };
       }
       return {};
-    };
+    };    
   }
 ])
 .controller('AdminAccountPageController', ['$scope', '$state', '$stateParams', '$http', '$mdMedia', '$q', 'adminApi', '$timeout', '$interval', 'qrcodeDialog', 'ipDialog', '$mdBottomSheet', 'wireGuardConfigDialog', '$filter', 'subscribeDialog','alertDialog',
