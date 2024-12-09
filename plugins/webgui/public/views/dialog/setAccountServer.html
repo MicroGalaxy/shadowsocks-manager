@@ -9,10 +9,15 @@
                 </div>
             </div>
             <div layout="row" layout-align="space-between center" ng-if="publicInfo.account.accountServer">
+                <!-- 标题 -->
                 <div flex="75">自定义地区</div>
+                <!-- 下拉框 -->
                 <div flex layout="row" layout-align="end center">
-                    <md-switch ng-model="publicInfo.account.accountRegion" aria-label="accountRegion">
-                    </md-switch>
+                    <md-select ng-model="publicInfo.selectedRegion" placeholder="选择地区" aria-label="accountRegion">
+                        <md-option ng-repeat="region in publicInfo.regions" ng-value="region">
+                            {{ region }}
+                        </md-option>
+                    </md-select>
                 </div>
             </div>
             <div layout="column" layout-warp flex ng-if="publicInfo.account.accountServer">

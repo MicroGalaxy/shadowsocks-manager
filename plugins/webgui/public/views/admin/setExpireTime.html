@@ -29,6 +29,7 @@
         </md-list-item>
         <md-list-item layout="row">
             <div flex></div>
+            <md-button flex class="md-raised" ng-click="setExpireTime(0)">Reset</md-button>
             <md-button flex class="md-raised" ng-click="setExpireTime(-3600000)">-1 h</md-button>
             <md-button flex class="md-raised" ng-click="setExpireTime(-6 * 3600000)">-6 h</md-button>
             <md-button flex class="md-raised" ng-click="setExpireTime(-24 * 3600000)">-1 d</md-button>
