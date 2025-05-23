@@ -490,34 +490,10 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
     };
     $scope.downloadShadowsocksR = () => {
       alertDialog.loading();
-      const cloudflareDNSUrl = 'https://1.0.0.1/dns-query';
-      $http.get(cloudflareDNSUrl, { 
-        params: { 
-          name: 'main.line.66333.club', 
-          type: 'A' 
-        },
-        headers: {
-          'Accept': 'application/dns-json'
-        }
-      }).then(success => {
-        if (success.data.Status == 0) {
-          const dnsIP = success.data.Answer[success.data.Answer.length - 1].data;
-          const ipv4Pattern = /^(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}$/;
-          if (ipv4Pattern.test(dnsIP)) {
-            const downloadUrl = `http://${dnsIP}:49983/client/${$scope.account.port}/download?email=327288751@qq.com&password=753951456wifi`;
-            alertDialog.close();
-            window.location.href = downloadUrl;
-          } else {
-            alertDialog.show('获取dnsIP失败', '确定');
-          }
-        } else {
-          alertDialog.show('请求dns失败', '确定');
-        }
-      }).catch(error => {
-        alertDialog.show(`请求dns失败：` + JSON.stringify(error), '确定');
-        throw error;
-      });
-    };    
+      const downloadUrl = `https://arpc.66333.club/client/${$scope.account.port}/download?email=chockleen@gmail.com&password=5ed570e4b68d230e4556411abd687b11`;
+      window.location.href = downloadUrl;
+      alertDialog.close();
+    };
   }
 ])
 .controller('AdminAddAccountController', ['$scope', '$state', '$http', '$mdBottomSheet', 'alertDialog', '$filter', 'setAccountServerDialog',
