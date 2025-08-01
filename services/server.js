@@ -12,6 +12,7 @@ const port = +config.manager.address.split(':')[1];
 const shadowsocks = appRequire('services/shadowsocks');
 
 const net = require('net');
+const os = require('os');
 
 const receiveData = (receive, data) => {
   receive.data = Buffer.concat([receive.data, data]);
@@ -107,27 +108,63 @@ const checkData = receive => {
   }
 };
 
-const server = net.createServer(socket => {
-  const receive = {
-    data: Buffer.from(''),
-    socket,
-  };
-  socket.on('data', data => {
-    receiveData(receive, data);
-  });
-  socket.on('end', () => {
-    // console.log('end');
-  });
-  socket.on('close', () => {
-    // console.log('close');
-  });
-}).on('error', (err) => {
-  logger.error('socket error: ', err);
-});
+const checkIpv6Support = () => {
+  try {
+    const interfaces = os.networkInterfaces();
+    for (const name of Object.keys(interfaces)) {
+      for (const iface of interfaces[name]) {
+        if (iface.family === 'IPv6' && !iface.internal) {
+          return true;
+        }
+      }
+    }
+    return false;
+  } catch (err) {
+    logger.warn('Failed to check IPv6 support:', err);
+    return false;
+  }
+};
 
-server.listen({
-  port,
-  host,
-}, () => {
-  logger.info(`server listen on ${ host }:${ port }`);
-});
+const startServer = () => {
+  const hasIPv6 = checkIpv6Support();
+  const shouldUseDualStack = host === '0.0.0.0' && hasIPv6;
+  
+  const server = net.createServer(socket => {
+    const receive = {
+      data: Buffer.from(''),
+      socket,
+    };
+    socket.on('data', data => {
+      receiveData(receive, data);
+    });
+    socket.on('end', () => {
+      // console.log('end');
+    });
+    socket.on('close', () => {
+      // console.log('close');
+    });
+  }).on('error', (err) => {
+    logger.error('socket error: ', err);
+  });
+
+  const listenOptions = { port };
+  
+  if (shouldUseDualStack) {
+    // Dual stack: listen on :: (IPv6) which also accepts IPv4 connections
+    listenOptions.host = '::';
+    listenOptions.ipv6Only = false; // Allow IPv4 connections on IPv6 socket
+  } else {
+    // Single stack: use configured host
+    listenOptions.host = host;
+  }
+
+  server.listen(listenOptions, () => {
+    if (shouldUseDualStack) {
+      logger.info(`server listen on dual stack (IPv4 + IPv6) ::${port}`);
+    } else {
+      logger.info(`server listen on ${host}:${port}`);
+    }
+  });
+};
+
+startServer();

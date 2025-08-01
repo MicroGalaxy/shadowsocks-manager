@@ -52,9 +52,6 @@ const checkData = async (receive) => {
 };
 
 const sendMessage = (data, options) => {
-  if(options && options.host) {
-    options.host = options.host.split(':')[0];
-  }
   if(!options) {
     options = { host, port, password };
   }
@@ -106,29 +103,63 @@ const getIps = async address => {
   if(net.isIP(address)) {
     return Promise.resolve([ address ]);
   }
+  
   return new Promise((resolve, reject) => {
+    // Try to resolve both IPv4 and IPv6 addresses
+    const results = [];
+    let pendingResolves = 2;
+    let hasResolved = false;
+    
+    const checkComplete = () => {
+      pendingResolves--;
+      if (pendingResolves === 0 && !hasResolved) {
+        hasResolved = true;
+        if (results.length === 0) {
+          return resolve([]);
+        }
+        // Sort results to have consistent ordering
+        const sortedResults = results.sort();
+        return resolve(sortedResults);
+      }
+    };
+    
+    // Resolve IPv4 addresses
     dns.resolve4(address, (err, ips) => {
-      if(err) {
-        return resolve([]);
+      if (!err && ips && ips.length > 0) {
+        results.push(...ips);
       }
-      if(ips.sort) {
-        ips = ips.sort();
+      checkComplete();
+    });
+    
+    // Resolve IPv6 addresses
+    dns.resolve6(address, (err, ips) => {
+      if (!err && ips && ips.length > 0) {
+        results.push(...ips);
       }
-      return resolve(ips);
+      checkComplete();
     });
   });
 };
 
 const send = async (data, options) => {
   if(options && options.host) {
-    options.host = options.host.split(':')[0];
+    // Handle IPv6 addresses properly: [2001:db8::1]:8080 or 2001:db8::1
+    if (options.host.startsWith('[') && options.host.includes(']:')) {
+      // IPv6 with port: [2001:db8::1]:8080
+      options.host = options.host.substring(1, options.host.lastIndexOf(']:'));
+    } else if (net.isIP(options.host)) {
+      // It's already a valid IP address (IPv4 or IPv6), don't modify
+    } else {
+      // Hostname or IPv4 with port: example.com:8080 or 192.168.1.1:8080
+      options.host = options.host.split(':')[0];
+    }
   }
   if(!options) {
     options = { host, port, password };
   }
   const ips = await getIps(options.host);
   if(ips.length === 0) {
-    return Promise.reject(`${options.host} invalid ip`);
+    return Promise.reject(`${options.host} cannot be resolved (DNS lookup failed)`);
   } else if(ips.length === 1) {
     return sendMessage(data, options);
   } else {
