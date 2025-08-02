@@ -191,8 +191,44 @@ app.controller('AdminController', ['$scope', '$mdMedia', '$mdSidenav', '$state',
       $scope.paypalOrders = $localStorage.admin.indexInfo.data.paypalOrder;
       $scope.topFlow = $localStorage.admin.indexInfo.data.topFlow;
     }
-    $scope.toUser = id => {
-      $state.go('admin.userPage', { userId: id });
+    $scope.toUser = account => {
+      if(account.mac) {
+        $state.go('admin.userPage', { userId: account.userId });
+      } else {
+        $state.go('admin.accountPage', { accountId: account.id });
+      }
+    };
+    // 账号颜色逻辑，参考 adminAccount.js
+    $scope.accountColor = account => {
+      const now = Date.now();
+      
+      if (account.type === 1) {
+        return {
+          background: 'blue-50', 'border-color': 'blue-300',
+        };
+      } else if (account.data && account.data.expire <= now) {
+        return {
+          background: 'red-50', 'border-color': 'red-300',
+        };
+      } else if (account.data && account.data.expire > now) {
+        const sevenDaysEnd = new Date(new Date().setHours(23, 59, 59, 999) + 7 * 24 * 60 * 60 * 1000).getTime();
+        if (account.data.expire <= sevenDaysEnd) {
+          return {
+            background: 'yellow-50', 'border-color': 'yellow-300',
+          };
+        }
+      } else if (account.autoRemove) {
+        return {
+          background: 'lime-50', 'border-color': 'lime-300',
+        };
+      }
+      return {};
+    };
+    $scope.copyRenewTopic = (account) => {
+      adminApi.copyRenewTopic(account, $scope.toast);
+    };
+    $scope.copyRenewTopic = (account) => {
+      adminApi.copyRenewTopic(account, $scope.toast);
     };
     $scope.toRecentSignup = () => {
       $state.go('admin.recentSignup');
@@ -255,15 +291,74 @@ app.controller('AdminController', ['$scope', '$mdMedia', '$mdSidenav', '$state',
     $state.go('admin.userPage', { userId: id });
   };
 }])
-.controller('AdminRecentLoginController', ['$scope', '$http', '$state', ($scope, $http, $state) => {
-  $scope.setTitle('最近登录用户');
+.controller('AdminRecentLoginController', ['$scope', '$http', '$state', 'adminApi', ($scope, $http, $state, adminApi) => {
+  $scope.setTitle('即将过期账号');
   $scope.setMenuButton('arrow_back', 'admin.index');
   $scope.recentUsers = null;
-  $http.get('/api/admin/user/recentLogin?number=-1').then(success => {
+  $http.get('/api/admin/account/expiringSoon?number=1000').then(success => {
     $scope.recentUsers = success.data;
   });
-  $scope.toUser = id => {
-    $state.go('admin.userPage', { userId: id });
+  $scope.toUser = account => {
+    if(account.mac) {
+      $state.go('admin.userPage', { userId: account.userId });
+    } else {
+      $state.go('admin.accountPage', { accountId: account.id });
+    }
+  };
+  // 账号颜色逻辑，参考 adminAccount.js
+  $scope.accountColor = account => {
+    const now = Date.now();
+    
+    if (account.type === 1) {
+      return {
+        background: 'blue-50', 'border-color': 'blue-300',
+      };
+    } else if (account.data && account.data.expire <= now) {
+      return {
+        background: 'red-50', 'border-color': 'red-300',
+      };
+    } else if (account.data && account.data.expire > now) {
+      const sevenDaysEnd = new Date(new Date().setHours(23, 59, 59, 999) + 7 * 24 * 60 * 60 * 1000).getTime();
+      if (account.data.expire <= sevenDaysEnd) {
+        return {
+          background: 'yellow-50', 'border-color': 'yellow-300',
+        };
+      }
+    } else if (account.autoRemove) {
+      return {
+        background: 'lime-50', 'border-color': 'lime-300',
+      };
+    }
+    return {};
+  };
+  $scope.copyRenewTopic = (account) => {
+    let date = new Date(account.data.expire);
+    let year = date.getFullYear();
+    let month = ('0' + (date.getMonth() + 1)).slice(-2);
+    let day = ('0' + date.getDate()).slice(-2);
+    let dateString = `${year}-${month}-${day}`;
+    let price = 90;
+    let flowInMultiply = account.data.flow / 50000000000;
+  
+    // 默认半年付
+    let orderName = '半年';
+    let orderDays = 180;
+    let orderInMultiply = 1;
+  
+    // 年付
+    if (account.orderId == 9) {
+      orderName = '一年';
+      orderDays = 360;
+      orderInMultiply = 2;
+    }
+  
+    let totalPrice = price * flowInMultiply * orderInMultiply;
+    let renewTopic = `账号${account.port}，即将在${dateString}到期，续费是${totalPrice}元${orderName}（${orderDays}天，每月${(account.data.flow / 1000000000).toFixed(0)}G），续费的话转给我就可以了，我收到后给你续上`;
+  
+    // 复制 renewTopic 到剪贴板
+    navigator.clipboard.writeText(renewTopic).then(() => {
+      $scope.toast('续费话术已复制到剪贴板');
+    });
   };
 }])
 .controller('AdminTopFlowController', ['$scope', '$http', '$state', ($scope, $http, $state) => {

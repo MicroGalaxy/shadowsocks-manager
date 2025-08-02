@@ -32,18 +32,19 @@
         <md-card>
             <md-card-header>
                 <md-card-header-text ng-click="toRecentLogin()">
-                    <span class="md-headline" translate style="cursor: pointer;">最近登录用户</span>
+                    <span class="md-headline" translate style="cursor: pointer;">即将过期账号</span>
                 </md-card-header-text>
             </md-card-header>
             <md-card-content>
                 <md-list>
                     <md-divider></md-divider>
-                    <md-list-item ng-repeat="user in loginUsers" ng-click="toUser(user.id)">
+                    <md-list-item ng-repeat="account in loginUsers" ng-click="toUser(account)" ng-style="accountColor(account)">
                         <div flex layout="row" layout-align="space-between center">
                             <div style="word-break: keep-all; white-space:nowrap; overflow: hidden; text-overflow: ellipsis;"
-                                flex="70" flex-xs="60">{{user.username}}</div>
-                            <div flex="30" flex-xs="40" style="text-align: right; color: #aaa; font-size: 0.8em;"
-                                ng-if="user.lastLogin">{{user.lastLogin | timeagoshort | translateTime}}</div>
+                                flex="40" flex-xs="35">账号{{account.port}}</div>
+                            <button ng-click="copyRenewTopic(account); $event.stopPropagation();" flex="35" ng-if="!account.mac && account.data" class="md-button md-raised">{{account.data.expire | date : 'MM-dd'}} ({{account.data.flow/1000000000 | number : 0}}G)</button>
+                            <div flex="25" flex-xs="30" style="text-align: right; color: #aaa; font-size: 0.8em;"
+                                ng-if="account.data && account.data.expire">{{account.data.expire | timeago | translateTime}}</div>
                         </div>
                         <md-divider></md-divider>
                     </md-list-item>

@@ -246,6 +246,47 @@ exports.getRecentLoginUsers = (req, res) => {
   });
 };
 
+exports.getExpiringSoonAccounts = async (req, res) => {
+  try {
+    const number = req.query.number ? +req.query.number : 100;
+    const sevenDaysLater = new Date(new Date().setHours(23, 59, 59, 999) + 7 * 24 * 60 * 60 * 1000).getTime();
+    
+    // 使用现有的 accountWithPage 逻辑获取所有账号
+    const accounts = await account.getAccountAndPaging({
+      page: 1,
+      pageSize: 5000, // 获取足够多的数据
+      search: '',
+      sort: 'port_asc',
+      filter: {
+        expired: true,
+        unexpired: true,
+        unlimit: true,
+        mac: true,
+        orderId: 0,
+        hasUser: true,
+        noUser: true,
+      },
+    });
+    
+    const now = Date.now();
+    const expiringSoonAccounts = [];
+    
+    accounts.account.forEach(a => {
+      if (a.data && a.data.expire && a.data.expire > now && a.data.expire <= sevenDaysLater) {
+        expiringSoonAccounts.push(a);
+      }
+    });
+    
+    // Sort by expire time (earliest first)
+    expiringSoonAccounts.sort((a, b) => a.data.expire - b.data.expire);
+    
+    return res.send(expiringSoonAccounts.slice(0, number));
+  } catch(err) {
+    console.log(err);
+    res.status(403).end();
+  }
+};
+
 exports.getRecentOrders = (req, res) => {
   if(!isAlipayUse) {
     return res.send([]);
