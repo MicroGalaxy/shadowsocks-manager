@@ -233,8 +233,8 @@ app.controller('AdminController', ['$scope', '$mdMedia', '$mdSidenav', '$state',
     $scope.toRecentSignup = () => {
       $state.go('admin.recentSignup');
     };
-    $scope.toRecentLogin = () => {
-      $state.go('admin.recentLogin');
+    $scope.toExpiringSoon = () => {
+      $state.go('admin.expiringSoon');
     };
     $scope.toTopFlow = () => {
       $state.go('admin.topFlow');
@@ -291,7 +291,7 @@ app.controller('AdminController', ['$scope', '$mdMedia', '$mdSidenav', '$state',
     $state.go('admin.userPage', { userId: id });
   };
 }])
-.controller('AdminRecentLoginController', ['$scope', '$http', '$state', 'adminApi', ($scope, $http, $state, adminApi) => {
+.controller('AdminExpiringSoonController', ['$scope', '$http', '$state', 'adminApi', ($scope, $http, $state, adminApi) => {
   $scope.setTitle('即将过期账号');
   $scope.setMenuButton('arrow_back', 'admin.index');
   $scope.recentUsers = null;

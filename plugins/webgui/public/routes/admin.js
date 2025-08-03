@@ -35,10 +35,10 @@ app.config(['$stateProvider', $stateProvider => {
       controller: 'AdminRecentSignupController',
       templateUrl: `${ cdn }/public/views/admin/recentSignup.html`,
     })
-    .state('admin.recentLogin', {
-      url: '/recentLogin',
-      controller: 'AdminRecentLoginController',
-      templateUrl: `${ cdn }/public/views/admin/recentLogin.html`,
+    .state('admin.expiringSoon', {
+      url: '/expiringSoon',
+      controller: 'AdminExpiringSoonController',
+      templateUrl: `${ cdn }/public/views/admin/expiringSoon.html`,
     })
     .state('admin.topFlow', {
       url: '/topFlow',
