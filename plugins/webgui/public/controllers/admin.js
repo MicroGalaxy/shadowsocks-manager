@@ -190,12 +190,19 @@ app.controller('AdminController', ['$scope', '$mdMedia', '$mdSidenav', '$state',
       $scope.orders = $localStorage.admin.indexInfo.data.order;
       $scope.paypalOrders = $localStorage.admin.indexInfo.data.paypalOrder;
       $scope.topFlow = $localStorage.admin.indexInfo.data.topFlow;
+      $scope.last5minFlow = $localStorage.admin.indexInfo.data.last5minFlow;
     }
-    $scope.toUser = account => {
-      if(account.mac) {
-        $state.go('admin.userPage', { userId: account.userId });
+    $scope.toUser = userIdOrAccount => {
+      // 如果传入的是数字，说明是用户ID（最近注册用户）
+      if(typeof userIdOrAccount === 'number') {
+        $state.go('admin.userPage', { userId: userIdOrAccount });
       } else {
-        $state.go('admin.accountPage', { accountId: account.id });
+        // 如果传入的是对象，说明是账号对象（即将过期账号等）
+        if(userIdOrAccount.mac) {
+          $state.go('admin.userPage', { userId: userIdOrAccount.userId });
+        } else {
+          $state.go('admin.accountPage', { accountId: userIdOrAccount.id });
+        }
       }
     };
     // 账号颜色逻辑，参考 adminAccount.js
@@ -239,6 +246,23 @@ app.controller('AdminController', ['$scope', '$mdMedia', '$mdSidenav', '$state',
     $scope.toTopFlow = () => {
       $state.go('admin.topFlow');
     };
+    $scope.toLast5MinFlow = () => {
+      $state.go('admin.last5MinFlow');
+    };
+    $scope.toUserById = userId => {
+      // 通过用户ID直接跳转
+      $state.go('admin.userPage', { userId: userId });
+    };
+    $scope.toAccountByPort = port => {
+      // 通过端口查找账号ID并跳转
+      adminApi.getAccountByPort(port).then(account => {
+        if(account && account.id) {
+          $state.go('admin.accountPage', { accountId: account.id });
+        }
+      }).catch(() => {
+        $scope.toast('未找到该账号');
+      });
+    };
     $scope.toPay = type => {
       $state.go('admin.pay', { myPayType: type });
     };
@@ -253,6 +277,7 @@ app.controller('AdminController', ['$scope', '$mdMedia', '$mdSidenav', '$state',
         $scope.orders = success.order;
         $scope.paypalOrders = success.paypalOrder;
         $scope.topFlow = success.topFlow;
+        $scope.last5minFlow = success.last5minFlow;
       });
     };
     updateIndexInfo();
@@ -378,6 +403,28 @@ app.controller('AdminController', ['$scope', '$mdMedia', '$mdSidenav', '$state',
     } else {
       $state.go('admin.accountPage', { accountId: user.accountId });
     }
+  };
+}])
+.controller('AdminLast5MinFlowController', ['$scope', '$http', '$state', 'adminApi', ($scope, $http, $state, adminApi) => {
+  $scope.setTitle('最近5分钟流量');
+  $scope.setMenuButton('arrow_back', 'admin.index');
+  $scope.last5MinFlowList = null;
+  $http.get('/api/admin/flow/last5min?number=100').then(success => {
+    $scope.last5MinFlowList = success.data;
+  });
+  $scope.toUserById = userId => {
+    // 通过用户ID直接跳转
+    $state.go('admin.userPage', { userId: userId });
+  };
+  $scope.toAccountByPort = port => {
+    // 通过端口查找账号ID并跳转
+    adminApi.getAccountByPort(port).then(account => {
+      if(account && account.id) {
+        $state.go('admin.accountPage', { accountId: account.id });
+      }
+    }).catch(() => {
+      $scope.toast('未找到该账号');
+    });
   };
 }])
 .controller('AdminPayController', ['$scope', 'adminApi', 'orderDialog', '$mdMedia', '$localStorage', 'orderFilterDialog', '$timeout', '$state', '$stateParams',

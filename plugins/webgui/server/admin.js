@@ -856,3 +856,17 @@ exports.getAccountAndPaging = async (req, res) => {
     res.status(403).end();
   }
 };
+
+exports.getLast5MinFlow = async (req, res) => {
+  try {
+    const number = req.query.number ? +req.query.number : 10;
+    const result = await knex('v_last_5min_flow')
+      .select()
+      .orderBy('total_flow_mb', 'desc')
+      .limit(number);
+    return res.send(result);
+  } catch(err) {
+    console.log(err);
+    res.status(403).end();
+  }
+};

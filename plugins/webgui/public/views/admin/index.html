@@ -137,4 +137,39 @@
             </md-card-content>
         </md-card>
     </div>
+    <div flex-xs="100" flex-sm="100" flex-gt-sm="50" ng-show="last5minFlow.length">
+        <md-card>
+            <md-card-header>
+                <md-card-header-text ng-click="toLast5MinFlow()">
+                    <span class="md-headline" translate style="cursor: pointer;">最近5分钟流量</span>
+                </md-card-header-text>
+            </md-card-header>
+            <md-card-content>
+                <md-list>
+                    <md-divider></md-divider>
+                    <md-list-item ng-repeat="lf in last5minFlow">
+                        <div flex layout="row" layout-align="space-between center">
+                            <div flex="50" flex-xs="40" style="overflow: hidden; text-overflow: ellipsis;">
+                                <span ng-if="lf.username && lf.uid" ng-click="toUserById(lf.uid)" style="cursor: pointer; color: #000;">{{ lf.username }}</span>
+                                <span ng-if="!lf.username || !lf.uid">{{ lf.username || ('端口' + lf.port) }}</span>
+                            </div>
+                            <div flex="25" flex-xs="30" style="text-align: center;">
+                                <span ng-click="toAccountByPort(lf.port)" style="cursor: pointer; color: #000; font-size: 0.9em;">{{ lf.port }}</span>
+                            </div>
+                            <div flex="25" flex-xs="30" style="text-align: right;">
+                                <span style="color: #555">{{ lf.total_flow_mb }} MB</span>
+                            </div>
+                        </div>
+                        <md-divider></md-divider>
+                    </md-list-item>
+                    <md-list-item ng-if="!last5minFlow.length">
+                        <div flex layout="row" layout-align="space-between center">
+                            <div translate>无</div>
+                        </div>
+                        <md-divider></md-divider>
+                    </md-list-item>
+                </md-list>
+            </md-card-content>
+        </md-card>
+    </div>
 </div>
