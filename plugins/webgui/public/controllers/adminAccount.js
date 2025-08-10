@@ -25,10 +25,10 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
     $scope.isAccountPageFinish = false;
     $scope.account = [];
     const getPageSize = () => {
-      if($mdMedia('xs')) { return 30; }
-      if($mdMedia('sm')) { return 30; }
-      if($mdMedia('md')) { return 60; }
-      if($mdMedia('gt-md')) { return 80; }
+      if($mdMedia('xs')) { return 30; } 
+      if($mdMedia('sm')) { return 30; } 
+      if($mdMedia('md')) { return 60; } 
+      if($mdMedia('gt-md')) { return 80; } 
     };
     $scope.getAccount = (search) => {
       $scope.isAccountLoading = true;
@@ -694,6 +694,7 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
       $scope.account.orderId = success[2].data[0].id;
       $scope.servers = success[0].data;
       $scope.account.type = success[1].data.type;
+      $scope.account.active = success[1].data.active;
       if(success[1].data.orderId) {
         $scope.account.fromOrder = 1;
       }
@@ -703,7 +704,7 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
       $scope.account.cleanFlow = false;
       $scope.account.autoRemove = success[1].data.autoRemove;
       $scope.account.autoRemoveDelay = success[1].data.autoRemoveDelay;
-      $scope.account.autoRemoveDelayStr = $filter('timeNum2Str')($scope.account.autoRemoveDelay);;
+      $scope.account.autoRemoveDelayStr = $filter('timeNum2Str')(success[1].data.autoRemoveDelay);;
       $scope.account.multiServerFlow = success[1].data.multiServerFlow;
       if(success[1].data.type >= 2 && success[1].data.type <= 5) {
         $scope.account.time = success[1].data.data.create;
@@ -748,6 +749,7 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
         autoRemove: $scope.account.autoRemove ? 1 : 0,
         autoRemoveDelay: $scope.account.autoRemoveDelay,
         multiServerFlow: $scope.account.multiServerFlow ? 1 : 0,
+        active: $scope.account.active ? 1 : 0,
         server: $scope.account.server,
       }).then(success => {
         alertDialog.show('修改账号成功', '确定');

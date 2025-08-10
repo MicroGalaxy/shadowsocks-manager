@@ -6,8 +6,8 @@
             <md-card-content>
                 <div layout="row" layout-align="space-between center" style="word-break: keep-all; white-space:nowrap; overflow: hidden; text-overflow:ellipsis;">
                     <div flex="30" ng-if="a.mac">{{ a.mac | mac }}</div>
-                    <div flex="30" ng-if="!a.mac">{{ a.port }}</div>
-                    <button ng-click="copyRenewTopic(a); $event.stopPropagation();" flex="45" ng-if="!a.mac && a.data">{{a.data.expire | date : 'MM-dd'}} ({{a.data.flow/1000000000 | number : 0}}G)</button>
+                    <div flex="30" ng-if="!a.mac" ng-style="!a.active && {'color': 'red'}">{{ a.port }}</div>
+                    <button ng-click="copyRenewTopic(a); $event.stopPropagation();" flex="45" ng-if="!a.mac && a.data && a.active">{{a.data.expire | date : 'MM-dd'}} ({{a.data.flow/1000000000 | number : 0}}G)</button>
                     <div flex layout="row" layout-align="end center">
                         <span ng-if="!a.mac" style="color: #aaa; font-size: 0.8em; text-overflow: ellipsis; overflow: hidden;">{{a.user || a.password}}</span>
                         <div><md-icon>chevron_right</md-icon></div>

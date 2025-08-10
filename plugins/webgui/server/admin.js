@@ -200,7 +200,7 @@ exports.changeAccountData = (req, res) => {
     autoRemoveDelay: +req.body.autoRemoveDelay,
     multiServerFlow: +req.body.multiServerFlow,
     server: req.body.server,
-    active: 1,
+    active: req.body.active,
   }).then(success => {
     if(req.body.cleanFlow) {
       flow.cleanAccountFlow(accountId);
