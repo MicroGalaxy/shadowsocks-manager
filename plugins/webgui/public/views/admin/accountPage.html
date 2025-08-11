@@ -132,6 +132,11 @@
                                 </div>
                             </md-list-item>
                             <md-divider></md-divider>
+                            <md-list-item ui-sref="admin.sharedIp({port: account.port})">
+                                <p translate>查看共享IP</p>
+                                <md-icon class="md-secondary">chevron_right</md-icon>
+                            </md-list-item>
+                            <md-divider></md-divider>
                             <md-list-item>
                                 <div flex layout="row" layout-align="space-between center">
                                     <div flex="40" translate>备注：</div><div flex="60" style="text-align:right">{{ server.comment }}</div>

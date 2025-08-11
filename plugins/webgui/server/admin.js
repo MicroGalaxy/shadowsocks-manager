@@ -870,3 +870,16 @@ exports.getLast5MinFlow = async (req, res) => {
     res.status(403).end();
   }
 };
+
+exports.getSharedIpRecords = async (req, res) => {
+  try {
+    const port = req.params.port;
+    const records = await knex('t_share_port_record')
+      .where({ port: port })
+      .orderBy('time', 'desc');
+    res.send(records);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send('Internal Server Error');
+  }
+};
