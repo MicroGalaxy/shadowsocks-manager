@@ -883,3 +883,44 @@ exports.getSharedIpRecords = async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 };
+
+exports.getSharedIpStats = async (req, res) => {
+  try {
+    // 获取最近一周的时间范围
+    const oneWeekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+    
+    // 获取分页参数
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = parseInt(req.query.pageSize) || 20;
+    const offset = (page - 1) * pageSize;
+    
+    // 统计最近一周每个端口的共享IP出现次数，并关联账号信息
+    const stats = await knex('t_share_port_record as spr')
+      .select('spr.port', 'a.id as accountId')
+      .count('* as sharedCount')
+      .leftJoin('account_plugin as a', 'spr.port', 'a.port')
+      .where('spr.time', '>', oneWeekAgo)
+      .groupBy('spr.port', 'a.id')
+      .orderBy('sharedCount', 'desc')
+      .limit(pageSize)
+      .offset(offset);
+    
+    // 获取总记录数
+    const totalCount = await knex('t_share_port_record as spr')
+      .countDistinct('spr.port as total')
+      .leftJoin('account_plugin as a', 'spr.port', 'a.port')
+      .where('spr.time', '>', oneWeekAgo)
+      .first();
+    
+    res.send({
+      data: stats,
+      totalCount: parseInt(totalCount.total) || 0,
+      currentPage: page,
+      pageSize: pageSize,
+      totalPages: Math.ceil((parseInt(totalCount.total) || 0) / pageSize)
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send('Internal Server Error');
+  }
+};

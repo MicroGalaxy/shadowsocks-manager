@@ -9,7 +9,7 @@
             <md-card-content>
                 <md-list>
                     <md-divider></md-divider>
-                    <md-list-item ng-repeat="user in signupUsers" ng-click="toUser(user.id)">
+                    <md-list-item ng-repeat="user in signupUsers" ng-click="toUserById(user.id)">
                         <div flex layout="row" layout-align="space-between center">
                             <div style="word-break: keep-all; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
                                 flex="70" flex-xs="60">{{ user.username }}</div>
@@ -163,6 +163,41 @@
                         <md-divider></md-divider>
                     </md-list-item>
                     <md-list-item ng-if="!last5minFlow.length">
+                        <div flex layout="row" layout-align="space-between center">
+                            <div translate>无</div>
+                        </div>
+                        <md-divider></md-divider>
+                    </md-list-item>
+                </md-list>
+            </md-card-content>
+        </md-card>
+    </div>
+    <div flex-xs="100" flex-sm="100" flex-gt-sm="50" ng-show="sharedIpStats.length">
+        <md-card>
+            <md-card-header>
+                <md-card-header-text ng-click="toSharedIpStats()">
+                    <span class="md-headline" translate style="cursor: pointer;">共享IP热点统计</span>
+                </md-card-header-text>
+            </md-card-header>
+            <md-card-content>
+                <md-list>
+                    <md-divider></md-divider>
+                    <md-list-item ng-repeat="stat in sharedIpStats">
+                        <div flex layout="row" layout-align="space-between center">
+                            <div flex="40" flex-xs="35" style="overflow: hidden; text-overflow: ellipsis;">
+                                <span ng-if="stat.accountId" ng-click="toAccountById(stat.accountId); $event.stopPropagation();" style="cursor: pointer; color: #000;">账号{{stat.port}}</span>
+                                <span ng-if="!stat.accountId" style="color: #999;">账号{{stat.port}}</span>
+                            </div>
+                            <div flex="35" flex-xs="35" style="text-align: center;">
+                                <span ng-click="toSharedIp(stat.port.toString()); $event.stopPropagation();" style="cursor: pointer; color: #2196F3; font-size: 0.9em;">查看共享IP</span>
+                            </div>
+                            <div flex="25" flex-xs="30" style="text-align: right;">
+                                <span style="color: #555; font-weight: bold;">{{stat.sharedCount}}次</span>
+                            </div>
+                        </div>
+                        <md-divider></md-divider>
+                    </md-list-item>
+                    <md-list-item ng-if="!sharedIpStats.length">
                         <div flex layout="row" layout-align="space-between center">
                             <div translate>无</div>
                         </div>

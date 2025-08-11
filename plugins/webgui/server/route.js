@@ -106,6 +106,7 @@ app.get('/api/user/notice/mac/:macAddress', adminAccount.getNoticeForUser);
 
 app.get('/api/admin/flow/:serverId(\\d+)', isAdmin, adminFlow.getServerFlow);
 app.get('/api/admin/flow/top', isAdmin, adminFlow.getTopFlow);
+app.get('/api/admin/sharedip/stats', isAdmin, admin.getSharedIpStats);
 app.get('/api/admin/shared-ip/:port', isAdmin, admin.getSharedIpRecords);
 app.get('/api/admin/flow/:serverId(\\d+)/lastHour', isAdmin, adminFlow.getServerLastHourFlow);
 app.get('/api/admin/flow/:serverId(\\d+)/user', isAdmin, adminFlow.getServerUserFlow);

@@ -153,6 +153,7 @@ app.factory('adminApi', ['$http', '$q', 'moment', 'preload', '$timeout', 'config
       $http.get('/api/admin/paypal/recentOrder').then(success => success.data),
       $http.get('/api/admin/flow/top').then(success => success.data),
       $http.get('/api/admin/flow/last5min?number=5').then(success => success.data),
+      $http.get('/api/admin/sharedip/stats?pageSize=5').then(success => success.data.data),
     ]).then(success => {
       return {
         signup: success[0],
@@ -161,6 +162,7 @@ app.factory('adminApi', ['$http', '$q', 'moment', 'preload', '$timeout', 'config
         paypalOrder: success[3],
         topFlow: success[4],
         last5minFlow: success[5],
+        sharedIpStats: success[6],
       };
     });
     return indexInfoPromise;

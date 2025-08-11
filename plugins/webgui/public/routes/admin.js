@@ -58,6 +58,11 @@ app.config(['$stateProvider', $stateProvider => {
       url: '/shared-ip/:port',
       templateUrl: `${ cdn }/public/views/admin/sharedIp.html`,
       controller: 'AdminSharedIpController',
+    })
+    .state('admin.sharedIpStats', {
+      url: '/sharedIpStats',
+      controller: 'AdminSharedIpStatsController',
+      templateUrl: `${ cdn }/public/views/admin/sharedIpStats.html`,
     });
   }
 ]);

@@ -191,17 +191,31 @@ app.controller('AdminController', ['$scope', '$mdMedia', '$mdSidenav', '$state',
       $scope.paypalOrders = $localStorage.admin.indexInfo.data.paypalOrder;
       $scope.topFlow = $localStorage.admin.indexInfo.data.topFlow;
       $scope.last5minFlow = $localStorage.admin.indexInfo.data.last5minFlow;
+      $scope.sharedIpStats = $localStorage.admin.indexInfo.data.sharedIpStats;
     }
+    // 跳转到用户详情页 - 用于最近注册用户
+    $scope.toUserById = userId => {
+      $state.go('admin.userPage', { userId: userId });
+    };
+    
+    // 跳转到账号详情页 - 用于账号相关的跳转
+    $scope.toAccountById = accountId => {
+      $state.go('admin.accountPage', { accountId: accountId });
+    };
+    
+    // 通用跳转方法 - 兼容现有的复杂逻辑，用于即将过期账号等混合数据
     $scope.toUser = userIdOrAccount => {
       // 如果传入的是数字，说明是用户ID（最近注册用户）
       if(typeof userIdOrAccount === 'number') {
-        $state.go('admin.userPage', { userId: userIdOrAccount });
+        $scope.toUserById(userIdOrAccount);
       } else {
-        // 如果传入的是对象，说明是账号对象（即将过期账号等）
+        // 如果传入的是对象，判断是用户还是账号
         if(userIdOrAccount.mac) {
-          $state.go('admin.userPage', { userId: userIdOrAccount.userId });
+          // MAC地址存在，说明是用户，跳转到用户详情页
+          $scope.toUserById(userIdOrAccount.userId);
         } else {
-          $state.go('admin.accountPage', { accountId: userIdOrAccount.id });
+          // 否则是账号，跳转到账号详情页
+          $scope.toAccountById(userIdOrAccount.id);
         }
       }
     };
@@ -249,10 +263,6 @@ app.controller('AdminController', ['$scope', '$mdMedia', '$mdSidenav', '$state',
     $scope.toLast5MinFlow = () => {
       $state.go('admin.last5MinFlow');
     };
-    $scope.toUserById = userId => {
-      // 通过用户ID直接跳转
-      $state.go('admin.userPage', { userId: userId });
-    };
     $scope.toAccountByPort = port => {
       // 通过端口查找账号ID并跳转
       adminApi.getAccountByPort(port).then(account => {
@@ -278,6 +288,7 @@ app.controller('AdminController', ['$scope', '$mdMedia', '$mdSidenav', '$state',
         $scope.paypalOrders = success.paypalOrder;
         $scope.topFlow = success.topFlow;
         $scope.last5minFlow = success.last5minFlow;
+        $scope.sharedIpStats = success.sharedIpStats;
       });
     };
     updateIndexInfo();
@@ -302,6 +313,13 @@ app.controller('AdminController', ['$scope', '$mdMedia', '$mdSidenav', '$state',
       } else {
         $state.go('admin.accountPage', { accountId: top.accountId });
       }
+    };
+    $scope.toSharedIpStats = () => {
+      $state.go('admin.sharedIpStats');
+    };
+    $scope.toSharedIp = (port) => {
+      console.log('toSharedIp called with port:', port);
+      $state.go('admin.sharedIp', { port: port });
     };
   }
 ])
