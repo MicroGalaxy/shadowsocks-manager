@@ -9,6 +9,7 @@ const admin = appRequire('plugins/webgui/server/admin');
 const adminUser = appRequire('plugins/webgui/server/adminUser');
 const adminServer = appRequire('plugins/webgui/server/adminServer');
 const adminForward = appRequire('plugins/webgui/server/adminForward');
+const adminDnsRecord = appRequire('plugins/webgui/server/adminDnsRecord');
 const adminFlow = appRequire('plugins/webgui/server/adminFlow');
 const adminSetting = appRequire('plugins/webgui/server/adminSetting');
 const adminNotice = appRequire('plugins/webgui/server/adminNotice');
@@ -209,6 +210,14 @@ app.get('/api/admin/forward/:forwardId(\\d+)', isAdmin, adminForward.getOneForwa
 app.post('/api/admin/forward', isAdmin, isSuperAdmin, adminForward.addForward);
 app.put('/api/admin/forward/:forwardId(\\d+)', isAdmin, isSuperAdmin, adminForward.editForward);
 app.delete('/api/admin/forward/:forwardId(\\d+)', isAdmin, isSuperAdmin, adminForward.deleteForward);
+
+app.get('/api/admin/dns', isAdmin, adminDnsRecord.getDnsRecords);
+app.get('/api/admin/dns/forwards', isAdmin, adminDnsRecord.getForwardDomains);
+app.get('/api/admin/dns/:recordId(\\d+)', isAdmin, adminDnsRecord.getOneDnsRecord);
+app.post('/api/admin/dns', isAdmin, isSuperAdmin, adminDnsRecord.addDnsRecord);
+app.put('/api/admin/dns/:recordId(\\d+)', isAdmin, isSuperAdmin, adminDnsRecord.editDnsRecord);
+app.delete('/api/admin/dns/:recordId(\\d+)', isAdmin, isSuperAdmin, adminDnsRecord.deleteDnsRecord);
+app.post('/api/admin/dns/sync', isAdmin, isSuperAdmin, adminDnsRecord.syncFromCloudFlare);
 
 app.get('/api/user/notice', isUser, user.getNotice);
 app.get('/api/user/account', isUser, user.getAccount);

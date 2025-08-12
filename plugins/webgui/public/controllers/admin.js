@@ -40,6 +40,11 @@ app.controller('AdminController', ['$scope', '$mdMedia', '$mdSidenav', '$state',
       click: 'admin.forward',
       hide: !!($scope.id !== 1),
     }, {
+      name: 'DNS记录',
+      icon: 'dns',
+      click: 'admin.dnsRecord',
+      hide: !!($scope.id !== 1),
+    }, {
       name: '用户',
       icon: 'people',
       click: 'admin.user',

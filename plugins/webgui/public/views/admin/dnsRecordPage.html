@@ -1,0 +1,83 @@
+<div ng-if="loading" layout="row" layout-align="center center" style="height: 200px;">
+    <md-progress-circular md-mode="indeterminate"></md-progress-circular>
+</div>
+
+<div ng-if="!loading" layout-padding>
+    <md-card>
+        <md-card-header>
+            <md-card-header-text>
+                <span class="md-headline">{{record.name}}</span>
+                <span class="md-subhead">DNS记录详细信息</span>
+            </md-card-header-text>
+        </md-card-header>
+        <md-card-content>
+            <div layout="column" layout-gt-xs="row">
+                <div flex="50" flex-xs="100">
+                    <md-list>
+                        <md-list-item>
+                            <div class="md-list-item-text">
+                                <h3>基本信息</h3>
+                            </div>
+                        </md-list-item>
+                        <md-divider></md-divider>
+                        <md-list-item>
+                            <div class="md-list-item-text">
+                                <p><strong>记录名称:</strong> {{record.name}}</p>
+                            </div>
+                        </md-list-item>
+                        <md-list-item>
+                            <div class="md-list-item-text">
+                                <p><strong>记录类型:</strong> {{record.type}}</p>
+                            </div>
+                        </md-list-item>
+                        <md-list-item>
+                            <div class="md-list-item-text">
+                                <p><strong>记录值:</strong> {{record.content}}</p>
+                            </div>
+                        </md-list-item>
+                        <md-list-item>
+                            <div class="md-list-item-text">
+                                <p><strong>TTL:</strong> {{record.ttl === 1 ? 'Auto' : record.ttl + ' 秒'}}</p>
+                            </div>
+                        </md-list-item>
+                        <md-list-item ng-if="record.comment">
+                            <div class="md-list-item-text">
+                                <p><strong>备注:</strong> {{record.comment}}</p>
+                            </div>
+                        </md-list-item>
+                    </md-list>
+                </div>
+                <div flex="50" flex-xs="100">
+                    <md-list>
+                        <md-list-item>
+                            <div class="md-list-item-text">
+                                <h3>CloudFlare配置</h3>
+                            </div>
+                        </md-list-item>
+                        <md-divider></md-divider>
+                        <md-list-item>
+                            <div class="md-list-item-text">
+                                <p><strong>记录ID:</strong> {{record.record_id}}</p>
+                            </div>
+                        </md-list-item>
+                        <md-list-item>
+                            <div class="md-list-item-text">
+                                <p><strong>Zone ID:</strong> {{record.zone_id}}</p>
+                            </div>
+                        </md-list-item>
+                        <md-list-item>
+                            <div class="md-list-item-text">
+                                <p><strong>代理状态:</strong> <span style="color: {{getProxyColor(record.proxy)}};">{{getProxyText(record.proxy)}}</span></p>
+                            </div>
+                        </md-list-item>
+                        <md-list-item>
+                            <div class="md-list-item-text">
+                                <p><strong>激活状态:</strong> <span style="color: {{getStatusColor(record.active)}};">{{getStatusText(record.active)}}</span></p>
+                            </div>
+                        </md-list-item>
+                    </md-list>
+                </div>
+            </div>
+        </md-card-content>
+    </md-card>
+</div>

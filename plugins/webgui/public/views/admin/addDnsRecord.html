@@ -1,0 +1,96 @@
+<div layout-padding>
+    <md-card>
+        <md-card-header>
+            <md-card-header-text>
+                <span class="md-headline">添加DNS记录</span>
+                <span class="md-subhead">填写DNS记录信息</span>
+            </md-card-header-text>
+        </md-card-header>
+        <md-card-content>
+            <form name="recordForm" novalidate>
+                <div layout="column" layout-gt-xs="row">
+                    <div flex="50" flex-xs="100">
+                        <md-input-container class="md-block">
+                            <label>记录ID *</label>
+                            <input ng-model="record.record_id" name="record_id" required>
+                            <div ng-messages="recordForm.record_id.$error">
+                                <div ng-message="required">记录ID是必填项</div>
+                            </div>
+                        </md-input-container>
+                        
+                        <md-input-container class="md-block">
+                            <label>Zone ID *</label>
+                            <input ng-model="record.zone_id" name="zone_id" required>
+                            <div ng-messages="recordForm.zone_id.$error">
+                                <div ng-message="required">Zone ID是必填项</div>
+                            </div>
+                        </md-input-container>
+                        
+                        <md-input-container class="md-block">
+                            <label>记录名称 *</label>
+                            <input ng-model="record.name" name="name" required placeholder="例: www.example.com">
+                            <div ng-messages="recordForm.name.$error">
+                                <div ng-message="required">记录名称是必填项</div>
+                            </div>
+                        </md-input-container>
+                        
+                        <md-input-container class="md-block">
+                            <label>记录值 *</label>
+                            <input ng-model="record.content" 
+                                   placeholder="请输入记录值" 
+                                   list="forwardList"
+                                   required>
+                            <datalist id="forwardList">
+                                <option ng-repeat="forward in forwardDomains" value="{{forward.domain}}">
+                                    {{forward.name}} - {{forward.domain}}
+                                </option>
+                            </datalist>
+                        </md-input-container>
+                        
+                        <md-input-container class="md-block">
+                            <label>备注</label>
+                            <textarea ng-model="record.comment" md-maxlength="255" rows="2" placeholder="可选的备注信息"></textarea>
+                        </md-input-container>
+                    </div>
+                    
+                    <div flex="50" flex-xs="100">
+                        <md-input-container class="md-block">
+                            <label>记录类型 *</label>
+                            <md-select ng-model="record.type" name="type" required>
+                                <md-option ng-repeat="type in recordTypes" value="{{type}}">{{type}}</md-option>
+                            </md-select>
+                            <div ng-messages="recordForm.type.$error">
+                                <div ng-message="required">记录类型是必填项</div>
+                            </div>
+                        </md-input-container>
+                        
+                        <md-input-container class="md-block">
+                            <label>TTL (秒) *</label>
+                            <input ng-model="record.ttl" type="number" name="ttl" required min="1" placeholder="例: 300">
+                            <div ng-messages="recordForm.ttl.$error">
+                                <div ng-message="required">TTL是必填项</div>
+                                <div ng-message="min">TTL必须大于0</div>
+                            </div>
+                        </md-input-container>
+                        
+                        <div layout="column" style="margin-top: 20px;">
+                            <md-checkbox ng-model="record.proxy" class="md-primary">
+                                启用CloudFlare代理
+                            </md-checkbox>
+                            
+                            <md-checkbox ng-model="record.active" class="md-primary">
+                                激活记录（同步到CloudFlare）
+                            </md-checkbox>
+                        </div>
+                    </div>
+                </div>
+                
+                <md-card-actions layout="row" layout-align="end center">
+                    <md-button ng-click="addRecord()" class="md-raised md-primary">
+                        添加DNS记录
+                    </md-button>
+                </md-card-actions>
+            </form>
+        </md-card-content>
+    </md-card>
+</div>
