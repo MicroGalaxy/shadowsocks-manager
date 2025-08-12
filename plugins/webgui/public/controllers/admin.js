@@ -35,6 +35,11 @@ app.controller('AdminController', ['$scope', '$mdMedia', '$mdSidenav', '$state',
       click: 'admin.server',
       hide: !!($scope.id !== 1),
     }, {
+      name: '中转机',
+      icon: 'router',
+      click: 'admin.forward',
+      hide: !!($scope.id !== 1),
+    }, {
       name: '用户',
       icon: 'people',
       click: 'admin.user',

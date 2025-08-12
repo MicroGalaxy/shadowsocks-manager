@@ -8,6 +8,7 @@ const user = appRequire('plugins/webgui/server/user');
 const admin = appRequire('plugins/webgui/server/admin');
 const adminUser = appRequire('plugins/webgui/server/adminUser');
 const adminServer = appRequire('plugins/webgui/server/adminServer');
+const adminForward = appRequire('plugins/webgui/server/adminForward');
 const adminFlow = appRequire('plugins/webgui/server/adminFlow');
 const adminSetting = appRequire('plugins/webgui/server/adminSetting');
 const adminNotice = appRequire('plugins/webgui/server/adminNotice');
@@ -202,6 +203,12 @@ app.delete('/api/admin/order/:orderId(\\d+)', isAdmin, isSuperAdmin, adminOrder.
 
 app.get('/api/admin/tag', isAdmin, isSuperAdmin, adminServer.getTags);
 app.put('/api/admin/tag', isAdmin, isSuperAdmin, adminServer.setTags);
+
+app.get('/api/admin/forward', isAdmin, adminForward.getForwards);
+app.get('/api/admin/forward/:forwardId(\\d+)', isAdmin, adminForward.getOneForward);
+app.post('/api/admin/forward', isAdmin, isSuperAdmin, adminForward.addForward);
+app.put('/api/admin/forward/:forwardId(\\d+)', isAdmin, isSuperAdmin, adminForward.editForward);
+app.delete('/api/admin/forward/:forwardId(\\d+)', isAdmin, isSuperAdmin, adminForward.deleteForward);
 
 app.get('/api/user/notice', isUser, user.getNotice);
 app.get('/api/user/account', isUser, user.getAccount);

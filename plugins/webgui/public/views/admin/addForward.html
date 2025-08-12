@@ -1,0 +1,79 @@
+<div layout-padding>
+    <md-card>
+        <md-card-header>
+            <md-card-header-text>
+                <span class="md-headline">添加中转机</span>
+                <span class="md-subhead">填写中转机信息</span>
+            </md-card-header-text>
+        </md-card-header>
+        <md-card-content>
+            <form name="forwardForm" ng-submit="addForward()">
+                <div layout="column" layout-gt-xs="row">
+                    <div flex="50" flex-xs="100">
+                        <md-input-container class="md-block">
+                            <label>名称 *</label>
+                            <input ng-model="forward.name" required>
+                        </md-input-container>
+                        
+                        <md-input-container class="md-block">
+                            <label>IPv4地址</label>
+                            <input ng-model="forward.ipv4" placeholder="例: 192.168.1.100">
+                        </md-input-container>
+                        
+                        <md-input-container class="md-block">
+                            <label>IPv6地址</label>
+                            <input ng-model="forward.ipv6" placeholder="例: 2001:db8::1">
+                        </md-input-container>
+                        
+                        <md-input-container class="md-block">
+                            <label>域名</label>
+                            <input ng-model="forward.domain" placeholder="例: example.com">
+                        </md-input-container>
+                        
+                        <md-input-container class="md-block">
+                            <label>SSH用户</label>
+                            <input ng-model="forward.ssh_user" placeholder="例: root">
+                        </md-input-container>
+                        
+                        <md-input-container class="md-block">
+                            <label>SSH密码</label>
+                            <input ng-model="forward.ssh_password" type="password">
+                        </md-input-container>
+                    </div>
+                    
+                    <div flex="50" flex-xs="100">
+                        <md-input-container class="md-block">
+                            <label>SSH端口</label>
+                            <input ng-model="forward.ssh_port" type="number" placeholder="例: 22">
+                        </md-input-container>
+                        
+                        <md-input-container class="md-block">
+                            <label>Nginx名称</label>
+                            <input ng-model="forward.nginx_name" placeholder="例: nginx">
+                        </md-input-container>
+                        
+                        <md-input-container class="md-block">
+                            <label>Nginx路径</label>
+                            <input ng-model="forward.nginx_path" placeholder="例: /etc/nginx">
+                        </md-input-container>
+                        
+                        <md-input-container class="md-block">
+                            <label>控制端口</label>
+                            <input ng-model="forward.control_port" type="number" placeholder="例: 8080">
+                        </md-input-container>
+                        
+                        <md-checkbox ng-model="forward.status" class="md-primary">
+                            启用中转机
+                        </md-checkbox>
+                    </div>
+                </div>
+                
+                <md-card-actions layout="row" layout-align="end center">
+                    <md-button ng-click="addForward()" class="md-raised md-primary">
+                        添加中转机
+                    </md-button>
+                </md-card-actions>
+            </form>
+        </md-card-content>
+    </md-card>
+</div>
