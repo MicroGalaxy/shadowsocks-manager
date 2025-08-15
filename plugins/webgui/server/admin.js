@@ -924,3 +924,16 @@ exports.getSharedIpStats = async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 };
+
+exports.deleteSharedIpRecords = async (req, res) => {
+  try {
+    const port = req.params.port;
+    await knex('t_share_port_record')
+      .where({ port: port })
+      .del();
+    res.send({ message: '所有共享IP记录已成功删除' });
+  } catch (err) {
+    console.error('Failed to delete shared IP records', err);
+    res.status(500).send('Internal Server Error');
+  }
+};

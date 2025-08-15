@@ -1,6 +1,6 @@
 const app = angular.module('app');
 
-app.controller('AdminSharedIpController', ['$scope', '$state', '$stateParams', '$http', function($scope, $state, $stateParams, $http) {
+app.controller('AdminSharedIpController', ['$scope', '$state', '$stateParams', '$http', '$mdDialog', '$mdToast', function($scope, $state, $stateParams, $http, $mdDialog, $mdToast) {
     $scope.port = $stateParams.port;
     $scope.setTitle(`共享IP列表 [${$scope.port}]`);
     $scope.setMenuButton('arrow_back', 'admin.account');
@@ -45,5 +45,38 @@ app.controller('AdminSharedIpController', ['$scope', '$state', '$stateParams', '
             $scope.currentPage--;
             $scope.updatePaginatedRecords();
         }
+    };
+
+    $scope.deleteRecords = function(ev) {
+        const confirm = $mdDialog.confirm()
+            .title('确认删除')
+            .textContent('您确定要删除该端口的所有共享IP记录吗？此操作无法撤销。')
+            .ariaLabel('Delete records')
+            .targetEvent(ev)
+            .ok('确认')
+            .cancel('取消');
+
+        $mdDialog.show(confirm).then(function() {
+            $http.delete(`/api/admin/shared-ip/${$scope.port}`)
+                .then(function(response) {
+                    $scope.allRecords = [];
+                    $scope.updatePaginatedRecords();
+                    $mdToast.show(
+                        $mdToast.simple()
+                            .textContent('删除成功')
+                            .position('top right')
+                            .hideDelay(3000)
+                    );
+                })
+                .catch(function(err) {
+                    console.error('Failed to delete records', err);
+                    $mdToast.show(
+                        $mdToast.simple()
+                            .textContent('删除失败')
+                            .position('top right')
+                            .hideDelay(3000)
+                    );
+                });
+        });
     };
 }]);

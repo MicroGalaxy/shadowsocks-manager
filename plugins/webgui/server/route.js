@@ -110,6 +110,7 @@ app.get('/api/admin/flow/:serverId(\\d+)', isAdmin, adminFlow.getServerFlow);
 app.get('/api/admin/flow/top', isAdmin, adminFlow.getTopFlow);
 app.get('/api/admin/sharedip/stats', isAdmin, admin.getSharedIpStats);
 app.get('/api/admin/shared-ip/:port', isAdmin, admin.getSharedIpRecords);
+app.delete('/api/admin/shared-ip/:port', isAdmin, admin.deleteSharedIpRecords);
 app.get('/api/admin/flow/:serverId(\\d+)/lastHour', isAdmin, adminFlow.getServerLastHourFlow);
 app.get('/api/admin/flow/:serverId(\\d+)/user', isAdmin, adminFlow.getServerUserFlow);
 app.get('/api/admin/flow/account/:accountId(\\d+)', isAdmin, adminFlow.getAccountServerFlow);

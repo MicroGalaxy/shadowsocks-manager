@@ -26,6 +26,9 @@
                 <span class="md-headline">共享IP记录 (端口: {{port}})</span>
                 <span class="md-subhead">以下是该端口的所有共享使用记录</span>
             </md-card-title-text>
+            <md-button class="md-warn md-raised" ng-click="deleteRecords($event)" ng-if="allRecords.length">
+                删除所有记录
+            </md-button>
         </md-card-title>
 
         <md-card-content>
