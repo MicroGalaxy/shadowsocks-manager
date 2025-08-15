@@ -49,6 +49,12 @@
                                     {{forward.name}} - {{forward.domain}}
                                 </option>
                             </datalist>
+                            <md-icon class="md-icon-button" 
+                                     ng-click="record.content = ''"
+                                     ng-show="record.content"
+                                     style="position: absolute; right: 0; top: 28px; cursor: pointer; color: rgba(0,0,0,0.54);">
+                                clear
+                            </md-icon>
                         </md-input-container>
                         
                         <md-input-container class="md-block">
