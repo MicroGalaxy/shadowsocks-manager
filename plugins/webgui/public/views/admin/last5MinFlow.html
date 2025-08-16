@@ -1,26 +1,90 @@
-<div layout="column">
-    <md-list>
-        <md-divider></md-divider>
-        <md-list-item ng-repeat="lf in last5MinFlowList">
-            <div flex layout="row" layout-align="space-between center">
-                <div flex="50" flex-xs="40" style="overflow: hidden; text-overflow: ellipsis;">
-                    <span ng-if="lf.username && lf.uid" ng-click="toUserById(lf.uid)" style="cursor: pointer; color: #000;">{{ lf.username }}</span>
-                    <span ng-if="!lf.username || !lf.uid">{{ lf.username || ('端口' + lf.port) }}</span>
-                </div>
-                <div flex="25" flex-xs="30" style="text-align: center;">
-                    <span ng-click="toAccountByPort(lf.port)" style="cursor: pointer; color: #000; font-size: 0.9em;">{{ lf.port }}</span>
-                </div>
-                <div flex="25" flex-xs="30" style="text-align: right;">
-                    <span style="color: #555">{{ lf.total_flow_mb }} MB</span>
+<md-content layout-padding>
+    <md-card>
+        <md-card-title>
+            <md-card-title-text>
+                <span class="md-headline">{{title}}</span>
+                <span class="md-subhead">账号数量: {{last5minFlowAccountCount}} | 总流量: {{last5minFlowAllFlow | flow}}</span>
+            </md-card-title-text>
+        </md-card-title>
+
+        <md-card-content>
+            <div ng-if="isLoading" layout="row" layout-align="center center" style="padding: 32px;">
+                <md-progress-circular md-mode="indeterminate"></md-progress-circular>
+            </div>
+
+            <div ng-if="!isLoading && (!last5MinFlowList || !last5MinFlowList.length)" layout="column" layout-align="center center" style="padding: 48px; color: rgba(0,0,0,0.54);">
+                <md-icon md-svg-icon="./public/svg/info_outline.svg" style="width: 48px; height: 48px;"></md-icon>
+                <p style="margin-top: 16px;">最近5分钟内暂无流量数据</p>
+            </div>
+
+            <div ng-if="!isLoading && last5MinFlowList && last5MinFlowList.length">
+                <md-table-container>
+                    <table md-table class="custom-bordered-table">
+                        <thead md-head>
+                            <tr md-row>
+                                <th md-column><span>用户名</span></th>
+                                <th md-column><span>账号端口</span></th>
+                                <th md-column><span>流量</span></th>
+                            </tr>
+                        </thead>
+                        <tbody md-body>
+                            <tr md-row ng-repeat="lf in last5MinFlowList track by lf.port" 
+                                ng-class="{'striped-row': $even}" class="hot-account-item">
+                                <td md-cell>
+                                    <span ng-if="lf.username && lf.uid" ng-click="toUserById(lf.uid)" 
+                                          style="cursor: pointer; color: #2196F3;">{{ lf.username }}</span>
+                                    <span ng-if="!lf.username || !lf.uid" style="color: #999;">无用户</span>
+                                </td>
+                                <td md-cell>
+                                    <span ng-click="toAccountByPort(lf.port)" 
+                                          style="cursor: pointer; color: #000;">{{ lf.port }}</span>
+                                </td>
+                                <td md-cell>
+                                    <span style="color: #555">{{ lf.total_flow_mb }} MB</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </md-table-container>
+
+                <!-- Pagination Controls -->
+                <div layout="row" layout-align="end center" style="padding-top: 16px;">
+                    <span>第 {{currentPage}} / {{totalPages}} 页 (共 {{totalCount}} 条)</span>
+                    <md-button class="md-icon-button" ng-click="previousPage()" ng-disabled="currentPage === 1" aria-label="Previous Page">
+                        <md-icon>chevron_left</md-icon>
+                    </md-button>
+                    <md-button class="md-icon-button" ng-click="nextPage()" ng-disabled="currentPage >= totalPages" aria-label="Next Page">
+                        <md-icon>chevron_right</md-icon>
+                    </md-button>
                 </div>
             </div>
-            <md-divider></md-divider>
-        </md-list-item>
-        <md-list-item ng-if="!last5MinFlowList || !last5MinFlowList.length">
-            <div flex layout="row" layout-align="space-between center">
-                <div translate>最近5分钟内暂无流量数据</div>
-            </div>
-            <md-divider></md-divider>
-        </md-list-item>
-    </md-list>
-</div>
+        </md-card-content>
+    </md-card>
+</md-content>
+
+<!-- Custom styles for the table -->
+<style>
+    .custom-bordered-table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+    .custom-bordered-table th,
+    .custom-bordered-table td {
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        padding: 12px 16px;
+        text-align: left;
+    }
+    .custom-bordered-table thead th {
+        font-weight: bold;
+        background-color: #f5f5f5;
+    }
+    .custom-bordered-table tbody tr.striped-row {
+        background-color: #fafafa;
+    }
+    .hot-account-item {
+        cursor: pointer;
+    }
+    .hot-account-item:hover {
+        background-color: #f5f5f5;
+    }
+</style>

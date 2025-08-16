@@ -123,6 +123,7 @@ app.get('/api/admin/user/recentSignUp', isAdmin, admin.getRecentSignUpUsers);
 app.get('/api/admin/user/recentLogin', isAdmin, admin.getRecentLoginUsers);
 app.get('/api/admin/account/expiringSoon', isAdmin, admin.getExpiringSoonAccounts);
 app.get('/api/admin/flow/last5min', isAdmin, admin.getLast5MinFlow);
+app.get('/api/admin/flow/top5min', isAdmin, admin.getTop5MinFlow);
 
 app.get('/api/admin/user/account', isAdmin, admin.getUserAccount);
 app.get('/api/admin/user/:userId(\\d+)', isAdmin, adminUser.getOneUser);

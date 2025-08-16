@@ -433,13 +433,94 @@ app.controller('AdminController', ['$scope', '$mdMedia', '$mdSidenav', '$state',
     }
   };
 }])
-.controller('AdminLast5MinFlowController', ['$scope', '$http', '$state', 'adminApi', ($scope, $http, $state, adminApi) => {
+.controller('AdminLast5MinFlowController', ['$scope', '$http', '$state', 'adminApi', function($scope, $http, $state, adminApi) {
   $scope.setTitle('最近5分钟流量');
   $scope.setMenuButton('arrow_back', 'admin.index');
-  $scope.last5MinFlowList = null;
-  $http.get('/api/admin/flow/last5min?number=100').then(success => {
-    $scope.last5MinFlowList = success.data;
-  });
+  
+  $scope.last5MinFlowList = [];
+  $scope.isLoading = true;
+  $scope.currentPage = 1;
+  $scope.pageSize = 20;
+  $scope.totalCount = 0;
+  $scope.totalPages = 0;
+  $scope.last5minFlowAllFlow = 0;
+  $scope.last5minFlowAccountCount = 0;
+
+  // 获取流量数据
+  $scope.loadStats = function() {
+    $scope.isLoading = true;
+    
+    // 确保 $http 和 $http.get 方法存在
+    if (!$http || typeof $http.get !== 'function') {
+        console.error('$http or $http.get is not available. Cannot make HTTP request.');
+        $scope.isLoading = false;
+        $scope.toast('系统错误：无法进行网络请求。');
+        return;
+    }
+
+    const httpRequest = $http.get(`/api/admin/flow/last5min?page=${$scope.currentPage}&pageSize=${$scope.pageSize}`);
+
+    if (!httpRequest || typeof httpRequest.then !== 'function') {
+        console.error('HTTP request did not return a valid Promise. Cannot call .then().');
+        $scope.isLoading = false;
+        $scope.toast('系统错误：网络请求异常。');
+        return;
+    }
+
+    httpRequest.then(function(response) {
+        if (!response.data || !response.data.data) {
+            console.warn('API response data is null or malformed:', response);
+            $scope.last5MinFlowList = [];
+            $scope.totalCount = 0;
+            $scope.totalPages = 0;
+            $scope.last5minFlowAccountCount = 0;
+            $scope.last5minFlowAllFlow = 0;
+            $scope.isLoading = false;
+            return; // 提前退出
+        }
+
+        $scope.last5MinFlowList = response.data.data;
+        $scope.totalCount = response.data.totalCount;
+        $scope.totalPages = response.data.totalPages;
+        
+        // 计算总流量和账号数量
+        $scope.last5minFlowAccountCount = response.data.totalCount;
+        // 使用后端返回的总流量数据，而不是基于当前页数据计算
+        $scope.last5minFlowAllFlow = (response.data.totalFlow || 0) * 1000 * 1000;
+
+        $scope.isLoading = false;
+    })
+    .catch(function(err) {
+        console.error('Failed to fetch last 5 min flow stats', err, err.stack);
+        $scope.isLoading = false;
+        $scope.toast('无法加载流量数据。');
+    });
+  };
+
+  // 初始加载
+  $scope.loadStats();
+
+  // 下一页
+  $scope.nextPage = function() {
+    if ($scope.currentPage < $scope.totalPages) {
+        $scope.currentPage++;
+        $scope.loadStats();
+    }
+  };
+
+  // 上一页
+  $scope.previousPage = function() {
+    if ($scope.currentPage > 1) {
+        $scope.currentPage--;
+        $scope.loadStats();
+    }
+  };
+
+  // 获取排名 (如果需要，可以添加)
+  $scope.getRank = function(index) {
+      return ($scope.currentPage - 1) * $scope.pageSize + index + 1;
+  };
+
   $scope.toUserById = userId => {
     // 通过用户ID直接跳转
     $state.go('admin.userPage', { userId: userId });

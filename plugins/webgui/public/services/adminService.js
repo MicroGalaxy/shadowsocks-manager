@@ -152,7 +152,7 @@ app.factory('adminApi', ['$http', '$q', 'moment', 'preload', '$timeout', 'config
       $http.get('/api/admin/alipay/recentOrder').then(success => success.data),
       $http.get('/api/admin/paypal/recentOrder').then(success => success.data),
       $http.get('/api/admin/flow/top').then(success => success.data),
-      $http.get('/api/admin/flow/last5min?number=5').then(success => success.data),
+      $http.get('/api/admin/flow/top5min').then(success => success.data),
       $http.get('/api/admin/sharedip/stats?pageSize=5').then(success => success.data.data),
     ]).then(success => {
       return {
@@ -354,6 +354,10 @@ app.factory('adminApi', ['$http', '$q', 'moment', 'preload', '$timeout', 'config
     return $http.get('/api/admin/account/port/' + port).then(success => success.data);
   };
 
+  const getLast5MinFlow = (page, pageSize) => {
+    return $http.get(`/api/admin/flow/last5min?page=${page}&pageSize=${pageSize}`).then(success => success.data);
+  };
+
   return {
     getUser,
     getOrder,
@@ -375,5 +379,6 @@ app.factory('adminApi', ['$http', '$q', 'moment', 'preload', '$timeout', 'config
     getIpInfo,
     changePassword,
     copyRenewTopic,
+    getLast5MinFlow, // 确保这个方法被导出
   };
 }]);

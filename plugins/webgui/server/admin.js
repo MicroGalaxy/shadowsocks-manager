@@ -859,11 +859,43 @@ exports.getAccountAndPaging = async (req, res) => {
 
 exports.getLast5MinFlow = async (req, res) => {
   try {
-    const number = req.query.number ? +req.query.number : 10;
+    const page = +req.query.page || 1;
+    const pageSize = +req.query.pageSize || 20; // 默认每页20条
+    const offset = (page - 1) * pageSize;
+
+    const totalCountResult = await knex('v_last_5min_flow').count('* as total');
+    const totalCount = totalCountResult[0].total;
+
+    // 计算所有数据的总流量
+    const totalFlowResult = await knex('v_last_5min_flow').sum('total_flow_mb as totalFlow');
+    const totalFlow = totalFlowResult[0].totalFlow || 0;
+
     const result = await knex('v_last_5min_flow')
       .select()
       .orderBy('total_flow_mb', 'desc')
-      .limit(number);
+      .limit(pageSize)
+      .offset(offset);
+
+    return res.send({
+      data: result,
+      totalCount: totalCount,
+      totalFlow: totalFlow, // 添加总流量字段
+      currentPage: page,
+      pageSize: pageSize,
+      totalPages: Math.ceil(totalCount / pageSize)
+    });
+  } catch(err) {
+    console.log(err);
+    res.status(403).end();
+  }
+};
+
+exports.getTop5MinFlow = async (req, res) => {
+  try {
+    const result = await knex('v_last_5min_flow')
+      .select()
+      .orderBy('total_flow_mb', 'desc')
+      .limit(5); // 硬编码限制为5条
     return res.send(result);
   } catch(err) {
     console.log(err);
