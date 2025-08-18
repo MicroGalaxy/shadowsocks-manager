@@ -49,3 +49,5 @@ plugins/webgui/libs/style.css
 *.sqlite
 
 package-lock.json
+plugins/account_checker/.DS_Store
+plugins/.DS_Store
