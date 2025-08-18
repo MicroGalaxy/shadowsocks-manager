@@ -4,7 +4,7 @@ const later = require('later');
 later.date.localTime();
 // const cron = appRequire('init/cron');
 const dgram = require('dgram');
-const client = dgram.createSocket('udp4');
+const net = require('net');
 const version = appRequire('package').version;
 const exec = require('child_process').exec;
 const https = require('https');
@@ -16,7 +16,33 @@ const host = config.shadowsocks.address.split(':')[0];
 const port = +config.shadowsocks.address.split(':')[1];
 const mPort = +config.manager.address.split(':')[1];
 
-client.bind(mPort);
+// Create IPv6 socket with dual-stack support
+const clientV6 = dgram.createSocket('udp6');
+clientV6.setRecvBufferSize(64 * 1024);
+clientV6.setSendBufferSize(64 * 1024);
+
+// Use IPv6 socket for communication (supports both IPv4 and IPv6)
+const client = clientV6;
+
+// Bind IPv6 socket to listen on both IPv4 and IPv6
+try {
+  // Set IPv6Only to false to enable dual-stack (IPv4 + IPv6)
+  clientV6.bind(mPort, '::', () => {
+    try {
+      clientV6.setRecvBufferSize(64 * 1024);
+      clientV6.setSendBufferSize(64 * 1024);
+      logger.info('Dual-stack socket (IPv4 + IPv6) bound successfully on port', mPort);
+    } catch (err) {
+      logger.warn('Failed to configure socket buffers:', err.message);
+    }
+  });
+} catch (err) {
+  logger.error('Failed to bind dual-stack socket:', err.message);
+  // Fallback to IPv4 only
+  const clientV4 = dgram.createSocket('udp4');
+  clientV4.bind(mPort, '0.0.0.0');
+  logger.info('Fallback to IPv4-only socket on port', mPort);
+}
 
 const knex = appRequire('init/knex').knex;
 
@@ -46,7 +72,8 @@ const setExistPort = flow => {
 let firstFlow = true;
 let portsForLibev = [];
 const connect = () => {
-  client.on('message', async msg => {
+  // Handle messages from both IPv4 and IPv6 clients
+  const handleMessage = async msg => {
     const msgStr = new String(msg);
     if(msgStr.substr(0, 4) === 'pong') {
       shadowsocksType = 'python';
@@ -129,15 +156,21 @@ const connect = () => {
         }
       }
     };
-  });
+  };
 
-  client.on('error', err => {
+  // Set up event listener for the dual-stack client
+  client.on('message', handleMessage);
+
+  const handleError = (err) => {
     logger.error(`client error: `, err);
-  });
+  };
 
-  client.on('close', () => {
+  const handleClose = () => {
     logger.error(`client close`);
-  });
+  };
+
+  client.on('error', handleError);
+  client.on('close', handleClose);
 };
 
 const sendMessage = message => {
