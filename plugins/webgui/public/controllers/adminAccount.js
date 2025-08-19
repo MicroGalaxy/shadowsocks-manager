@@ -577,32 +577,19 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
     
     // 显示新的二维码对话框，包含DNS记录选项
     $scope.showNewQrcodeDialog = (server, account) => {
-      // 获取DNS记录并直接显示对话框
-      $http.get('/api/admin/dns').then(success => {
-        console.log('DNS records loaded:', success.data);
-        $scope.dnsRecords = success.data.filter(record => record.active && (record.type === 'A' || record.type === 'CNAME'));
-        console.log('Filtered active A/CNAME records:', $scope.dnsRecords);
-        
-        const randomDns = $scope.getRandomDnsAddress();
-        const allConfigs = $scope.getAllDnsConfigs(server, account);
-        
-        // 直接显示主对话框
-        $mdDialog.show({
-          controller: 'QrcodeWithDnsController',
-          templateUrl: '/public/views/admin/qrcodeWithDns.html',
-          locals: {
-            server: server,
-            account: account,
-            randomDns: randomDns,
-            allConfigs: allConfigs,
-            createQrCodeWithDns: $scope.createQrCodeWithDns,
-            copyToClipboard: $scope.copyToClipboard
-          },
-          clickOutsideToClose: true
-        });
-      }).catch(err => {
-        console.error('Failed to load DNS records:', err);
-        $scope.toast('获取DNS记录失败');
+      // 立即显示对话框，DNS记录在对话框内异步加载
+      $mdDialog.show({
+        controller: 'QrcodeWithDnsController',
+        templateUrl: '/public/views/admin/qrcodeWithDns.html',
+        locals: {
+          server: server,
+          account: account,
+          createQrCodeWithDns: $scope.createQrCodeWithDns,
+          copyToClipboard: $scope.copyToClipboard,
+          httpService: $http,
+          toastService: $scope.toast
+        },
+        clickOutsideToClose: true
       });
     };
   }
@@ -977,25 +964,66 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
     }, true);
   }
 ])
-.controller('QrcodeWithDnsController', ['$scope', '$mdDialog', '$timeout', 'server', 'account', 'randomDns', 'allConfigs', 'createQrCodeWithDns', 'copyToClipboard',
-  ($scope, $mdDialog, $timeout, server, account, randomDns, allConfigs, createQrCodeWithDns, copyToClipboard) => {
+.controller('QrcodeWithDnsController', ['$scope', '$mdDialog', '$timeout', 'server', 'account', 'createQrCodeWithDns', 'copyToClipboard', 'httpService', 'toastService',
+  ($scope, $mdDialog, $timeout, server, account, createQrCodeWithDns, copyToClipboard, httpService, toastService) => {
     $scope.server = server;
     $scope.account = account;
-    $scope.randomDns = randomDns;
-    $scope.allConfigs = allConfigs;
     $scope.selectedConfig = null;
     $scope.dataLoaded = false;
+    $scope.dnsRecords = [];
+    $scope.randomDns = null;
+    $scope.allConfigs = [];
     
-    // 模拟准备数据的过程，添加小延迟以显示加载动画
-    $timeout(() => {
-      // 默认选中随机地址
-      if (randomDns) {
-        $scope.selectedConfig = createQrCodeWithDns(server, account, randomDns);
-        $scope.selectedName = randomDns.name;
-      }
+    // 随机选择DNS记录作为服务器地址
+    $scope.getRandomDnsAddress = () => {
+      if ($scope.dnsRecords.length === 0) return null;
+      const randomIndex = Math.floor(Math.random() * $scope.dnsRecords.length);
+      return $scope.dnsRecords[randomIndex];
+    };
+    
+    // 获取所有DNS地址和配置链接
+    $scope.getAllDnsConfigs = (server, account) => {
+      const configs = [];
+      $scope.dnsRecords.forEach(dnsRecord => {
+        const config = createQrCodeWithDns(server, account, dnsRecord);
+        if (config) {
+          configs.push({
+            name: dnsRecord.name,
+            comment: dnsRecord.comment,
+            config: config
+          });
+        }
+      });
+      return configs;
+    };
+    
+    // 在对话框内异步加载DNS记录
+    httpService.get('/api/admin/dns').then(success => {
+      console.log('DNS records loaded:', success.data);
+      $scope.dnsRecords = success.data.filter(record => record.active && (record.type === 'A' || record.type === 'CNAME'));
+      console.log('Filtered active A/CNAME records:', $scope.dnsRecords);
       
+      // 获取随机DNS地址和所有配置
+      $scope.randomDns = $scope.getRandomDnsAddress();
+      $scope.allConfigs = $scope.getAllDnsConfigs(server, account);
+      
+      // 添加短暂延迟以显示加载动画
+      $timeout(() => {
+        // 默认选中随机地址
+        if ($scope.randomDns) {
+          $scope.selectedConfig = createQrCodeWithDns(server, account, $scope.randomDns);
+          $scope.selectedName = $scope.randomDns.name;
+        }
+        
+        $scope.dataLoaded = true;
+      }, 300); // 减少到300ms延迟
+    }).catch(err => {
+      console.error('Failed to load DNS records:', err);
+      toastService('获取DNS记录失败');
+      
+      // 即使失败也要显示界面，只是没有DNS记录
       $scope.dataLoaded = true;
-    }, 500); // 500ms延迟，让用户看到加载动画
+    });
     
     // 选择配置
     $scope.selectConfig = (config) => {
