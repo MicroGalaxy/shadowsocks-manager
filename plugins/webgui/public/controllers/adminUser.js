@@ -2,6 +2,24 @@ const app = angular.module('app');
 
 app.controller('AdminUserController', ['$scope', '$state', '$stateParams', 'adminApi', '$mdMedia', '$localStorage', 'userSortDialog', '$timeout',
   ($scope, $state, $stateParams, adminApi, $mdMedia, $localStorage, userSortDialog, $timeout) => {
+    // 确保 setTitle 和 setMenuButton 函数存在
+    if (!$scope.setTitle) {
+        $scope.setTitle = str => { $scope.title = str; };
+    }
+    if (!$scope.setMenuButton) {
+        $scope.setMenuButton = (icon, state, params) => {
+            $scope.menuButtonIcon = icon;
+            if (state) {
+                $scope.menuButton = () => { 
+                    if (params) {
+                        $state.go(state, params);
+                    } else {
+                        $state.go(state);
+                    }
+                };
+            }
+        };
+    }
     $scope.setTitle('用户');
     $scope.setMenuSearchButton('search');
     $scope.setFabButton(() => {
@@ -121,6 +139,24 @@ app.controller('AdminUserController', ['$scope', '$state', '$stateParams', 'admi
 ])
 .controller('AdminUserPageController', ['$scope', '$state', '$stateParams', '$http', 'editUserCommentDialog', 'adminApi', 'orderDialog', 'confirmDialog', 'emailDialog', 'addAccountDialog', 'setGroupDialog',
   ($scope, $state, $stateParams, $http, editUserCommentDialog, adminApi, orderDialog, confirmDialog, emailDialog, addAccountDialog, setGroupDialog) => {
+    // 确保 setTitle 和 setMenuButton 函数存在
+    if (!$scope.setTitle) {
+        $scope.setTitle = str => { $scope.title = str; };
+    }
+    if (!$scope.setMenuButton) {
+        $scope.setMenuButton = (icon, state, params) => {
+            $scope.menuButtonIcon = icon;
+            if (state) {
+                $scope.menuButton = () => { 
+                    if (params) {
+                        $state.go(state, params);
+                    } else {
+                        $state.go(state);
+                    }
+                };
+            }
+        };
+    }
     $scope.setTitle('用户信息');
     $scope.setMenuButton('arrow_back', 'admin.user');
     const userId = $stateParams.userId;
@@ -258,6 +294,24 @@ app.controller('AdminUserController', ['$scope', '$state', '$stateParams', 'admi
 ])
 .controller('AdminAddUserController', ['$scope', '$state', '$stateParams', '$http', 'alertDialog',
   ($scope, $state, $stateParams, $http, alertDialog) => {
+    // 确保 setTitle 和 setMenuButton 函数存在
+    if (!$scope.setTitle) {
+        $scope.setTitle = str => { $scope.title = str; };
+    }
+    if (!$scope.setMenuButton) {
+        $scope.setMenuButton = (icon, state, params) => {
+            $scope.menuButtonIcon = icon;
+            if (state) {
+                $scope.menuButton = () => { 
+                    if (params) {
+                        $state.go(state, params);
+                    } else {
+                        $state.go(state);
+                    }
+                };
+            }
+        };
+    }
     $scope.setTitle('添加用户');
     $scope.setMenuButton('arrow_back', 'admin.user');
     $scope.user = { type: 'normal' };
@@ -284,6 +338,24 @@ app.controller('AdminUserController', ['$scope', '$state', '$stateParams', 'admi
 ])
 .controller('AdminAdminPageController', ['$scope', '$state', '$stateParams', '$http', 'adminApi', 'setGroupDialog', 'confirmDialog',
   ($scope, $state, $stateParams, $http, adminApi, setGroupDialog, confirmDialog) => {
+    // 确保 setTitle 和 setMenuButton 函数存在
+    if (!$scope.setTitle) {
+        $scope.setTitle = str => { $scope.title = str; };
+    }
+    if (!$scope.setMenuButton) {
+        $scope.setMenuButton = (icon, state, params) => {
+            $scope.menuButtonIcon = icon;
+            if (state) {
+                $scope.menuButton = () => { 
+                    if (params) {
+                        $state.go(state, params);
+                    } else {
+                        $state.go(state);
+                    }
+                };
+            }
+        };
+    }
     $scope.setTitle('管理员信息');
     $scope.setMenuButton('arrow_back', 'admin.user');
     const userId = $stateParams.userId;

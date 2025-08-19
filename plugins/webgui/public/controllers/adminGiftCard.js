@@ -2,6 +2,24 @@ const app = angular.module('app');
 
 app.controller('AdminGiftCardController', ['$scope', '$http', 'addGiftCardBatchDialog', '$state',
   ($scope, $http, addGiftCardBatchDialog, $state) => {
+    // 确保 setTitle 和 setMenuButton 函数存在
+    if (!$scope.setTitle) {
+        $scope.setTitle = str => { $scope.title = str; };
+    }
+    if (!$scope.setMenuButton) {
+        $scope.setMenuButton = (icon, state, params) => {
+            $scope.menuButtonIcon = icon;
+            if (state) {
+                $scope.menuButton = () => { 
+                    if (params) {
+                        $state.go(state, params);
+                    } else {
+                        $state.go(state);
+                    }
+                };
+            }
+        };
+    }
     $scope.setTitle('充值码管理');
     $scope.setMenuButton('arrow_back', 'admin.settings');
     const showBatch = () => {
@@ -27,6 +45,24 @@ app.controller('AdminGiftCardController', ['$scope', '$http', 'addGiftCardBatchD
   }
 ]).controller('AdminGiftCardBatchDetailsController', ['$scope', '$http', '$stateParams', 'confirmDialog', 'alertDialog',
   ($scope, $http, $stateParams, confirmDialog, alertDialog) => {
+    // 确保 setTitle 和 setMenuButton 函数存在
+    if (!$scope.setTitle) {
+        $scope.setTitle = str => { $scope.title = str; };
+    }
+    if (!$scope.setMenuButton) {
+        $scope.setMenuButton = (icon, state, params) => {
+            $scope.menuButtonIcon = icon;
+            if (state) {
+                $scope.menuButton = () => { 
+                    if (params) {
+                        $state.go(state, params);
+                    } else {
+                        $state.go(state);
+                    }
+                };
+            }
+        };
+    }
     const batchNumber = $stateParams.batchNumber;
     $scope.setTitle(`充值码[ ${batchNumber} ]`);
     $scope.setMenuButton('arrow_back', 'admin.listGiftCardBatch');

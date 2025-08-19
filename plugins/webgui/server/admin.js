@@ -926,22 +926,24 @@ exports.getSharedIpStats = async (req, res) => {
     const pageSize = parseInt(req.query.pageSize) || 20;
     const offset = (page - 1) * pageSize;
     
-    // 统计最近一周每个端口的共享IP出现次数，并关联账号信息
+    // 统计最近一周每个端口的共享IP出现次数，并关联账号信息，只统计active为1的账号
     const stats = await knex('t_share_port_record as spr')
       .select('spr.port', 'a.id as accountId')
       .count('* as sharedCount')
       .leftJoin('account_plugin as a', 'spr.port', 'a.port')
       .where('spr.time', '>', oneWeekAgo)
+      .where('a.active', 1)
       .groupBy('spr.port', 'a.id')
       .orderBy('sharedCount', 'desc')
       .limit(pageSize)
       .offset(offset);
     
-    // 获取总记录数
+    // 获取总记录数，只统计active为1的账号
     const totalCount = await knex('t_share_port_record as spr')
       .countDistinct('spr.port as total')
       .leftJoin('account_plugin as a', 'spr.port', 'a.port')
       .where('spr.time', '>', oneWeekAgo)
+      .where('a.active', 1)
       .first();
     
     res.send({

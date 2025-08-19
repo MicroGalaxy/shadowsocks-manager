@@ -1,0 +1,424 @@
+<md-dialog aria-label="DNS 二维码" class="qr-dialog">
+  <md-toolbar>
+    <div class="md-toolbar-tools">
+      <h2>{{ server.name }} - 账号配置</h2>
+      <span flex></span>
+      <md-button class="md-icon-button" ng-click="cancel()">
+        <md-icon>close</md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
+
+  <md-dialog-content class="qr-dialog-content">
+    <style>
+      /* 对话框响应式样式 */
+      .qr-dialog {
+        min-width: 700px;
+        max-width: 900px;
+        width: 90vw;
+        max-height: 90vh;
+        overflow: hidden;
+      }
+      
+      @media (max-width: 768px) {
+        .qr-dialog {
+          min-width: unset !important;
+          max-width: unset !important;
+          width: 95vw !important;
+          max-height: 95vh !important;
+          margin: 8px !important;
+        }
+      }
+      
+      @media (max-width: 480px) {
+        .qr-dialog {
+          width: 100vw !important;
+          height: 100vh !important;
+          max-height: 100vh !important;
+          margin: 0 !important;
+          border-radius: 0 !important;
+        }
+      }
+      
+      /* 对话框内容区域 */
+      .qr-dialog-content {
+        padding: 20px;
+        overflow-y: auto;
+      }
+      
+      @media (max-width: 768px) {
+        .qr-dialog-content {
+          padding: 16px;
+        }
+      }
+      
+      @media (max-width: 480px) {
+        .qr-dialog-content {
+          padding: 12px;
+        }
+      }
+      
+      .hover-card {
+        transition: all 0.3s ease !important;
+      }
+      .hover-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
+      }
+      
+      /* DNS 网格容器 */
+      .dns-grid-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 16px;
+        margin-top: 16px;
+      }
+      
+      .dns-grid-item {
+        width: 100%;
+      }
+      
+      /* DNS 配置卡片 */
+      .dns-config-card {
+        height: 100%;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      
+      .dns-card-content {
+        padding: 16px !important;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      
+      /* DNS 信息区域 */
+      .dns-info {
+        margin-bottom: 16px;
+        flex-grow: 1;
+      }
+      
+      .dns-name {
+        font-weight: 600;
+        font-size: 15px;
+        color: #333;
+        margin-bottom: 6px;
+        word-break: break-word;
+        line-height: 1.3;
+      }
+      
+      .dns-comment {
+        color: #666;
+        font-size: 12px;
+        line-height: 1.4;
+        word-break: break-word;
+      }
+      
+      .dns-comment.no-comment {
+        color: #999;
+        font-style: italic;
+      }
+      
+      /* 自定义按钮样式 */
+      .button-row {
+        display: flex;
+        gap: 10px;
+        width: 100%;
+      }
+      
+      .dns-actions {
+        display: flex;
+        gap: 8px;
+        width: 100%;
+      }
+      
+      .custom-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-family: inherit;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        outline: none;
+        flex: 1;
+        min-height: 40px;
+        padding: 10px 12px;
+      }
+      
+      .custom-btn:hover {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        transform: translateY(-1px);
+      }
+      
+      .custom-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      
+      /* 按钮颜色 */
+      .primary-btn {
+        background-color: #2196F3;
+        color: white;
+      }
+      
+      .primary-btn:hover {
+        background-color: #1976D2;
+      }
+      
+      .accent-btn {
+        background-color: #FF9800;
+        color: white;
+      }
+      
+      .accent-btn:hover {
+        background-color: #F57C00;
+      }
+      
+      /* 小尺寸按钮 */
+      .small-btn {
+        min-height: 36px;
+        padding: 8px 10px;
+        font-size: 12px;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
+      
+      /* 按钮内图标 */
+      .btn-icon {
+        font-size: 16px !important;
+        margin-right: 6px;
+        line-height: 1;
+        vertical-align: middle;
+        display: inline-block;
+      }
+      
+      .small-btn .btn-icon {
+        font-size: 14px !important;
+        margin-right: 4px;
+        vertical-align: middle;
+        display: inline-block;
+      }
+      
+      /* 按钮内文字 */
+      .btn-text {
+        font-size: 13px;
+        line-height: 1;
+        white-space: nowrap;
+        vertical-align: middle;
+        display: inline-block;
+      }
+      
+      .small-btn .btn-text {
+        font-size: 11px;
+        vertical-align: middle;
+        display: inline-block;
+      }
+      
+      /* 响应式设计 */
+      @media (max-width: 768px) {
+        .dns-grid-container {
+          grid-template-columns: 1fr;
+          gap: 12px;
+        }
+        
+        .custom-btn {
+          padding: 8px 8px;
+          min-height: 36px;
+        }
+        
+        .btn-text {
+          font-size: 12px;
+        }
+        
+        .btn-icon {
+          font-size: 14px !important;
+          margin-right: 4px;
+        }
+        
+        .small-btn {
+          padding: 6px 6px;
+          min-height: 32px;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+        }
+        
+        .small-btn .btn-text {
+          font-size: 10px;
+          vertical-align: middle;
+          display: inline-block;
+        }
+        
+        .small-btn .btn-icon {
+          font-size: 12px !important;
+          margin-right: 3px;
+          vertical-align: middle;
+          display: inline-block;
+        }
+      }
+      
+      @media (max-width: 480px) {
+        .button-row {
+          flex-direction: column;
+          gap: 8px;
+        }
+        
+        .dns-actions {
+          flex-direction: column;
+          gap: 6px;
+        }
+        
+        .custom-btn {
+          width: 100%;
+          flex: none;
+        }
+      }
+      
+      /* 加载动画居中样式 */
+      .loading-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 300px;
+        width: 100%;
+        text-align: center;
+      }
+      
+      .loading-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .loading-text {
+        margin-top: 20px;
+        color: #666;
+        font-size: 16px;
+        font-weight: 500;
+      }
+      
+      @media (max-width: 768px) {
+        .loading-container {
+          min-height: 200px;
+        }
+        
+        .loading-text {
+          font-size: 14px;
+          margin-top: 16px;
+        }
+      }
+      
+      @media (max-width: 480px) {
+        .loading-container {
+          min-height: 150px;
+        }
+        
+        .loading-text {
+          font-size: 13px;
+          margin-top: 12px;
+        }
+      }
+    </style>
+    
+    <!-- 初始加载状态 -->
+    <div ng-if="!dataLoaded" class="loading-container">
+      <div class="loading-content">
+        <md-progress-circular md-mode="indeterminate" md-diameter="60" class="md-primary"></md-progress-circular>
+        <div class="loading-text">正在准备配置信息...</div>
+      </div>
+    </div>
+    
+    <!-- 主要内容区域 -->
+    <div ng-if="dataLoaded">
+    
+    <!-- 随机推荐地址 -->
+    <div ng-if="randomDns" style="margin-bottom: 20px;">
+      <div style="display: flex; align-items: center; margin-bottom: 12px;">
+        <md-icon style="color: #2196F3; margin-right: 8px;">star</md-icon>
+        <h3 style="color: #2196F3; margin: 0; font-size: 18px;">推荐地址（随机选择）</h3>
+      </div>
+      <md-card style="background: linear-gradient(135deg, #e3f2fd 0%, #f8f9fa 100%); border-left: 4px solid #2196F3;">
+        <md-card-content style="padding: 16px;">
+          <div layout="column">
+            <div style="margin-bottom: 12px;">
+              <div style="font-weight: 600; font-size: 16px; color: #1976D2;">{{ randomDns.name }}</div>
+              <div style="color: #666; font-size: 13px; margin-top: 4px;" ng-if="randomDns.comment">{{ randomDns.comment }}</div>
+            </div>
+            <div class="button-row">
+              <button class="custom-btn primary-btn" ng-click="copySelected()">
+                <i class="material-icons btn-icon">content_copy</i>
+                <span class="btn-text">复制链接</span>
+              </button>
+              <button class="custom-btn accent-btn" ng-click="showQrCode()">
+                <i class="material-icons btn-icon">qr_code</i>
+                <span class="btn-text">显示二维码</span>
+              </button>
+            </div>
+          </div>
+        </md-card-content>
+      </md-card>
+    </div>
+
+
+    <!-- 所有可用地址列表 -->
+    <div ng-if="allConfigs.length > 0">
+      <div style="display: flex; align-items: center; margin-bottom: 16px;">
+        <md-icon style="color: #4CAF50; margin-right: 8px;">dns</md-icon>
+        <h3 style="color: #4CAF50; margin: 0; font-size: 18px;">所有可用地址</h3>
+        <span style="background: #4CAF50; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px; margin-left: 8px;">{{ allConfigs.length }} 个</span>
+      </div>
+      
+      <div class="dns-grid-container">
+        <div ng-repeat="config in allConfigs" class="dns-grid-item">
+          <md-card class="hover-card dns-config-card">
+            <md-card-content class="dns-card-content">
+              <div class="dns-info">
+                <div class="dns-name">{{ config.name }}</div>
+                <div class="dns-comment" ng-if="config.comment">{{ config.comment }}</div>
+                <div class="dns-comment no-comment" ng-if="!config.comment">暂无备注</div>
+              </div>
+              
+              <div class="dns-actions">
+                <button class="custom-btn small-btn primary-btn" ng-click="copyConfig(config)">
+                  <i class="material-icons btn-icon">content_copy</i>
+                  <span class="btn-text">复制</span>
+                </button>
+                <button class="custom-btn small-btn accent-btn" ng-click="showQrCodeForConfig(config)">
+                  <i class="material-icons btn-icon">qr_code</i>
+                  <span class="btn-text">二维码</span>
+                </button>
+              </div>
+            </md-card-content>
+          </md-card>
+        </div>
+      </div>
+    </div>
+
+    <!-- 没有DNS记录的提示 -->
+    <div ng-if="allConfigs.length === 0" style="text-align: center; padding: 40px 20px;">
+      <md-icon style="font-size: 64px; color: #ddd; margin-bottom: 16px;">dns_off</md-icon>
+      <h4 style="color: #666; margin: 16px 0 8px 0; font-weight: 500;">暂无可用的DNS记录</h4>
+      <p style="color: #999; font-size: 14px; line-height: 1.5; max-width: 300px; margin: 0 auto;">请先在DNS记录管理中添加激活的A记录或CNAME记录，然后刷新此页面</p>
+      <md-button class="md-primary" ng-click="cancel()" style="margin-top: 16px;">
+        <md-icon>refresh</md-icon>
+        刷新页面
+      </md-button>
+    </div>
+    
+    </div> <!-- 主要内容区域结束 -->
+
+  </md-dialog-content>
+
+  <md-dialog-actions layout="row" layout-align="end center" style="padding: 8px 24px;">
+    <md-button ng-click="cancel()">关闭</md-button>
+  </md-dialog-actions>
+</md-dialog>

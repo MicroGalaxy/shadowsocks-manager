@@ -2,6 +2,24 @@ const app = angular.module('app');
 
 app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http', 'accountSortDialog','$timeout', 'adminApi', '$localStorage',
   ($scope, $state, $mdMedia, $http, accountSortDialog, $timeout, adminApi, $localStorage) => {
+    // 确保 setTitle 和 setMenuButton 函数存在
+    if (!$scope.setTitle) {
+        $scope.setTitle = str => { $scope.title = str; };
+    }
+    if (!$scope.setMenuButton) {
+        $scope.setMenuButton = (icon, state, params) => {
+            $scope.menuButtonIcon = icon;
+            if (state) {
+                $scope.menuButton = () => { 
+                    if (params) {
+                        $state.go(state, params);
+                    } else {
+                        $state.go(state);
+                    }
+                };
+            }
+        };
+    }
     $scope.setTitle('账号');
     $scope.setMenuRightButton('sort_by_alpha');
     $scope.setMenuSearchButton('search');
@@ -136,8 +154,26 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
     };    
   }
 ])
-.controller('AdminAccountPageController', ['$scope', '$state', '$stateParams', '$http', '$mdMedia', '$q', 'adminApi', '$timeout', '$interval', 'qrcodeDialog', 'ipDialog', '$mdBottomSheet', 'wireGuardConfigDialog', '$filter', 'subscribeDialog','alertDialog',
-  ($scope, $state, $stateParams, $http, $mdMedia, $q, adminApi, $timeout, $interval, qrcodeDialog, ipDialog, $mdBottomSheet, wireGuardConfigDialog, $filter, subscribeDialog,alertDialog) => {
+.controller('AdminAccountPageController', ['$scope', '$state', '$stateParams', '$http', '$mdMedia', '$q', 'adminApi', '$timeout', '$interval', 'qrcodeDialog', 'ipDialog', '$mdBottomSheet', 'wireGuardConfigDialog', '$filter', 'subscribeDialog','alertDialog', '$mdDialog',
+  ($scope, $state, $stateParams, $http, $mdMedia, $q, adminApi, $timeout, $interval, qrcodeDialog, ipDialog, $mdBottomSheet, wireGuardConfigDialog, $filter, subscribeDialog, alertDialog, $mdDialog) => {
+    // 确保 setTitle 和 setMenuButton 函数存在
+    if (!$scope.setTitle) {
+        $scope.setTitle = str => { $scope.title = str; };
+    }
+    if (!$scope.setMenuButton) {
+        $scope.setMenuButton = (icon, state, params) => {
+            $scope.menuButtonIcon = icon;
+            if (state) {
+                $scope.menuButton = () => { 
+                    if (params) {
+                        $state.go(state, params);
+                    } else {
+                        $state.go(state);
+                    }
+                };
+            }
+        };
+    }
     $scope.setTitle('账号');
     $scope.setMenuButton('arrow_back', 'admin.account');
     $scope.accountId = +$stateParams.accountId;
@@ -239,6 +275,76 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
       const ssAddress = $scope.createQrCode(server, account);
       qrcodeDialog.show(server.name, ssAddress);
     };
+    
+    // 获取DNS记录
+    $scope.dnsRecords = [];
+    $scope.getDnsRecords = () => {
+      $http.get('/api/admin/dns').then(success => {
+        $scope.dnsRecords = success.data.filter(record => record.active && (record.type === 'A' || record.type === 'CNAME'));
+      }).catch(err => {
+        console.log('Failed to load DNS records:', err);
+      });
+    };
+    
+    // 随机选择DNS记录作为服务器地址
+    $scope.getRandomDnsAddress = () => {
+      if ($scope.dnsRecords.length === 0) return null;
+      const randomIndex = Math.floor(Math.random() * $scope.dnsRecords.length);
+      return $scope.dnsRecords[randomIndex];
+    };
+    
+    // 创建使用DNS记录的二维码链接
+    $scope.createQrCodeWithDns = (server, account, dnsRecord) => {
+      if (!dnsRecord) return null;
+      
+      if (server.type === 'WireGuard') {
+        const a = account.port % 254;
+        const b = (account.port - a) / 254;
+        return [
+          '[Interface]',
+          `Address = ${ server.net.split('.')[0] }.${ server.net.split('.')[1] }.${ b }.${ a + 1 }/32`,
+          `PrivateKey = ${ account.privateKey }`,
+          'DNS = 8.8.8.8',
+          '[Peer]',
+          `PublicKey = ${ server.key }`,
+          `Endpoint = ${ dnsRecord.name }:${ server.wgPort }`,
+          `AllowedIPs = 0.0.0.0/0`,
+        ].join('\n');
+      } else if (server.type === 'Shadowsocks') {
+        return 'ss://' + base64Encode(server.method + ':' + account.password + '@' + dnsRecord.name + ':' + (account.port + server.shift));
+      } else if (server.type === 'Trojan') {
+        return 'trojan://' + encodeURIComponent(account.port + ':' + account.password) + '@' + dnsRecord.name + ':' + server.tjPort + '#' + encodeURIComponent(server.name);
+      }
+    };
+    
+    // 获取所有可用的DNS地址和配置链接
+    $scope.getAllDnsConfigs = (server, account) => {
+      const configs = [];
+      $scope.dnsRecords.forEach(dnsRecord => {
+        const config = $scope.createQrCodeWithDns(server, account, dnsRecord);
+        if (config) {
+          configs.push({
+            name: dnsRecord.name,
+            comment: dnsRecord.comment,
+            config: config
+          });
+        }
+      });
+      return configs;
+    };
+    
+    // 复制链接到剪贴板
+    $scope.copyToClipboard = (text, name) => {
+      navigator.clipboard.writeText(text).then(() => {
+        $scope.toast(`${name} 链接已复制到剪贴板`);
+      }).catch(err => {
+        console.error('Failed to copy:', err);
+        $scope.toast('复制失败');
+      });
+    };
+    
+    // 初始化DNS记录
+    $scope.getDnsRecords();
     $scope.editAccount = id => {
       $state.go('admin.editAccount', { accountId: id });
     };
@@ -468,10 +574,59 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
       window.location.href = downloadUrl;
       alertDialog.close();
     };
+    
+    // 显示新的二维码对话框，包含DNS记录选项
+    $scope.showNewQrcodeDialog = (server, account) => {
+      // 获取DNS记录并直接显示对话框
+      $http.get('/api/admin/dns').then(success => {
+        console.log('DNS records loaded:', success.data);
+        $scope.dnsRecords = success.data.filter(record => record.active && (record.type === 'A' || record.type === 'CNAME'));
+        console.log('Filtered active A/CNAME records:', $scope.dnsRecords);
+        
+        const randomDns = $scope.getRandomDnsAddress();
+        const allConfigs = $scope.getAllDnsConfigs(server, account);
+        
+        // 直接显示主对话框
+        $mdDialog.show({
+          controller: 'QrcodeWithDnsController',
+          templateUrl: '/public/views/admin/qrcodeWithDns.html',
+          locals: {
+            server: server,
+            account: account,
+            randomDns: randomDns,
+            allConfigs: allConfigs,
+            createQrCodeWithDns: $scope.createQrCodeWithDns,
+            copyToClipboard: $scope.copyToClipboard
+          },
+          clickOutsideToClose: true
+        });
+      }).catch(err => {
+        console.error('Failed to load DNS records:', err);
+        $scope.toast('获取DNS记录失败');
+      });
+    };
   }
 ])
 .controller('AdminAddAccountController', ['$scope', '$state', '$http', '$mdBottomSheet', 'alertDialog', '$filter', 'setAccountServerDialog',
   ($scope, $state, $http, $mdBottomSheet, alertDialog, $filter, setAccountServerDialog) => {
+    // 确保 setTitle 和 setMenuButton 函数存在
+    if (!$scope.setTitle) {
+        $scope.setTitle = str => { $scope.title = str; };
+    }
+    if (!$scope.setMenuButton) {
+        $scope.setMenuButton = (icon, state, params) => {
+            $scope.menuButtonIcon = icon;
+            if (state) {
+                $scope.menuButton = () => { 
+                    if (params) {
+                        $state.go(state, params);
+                    } else {
+                        $state.go(state);
+                    }
+                };
+            }
+        };
+    }
     $scope.setTitle('添加账号');
     $scope.setMenuButton('arrow_back', 'admin.account');
     $http.get('/api/admin/order').then(success => {
@@ -622,6 +777,24 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
 ])
 .controller('AdminEditAccountController', ['$scope', '$state', '$stateParams', '$http', '$mdBottomSheet', 'confirmDialog', 'alertDialog', '$filter', '$q', 'setAccountServerDialog',
   ($scope, $state, $stateParams, $http, $mdBottomSheet, confirmDialog, alertDialog, $filter, $q, setAccountServerDialog) => {
+    // 确保 setTitle 和 setMenuButton 函数存在
+    if (!$scope.setTitle) {
+        $scope.setTitle = str => { $scope.title = str; };
+    }
+    if (!$scope.setMenuButton) {
+        $scope.setMenuButton = (icon, state, params) => {
+            $scope.menuButtonIcon = icon;
+            if (state) {
+                $scope.menuButton = () => { 
+                    if (params) {
+                        $state.go(state, params);
+                    } else {
+                        $state.go(state);
+                    }
+                };
+            }
+        };
+    }
     $scope.setTitle('编辑账号');
     $scope.setMenuButton('arrow_back', function() {
       $state.go('admin.accountPage', { accountId: $stateParams.accountId });
@@ -802,5 +975,86 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
     $scope.$watch('account.accountServer', () => {
       setServers();
     }, true);
+  }
+])
+.controller('QrcodeWithDnsController', ['$scope', '$mdDialog', '$timeout', 'server', 'account', 'randomDns', 'allConfigs', 'createQrCodeWithDns', 'copyToClipboard',
+  ($scope, $mdDialog, $timeout, server, account, randomDns, allConfigs, createQrCodeWithDns, copyToClipboard) => {
+    $scope.server = server;
+    $scope.account = account;
+    $scope.randomDns = randomDns;
+    $scope.allConfigs = allConfigs;
+    $scope.selectedConfig = null;
+    $scope.dataLoaded = false;
+    
+    // 模拟准备数据的过程，添加小延迟以显示加载动画
+    $timeout(() => {
+      // 默认选中随机地址
+      if (randomDns) {
+        $scope.selectedConfig = createQrCodeWithDns(server, account, randomDns);
+        $scope.selectedName = randomDns.name;
+      }
+      
+      $scope.dataLoaded = true;
+    }, 500); // 500ms延迟，让用户看到加载动画
+    
+    // 选择配置
+    $scope.selectConfig = (config) => {
+      $scope.selectedConfig = config.config;
+      $scope.selectedName = config.name;
+    };
+    
+    // 复制链接
+    $scope.copyConfig = (config) => {
+      copyToClipboard(config.config, config.name);
+    };
+    
+    // 复制选中的链接
+    $scope.copySelected = () => {
+      if ($scope.selectedConfig) {
+        copyToClipboard($scope.selectedConfig, $scope.selectedName);
+      }
+    };
+    
+    // 显示当前选中配置的二维码
+    $scope.showQrCode = () => {
+      if ($scope.selectedConfig) {
+        $scope.showQrCodeDialog($scope.selectedConfig, $scope.selectedName);
+      }
+    };
+    
+    // 显示指定配置的二维码
+    $scope.showQrCodeForConfig = (config) => {
+      $scope.showQrCodeDialog(config.config, config.name);
+    };
+    
+    // 二维码弹窗
+    $scope.showQrCodeDialog = (configText, configName) => {
+      $mdDialog.show({
+        templateUrl: '/public/views/admin/qrcodeDialog.html',
+        controller: ['$scope', '$mdDialog', '$timeout', function($scope, $mdDialog, $timeout) {
+          $scope.configText = configText;
+          $scope.configName = configName;
+          $scope.qrReady = false;
+          
+          // 添加小延迟来显示加载动画
+          $timeout(() => {
+            $scope.qrReady = true;
+          }, 300);
+          
+          $scope.closeDialog = () => $mdDialog.cancel();
+          $scope.copyText = () => {
+            navigator.clipboard.writeText(configText).then(() => {
+              // 这里可以添加成功提示
+            });
+          };
+        }],
+        clickOutsideToClose: true
+      });
+    };
+    
+    // 关闭对话框
+    $scope.cancel = () => {
+      $mdDialog.cancel();
+    };
   }
 ]);

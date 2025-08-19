@@ -1,6 +1,24 @@
 const app = angular.module('app');
 
 app.controller('AdminNoticeController', ['$scope', '$http', '$state', ($scope, $http, $state) => {
+  // 确保 setTitle 和 setMenuButton 函数存在
+  if (!$scope.setTitle) {
+      $scope.setTitle = str => { $scope.title = str; };
+  }
+  if (!$scope.setMenuButton) {
+      $scope.setMenuButton = (icon, state, params) => {
+          $scope.menuButtonIcon = icon;
+          if (state) {
+              $scope.menuButton = () => { 
+                  if (params) {
+                      $state.go(state, params);
+                  } else {
+                      $state.go(state);
+                  }
+              };
+          }
+      };
+  }
   $scope.setTitle('公告管理');
   $scope.setMenuButton('arrow_back', function() {
     $state.go('admin.settings');
@@ -16,6 +34,24 @@ app.controller('AdminNoticeController', ['$scope', '$http', '$state', ($scope, $
   };
 }])
 .controller('AdminEditNoticeController', ['$scope', '$http', '$state', '$stateParams', 'markdownDialog', 'setNoticeGroupDialog', 'confirmDialog', ($scope, $http, $state, $stateParams, markdownDialog, setNoticeGroupDialog, confirmDialog) => {
+  // 确保 setTitle 和 setMenuButton 函数存在
+  if (!$scope.setTitle) {
+      $scope.setTitle = str => { $scope.title = str; };
+  }
+  if (!$scope.setMenuButton) {
+      $scope.setMenuButton = (icon, state, params) => {
+          $scope.menuButtonIcon = icon;
+          if (state) {
+              $scope.menuButton = () => { 
+                  if (params) {
+                      $state.go(state, params);
+                  } else {
+                      $state.go(state);
+                  }
+              };
+          }
+      };
+  }
   $scope.setTitle('编辑公告');
   $scope.setMenuButton('arrow_back', 'admin.notice');
   $http.get('/api/admin/notice/' + $stateParams.noticeId).then(success => {
@@ -71,6 +107,24 @@ app.controller('AdminNoticeController', ['$scope', '$http', '$state', ($scope, $
   }, true);
 }])
 .controller('AdminNewNoticeController', ['$scope', '$http', '$state', 'markdownDialog', 'setNoticeGroupDialog', ($scope, $http, $state, markdownDialog, setNoticeGroupDialog) => {
+  // 确保 setTitle 和 setMenuButton 函数存在
+  if (!$scope.setTitle) {
+      $scope.setTitle = str => { $scope.title = str; };
+  }
+  if (!$scope.setMenuButton) {
+      $scope.setMenuButton = (icon, state, params) => {
+          $scope.menuButtonIcon = icon;
+          if (state) {
+              $scope.menuButton = () => { 
+                  if (params) {
+                      $state.go(state, params);
+                  } else {
+                      $state.go(state);
+                  }
+              };
+          }
+      };
+  }
   $scope.setTitle('新增公告');
   $scope.notice = {
     group: 0,

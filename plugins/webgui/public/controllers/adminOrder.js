@@ -3,6 +3,24 @@ const app = angular.module('app');
 app
 .controller('AdminOrderSettingController', ['$scope', '$state', '$http',
   ($scope, $state, $http, $filter) => {
+    // 确保 setTitle 和 setMenuButton 函数存在
+    if (!$scope.setTitle) {
+        $scope.setTitle = str => { $scope.title = str; };
+    }
+    if (!$scope.setMenuButton) {
+        $scope.setMenuButton = (icon, state, params) => {
+            $scope.menuButtonIcon = icon;
+            if (state) {
+                $scope.menuButton = () => { 
+                    if (params) {
+                        $state.go(state, params);
+                    } else {
+                        $state.go(state);
+                    }
+                };
+            }
+        };
+    }
     $scope.setTitle('订单设置');
     $scope.setMenuButton('arrow_back', function() {
       $state.go('admin.settings');
@@ -36,6 +54,24 @@ app
 ])
 .controller('AdminNewOrderController', ['$scope', '$state', '$http', '$filter', 'setOrderServerDialog', 'setOrderGroupDialog',
   ($scope, $state, $http, $filter, setOrderServerDialog, setOrderGroupDialog) => {
+    // 确保 setTitle 和 setMenuButton 函数存在
+    if (!$scope.setTitle) {
+        $scope.setTitle = str => { $scope.title = str; };
+    }
+    if (!$scope.setMenuButton) {
+        $scope.setMenuButton = (icon, state, params) => {
+            $scope.menuButtonIcon = icon;
+            if (state) {
+                $scope.menuButton = () => { 
+                    if (params) {
+                        $state.go(state, params);
+                    } else {
+                        $state.go(state);
+                    }
+                };
+            }
+        };
+    }
     $scope.setTitle('新增订单');
     $scope.setMenuButton('arrow_back', 'admin.order');
 
@@ -180,6 +216,24 @@ app
 ])
 .controller('AdminEditOrderController', ['$scope', '$state', '$http', '$stateParams', 'confirmDialog', '$filter', '$q', 'setOrderGroupDialog', 'setOrderServerDialog', 'setCurrentAccountDialog',
   ($scope, $state, $http, $stateParams, confirmDialog, $filter, $q, setOrderGroupDialog, setOrderServerDialog, setCurrentAccountDialog) => {
+    // 确保 setTitle 和 setMenuButton 函数存在
+    if (!$scope.setTitle) {
+        $scope.setTitle = str => { $scope.title = str; };
+    }
+    if (!$scope.setMenuButton) {
+        $scope.setMenuButton = (icon, state, params) => {
+            $scope.menuButtonIcon = icon;
+            if (state) {
+                $scope.menuButton = () => { 
+                    if (params) {
+                        $state.go(state, params);
+                    } else {
+                        $state.go(state);
+                    }
+                };
+            }
+        };
+    }
     $scope.setTitle('编辑订单');
     $scope.setMenuButton('arrow_back', 'admin.order');
     $scope.changeCurrentAccount = {

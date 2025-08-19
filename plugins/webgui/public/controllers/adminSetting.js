@@ -2,6 +2,24 @@ const app = angular.module('app');
 
 app.controller('AdminSettingsController', ['$scope', '$state',
   ($scope, $state) => {
+    // 确保 setTitle 和 setMenuButton 函数存在
+    if (!$scope.setTitle) {
+        $scope.setTitle = str => { $scope.title = str; };
+    }
+    if (!$scope.setMenuButton) {
+        $scope.setMenuButton = (icon, state, params) => {
+            $scope.menuButtonIcon = icon;
+            if (state) {
+                $scope.menuButton = () => { 
+                    if (params) {
+                        $state.go(state, params);
+                    } else {
+                        $state.go(state);
+                    }
+                };
+            }
+        };
+    }
     $scope.setTitle('设置');
     $scope.toSetting = path => { $state.go(path); };
     if($scope.id === 1) {
@@ -67,6 +85,24 @@ app.controller('AdminSettingsController', ['$scope', '$state',
 ])
 .controller('AdminAccountSettingController', ['$scope', '$http', '$timeout', '$state',
   ($scope, $http, $timeout, $state) => {
+    // 确保 setTitle 和 setMenuButton 函数存在
+    if (!$scope.setTitle) {
+        $scope.setTitle = str => { $scope.title = str; };
+    }
+    if (!$scope.setMenuButton) {
+        $scope.setMenuButton = (icon, state, params) => {
+            $scope.menuButtonIcon = icon;
+            if (state) {
+                $scope.menuButton = () => { 
+                    if (params) {
+                        $state.go(state, params);
+                    } else {
+                        $state.go(state);
+                    }
+                };
+            }
+        };
+    }
     $scope.setTitle('账号设置');
     $scope.setMenuButton('arrow_back', 'admin.settings');
     let lastSave = 0;
@@ -129,6 +165,24 @@ app.controller('AdminSettingsController', ['$scope', '$state',
   }
 ]).controller('AdminBaseSettingController', ['$scope', '$http', '$timeout', '$state', '$q',
   ($scope, $http, $timeout, $state, $q) => {
+    // 确保 setTitle 和 setMenuButton 函数存在
+    if (!$scope.setTitle) {
+        $scope.setTitle = str => { $scope.title = str; };
+    }
+    if (!$scope.setMenuButton) {
+        $scope.setMenuButton = (icon, state, params) => {
+            $scope.menuButtonIcon = icon;
+            if (state) {
+                $scope.menuButton = () => { 
+                    if (params) {
+                        $state.go(state, params);
+                    } else {
+                        $state.go(state);
+                    }
+                };
+            }
+        };
+    }
     $scope.setTitle('基本设置');
     $scope.setMenuButton('arrow_back', 'admin.settings');
     $scope.baseData = {};
@@ -253,6 +307,24 @@ app.controller('AdminSettingsController', ['$scope', '$state',
   }
 ]).controller('AdminMailSettingController', ['$scope', '$http', '$timeout', '$state', 'setEmailDialog',
   ($scope, $http, $timeout, $state, setEmailDialog) => {
+    // 确保 setTitle 和 setMenuButton 函数存在
+    if (!$scope.setTitle) {
+        $scope.setTitle = str => { $scope.title = str; };
+    }
+    if (!$scope.setMenuButton) {
+        $scope.setMenuButton = (icon, state, params) => {
+            $scope.menuButtonIcon = icon;
+            if (state) {
+                $scope.menuButton = () => { 
+                    if (params) {
+                        $state.go(state, params);
+                    } else {
+                        $state.go(state);
+                    }
+                };
+            }
+        };
+    }
     $scope.setTitle('邮件设置');
     $scope.setMenuButton('arrow_back', 'admin.settings');
     $scope.mails = [
@@ -266,6 +338,24 @@ app.controller('AdminSettingsController', ['$scope', '$state',
   }
 ]).controller('AdminPasswordSettingController', ['$scope', '$http', '$timeout', '$state', 'adminApi', 'alertDialog', '$localStorage',
   ($scope, $http, $timeout, $state, adminApi, alertDialog, $localStorage) => {
+    // 确保 setTitle 和 setMenuButton 函数存在
+    if (!$scope.setTitle) {
+        $scope.setTitle = str => { $scope.title = str; };
+    }
+    if (!$scope.setMenuButton) {
+        $scope.setMenuButton = (icon, state, params) => {
+            $scope.menuButtonIcon = icon;
+            if (state) {
+                $scope.menuButton = () => { 
+                    if (params) {
+                        $state.go(state, params);
+                    } else {
+                        $state.go(state);
+                    }
+                };
+            }
+        };
+    }
     $scope.setTitle('修改密码');
     $scope.setMenuButton('arrow_back', 'admin.settings');
     $scope.data = {
@@ -291,6 +381,24 @@ app.controller('AdminSettingsController', ['$scope', '$state',
   }
 ]).controller('AdminTelegramSettingController', ['$scope', '$http', '$interval', '$state',
   ($scope, $http, $interval, $state) => {
+    // 确保 setTitle 和 setMenuButton 函数存在
+    if (!$scope.setTitle) {
+        $scope.setTitle = str => { $scope.title = str; };
+    }
+    if (!$scope.setMenuButton) {
+        $scope.setMenuButton = (icon, state, params) => {
+            $scope.menuButtonIcon = icon;
+            if (state) {
+                $scope.menuButton = () => { 
+                    if (params) {
+                        $state.go(state, params);
+                    } else {
+                        $state.go(state);
+                    }
+                };
+            }
+        };
+    }
     $scope.setTitle('绑定Telegram');
     $scope.setMenuButton('arrow_back', 'admin.settings');
     $scope.isLoading = true;
@@ -312,6 +420,24 @@ app.controller('AdminSettingsController', ['$scope', '$state',
   }
 ]).controller('AdminPaymentListController', ['$scope', '$http', '$state',
   ($scope, $http, $state) => {
+    // 确保 setTitle 和 setMenuButton 函数存在
+    if (!$scope.setTitle) {
+        $scope.setTitle = str => { $scope.title = str; };
+    }
+    if (!$scope.setMenuButton) {
+        $scope.setMenuButton = (icon, state, params) => {
+            $scope.menuButtonIcon = icon;
+            if (state) {
+                $scope.menuButton = () => { 
+                    if (params) {
+                        $state.go(state, params);
+                    } else {
+                        $state.go(state);
+                    }
+                };
+            }
+        };
+    }
     $scope.setTitle('支付设置');
     $scope.setMenuButton('arrow_back', 'admin.settings');
     $scope.time = [{
@@ -342,6 +468,24 @@ app.controller('AdminSettingsController', ['$scope', '$state',
   }
 ]).controller('AdminEditPaymentController', ['$scope', '$http', '$timeout', '$interval', '$state', '$stateParams',
   ($scope, $http, $timeout, $interval, $state, $stateParams) => {
+    // 确保 setTitle 和 setMenuButton 函数存在
+    if (!$scope.setTitle) {
+        $scope.setTitle = str => { $scope.title = str; };
+    }
+    if (!$scope.setMenuButton) {
+        $scope.setMenuButton = (icon, state, params) => {
+            $scope.menuButtonIcon = icon;
+            if (state) {
+                $scope.menuButton = () => { 
+                    if (params) {
+                        $state.go(state, params);
+                    } else {
+                        $state.go(state);
+                    }
+                };
+            }
+        };
+    }
     $scope.setTitle('修改支付');
     $scope.setMenuButton('arrow_back', 'admin.paymentList');
     $scope.paymentType = $stateParams.paymentType;
@@ -416,6 +560,24 @@ app.controller('AdminSettingsController', ['$scope', '$state',
   }
 ]).controller('AdminRefSettingController', ['$scope', '$http', '$timeout', '$state',
   ($scope, $http, $timeout, $state) => {
+    // 确保 setTitle 和 setMenuButton 函数存在
+    if (!$scope.setTitle) {
+        $scope.setTitle = str => { $scope.title = str; };
+    }
+    if (!$scope.setMenuButton) {
+        $scope.setMenuButton = (icon, state, params) => {
+            $scope.menuButtonIcon = icon;
+            if (state) {
+                $scope.menuButton = () => { 
+                    if (params) {
+                        $state.go(state, params);
+                    } else {
+                        $state.go(state);
+                    }
+                };
+            }
+        };
+    }
     $scope.setTitle('邀请码管理');
     $scope.setMenuButton('arrow_back', function() {
       $state.go('admin.settings');
@@ -458,6 +620,24 @@ app.controller('AdminSettingsController', ['$scope', '$state',
   }
 ]).controller('AdminRefCodeListController', ['$scope', '$http', '$timeout', '$state', '$mdMedia',
   ($scope, $http, $timeout, $state, $mdMedia) => {
+    // 确保 setTitle 和 setMenuButton 函数存在
+    if (!$scope.setTitle) {
+        $scope.setTitle = str => { $scope.title = str; };
+    }
+    if (!$scope.setMenuButton) {
+        $scope.setMenuButton = (icon, state, params) => {
+            $scope.menuButtonIcon = icon;
+            if (state) {
+                $scope.menuButton = () => { 
+                    if (params) {
+                        $state.go(state, params);
+                    } else {
+                        $state.go(state);
+                    }
+                };
+            }
+        };
+    }
     $scope.setTitle('邀请码列表');
     $scope.setMenuSearchButton('search');
     $scope.setMenuButton('arrow_back', function() {
@@ -539,6 +719,24 @@ app.controller('AdminSettingsController', ['$scope', '$state',
   }
 ]).controller('AdminEditRefCodeController', ['$scope', '$http', '$timeout', '$state', '$filter', '$stateParams',
 ($scope, $http, $timeout, $state, $filter, $stateParams) => {
+  // 确保 setTitle 和 setMenuButton 函数存在
+  if (!$scope.setTitle) {
+      $scope.setTitle = str => { $scope.title = str; };
+  }
+  if (!$scope.setMenuButton) {
+      $scope.setMenuButton = (icon, state, params) => {
+          $scope.menuButtonIcon = icon;
+          if (state) {
+              $scope.menuButton = () => { 
+                  if (params) {
+                      $state.go(state, params);
+                  } else {
+                      $state.go(state);
+                  }
+              };
+          }
+      };
+  }
   $scope.setTitle('编辑邀请码');
   $scope.setMenuButton('arrow_back', function() {
     $state.go('admin.refCodeList');
@@ -576,6 +774,24 @@ app.controller('AdminSettingsController', ['$scope', '$state',
 }
 ]).controller('AdminRefUserListController', ['$scope', '$http', '$timeout', '$state', '$mdMedia',
   ($scope, $http, $timeout, $state, $mdMedia) => {
+    // 确保 setTitle 和 setMenuButton 函数存在
+    if (!$scope.setTitle) {
+        $scope.setTitle = str => { $scope.title = str; };
+    }
+    if (!$scope.setMenuButton) {
+        $scope.setMenuButton = (icon, state, params) => {
+            $scope.menuButtonIcon = icon;
+            if (state) {
+                $scope.menuButton = () => { 
+                    if (params) {
+                        $state.go(state, params);
+                    } else {
+                        $state.go(state);
+                    }
+                };
+            }
+        };
+    }
     $scope.setTitle('邀请用户列表');
     $scope.setMenuButton('arrow_back', function() {
       $state.go('admin.refSetting');
@@ -627,6 +843,24 @@ app.controller('AdminSettingsController', ['$scope', '$state',
 ])
 .controller('AdminMyRefCodeController', ['$scope', '$http', '$filter', '$state', '$mdMedia',
   ($scope, $http, $filter, $state, $mdMedia) => {
+    // 确保 setTitle 和 setMenuButton 函数存在
+    if (!$scope.setTitle) {
+        $scope.setTitle = str => { $scope.title = str; };
+    }
+    if (!$scope.setMenuButton) {
+        $scope.setMenuButton = (icon, state, params) => {
+            $scope.menuButtonIcon = icon;
+            if (state) {
+                $scope.menuButton = () => { 
+                    if (params) {
+                        $state.go(state, params);
+                    } else {
+                        $state.go(state);
+                    }
+                };
+            }
+        };
+    }
     $scope.setTitle('我的邀请码');
     $scope.setMenuButton('arrow_back', function() {
       $state.go('admin.refSetting');
@@ -643,6 +877,24 @@ app.controller('AdminSettingsController', ['$scope', '$state',
 ])
 .controller('AdminAddRefUserController', ['$scope', '$http', '$timeout', '$state', '$mdMedia', 'alertDialog',
   ($scope, $http, $timeout, $state, $mdMedia, alertDialog) => {
+    // 确保 setTitle 和 setMenuButton 函数存在
+    if (!$scope.setTitle) {
+        $scope.setTitle = str => { $scope.title = str; };
+    }
+    if (!$scope.setMenuButton) {
+        $scope.setMenuButton = (icon, state, params) => {
+            $scope.menuButtonIcon = icon;
+            if (state) {
+                $scope.menuButton = () => { 
+                    if (params) {
+                        $state.go(state, params);
+                    } else {
+                        $state.go(state);
+                    }
+                };
+            }
+        };
+    }
     $scope.setTitle('添加邀请关系');
     $scope.setMenuButton('arrow_back', function() {
       $state.go('admin.refUserList');

@@ -2,6 +2,24 @@ const app = angular.module('app');
 
 app.controller('AdminDnsRecordController', ['$scope', '$http', '$state', 'adminApi', '$mdDialog',
   ($scope, $http, $state, adminApi, $mdDialog) => {
+    // 确保 setTitle 和 setMenuButton 函数存在
+    if (!$scope.setTitle) {
+        $scope.setTitle = str => { $scope.title = str; };
+    }
+    if (!$scope.setMenuButton) {
+        $scope.setMenuButton = (icon, state, params) => {
+            $scope.menuButtonIcon = icon;
+            if (state) {
+                $scope.menuButton = () => { 
+                    if (params) {
+                        $state.go(state, params);
+                    } else {
+                        $state.go(state);
+                    }
+                };
+            }
+        };
+    }
     $scope.setTitle('DNS记录');
     $scope.setMenuSearchButton('search');
     $scope.records = [];
@@ -106,6 +124,24 @@ app.controller('AdminDnsRecordController', ['$scope', '$http', '$state', 'adminA
 ])
 .controller('AdminDnsRecordPageController', ['$scope', '$http', '$state', '$stateParams',
   ($scope, $http, $state, $stateParams) => {
+    // 确保 setTitle 和 setMenuButton 函数存在
+    if (!$scope.setTitle) {
+        $scope.setTitle = str => { $scope.title = str; };
+    }
+    if (!$scope.setMenuButton) {
+        $scope.setMenuButton = (icon, state, params) => {
+            $scope.menuButtonIcon = icon;
+            if (state) {
+                $scope.menuButton = () => { 
+                    if (params) {
+                        $state.go(state, params);
+                    } else {
+                        $state.go(state);
+                    }
+                };
+            }
+        };
+    }
     $scope.setTitle('DNS记录详情');
     $scope.setMenuButton('arrow_back', 'admin.dnsRecord');
     $scope.record = {};
@@ -141,6 +177,24 @@ app.controller('AdminDnsRecordController', ['$scope', '$http', '$state', 'adminA
 ])
 .controller('AdminAddDnsRecordController', ['$scope', '$http', '$state',
   ($scope, $http, $state) => {
+    // 确保 setTitle 和 setMenuButton 函数存在
+    if (!$scope.setTitle) {
+        $scope.setTitle = str => { $scope.title = str; };
+    }
+    if (!$scope.setMenuButton) {
+        $scope.setMenuButton = (icon, state, params) => {
+            $scope.menuButtonIcon = icon;
+            if (state) {
+                $scope.menuButton = () => { 
+                    if (params) {
+                        $state.go(state, params);
+                    } else {
+                        $state.go(state);
+                    }
+                };
+            }
+        };
+    }
     $scope.setTitle('添加DNS记录');
     $scope.setMenuButton('arrow_back', 'admin.dnsRecord');
     
@@ -185,6 +239,24 @@ app.controller('AdminDnsRecordController', ['$scope', '$http', '$state', 'adminA
 ])
 .controller('AdminEditDnsRecordController', ['$scope', '$http', '$state', '$stateParams',
   ($scope, $http, $state, $stateParams) => {
+    // 确保 setTitle 和 setMenuButton 函数存在
+    if (!$scope.setTitle) {
+        $scope.setTitle = str => { $scope.title = str; };
+    }
+    if (!$scope.setMenuButton) {
+        $scope.setMenuButton = (icon, state, params) => {
+            $scope.menuButtonIcon = icon;
+            if (state) {
+                $scope.menuButton = () => { 
+                    if (params) {
+                        $state.go(state, params);
+                    } else {
+                        $state.go(state);
+                    }
+                };
+            }
+        };
+    }
     $scope.setTitle('编辑DNS记录');
     $scope.setMenuButton('arrow_back', 'admin.dnsRecord');
     

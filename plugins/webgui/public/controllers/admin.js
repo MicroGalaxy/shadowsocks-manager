@@ -193,6 +193,10 @@ app.controller('AdminController', ['$scope', '$mdMedia', '$mdSidenav', '$state',
 ])
 .controller('AdminIndexController', ['$scope', '$state', 'adminApi', '$localStorage', '$interval', 'orderDialog',
   ($scope, $state, adminApi, $localStorage, $interval, orderDialog) => {
+    // 确保 setTitle 函数存在
+    if (!$scope.setTitle) {
+      $scope.setTitle = str => { $scope.title = str; };
+    }
     $scope.setTitle('首页');
     if($localStorage.admin.indexInfo) {
       $scope.signupUsers = $localStorage.admin.indexInfo.data.signup;
@@ -334,6 +338,24 @@ app.controller('AdminController', ['$scope', '$mdMedia', '$mdSidenav', '$state',
   }
 ])
 .controller('AdminRecentSignupController', ['$scope', '$http', '$state', ($scope, $http, $state) => {
+  // 确保 setTitle 和 setMenuButton 函数存在
+  if (!$scope.setTitle) {
+    $scope.setTitle = str => { $scope.title = str; };
+  }
+  if (!$scope.setMenuButton) {
+    $scope.setMenuButton = (icon, state, params) => {
+      $scope.menuButtonIcon = icon;
+      if (state) {
+        $scope.menuButton = () => { 
+          if (params) {
+            $state.go(state, params);
+          } else {
+            $state.go(state);
+          }
+        };
+      }
+    };
+  }
   $scope.setTitle('最新注册用户');
   $scope.setMenuButton('arrow_back', 'admin.index');
   $scope.recentUsers = null;
@@ -345,6 +367,30 @@ app.controller('AdminController', ['$scope', '$mdMedia', '$mdSidenav', '$state',
   };
 }])
 .controller('AdminExpiringSoonController', ['$scope', '$http', '$state', 'adminApi', ($scope, $http, $state, adminApi) => {
+  // 确保 setTitle 和 setMenuButton 函数存在
+  if (!$scope.setTitle) {
+    $scope.setTitle = str => { $scope.title = str; };
+  }
+  if (!$scope.setMenuButton) {
+    $scope.setMenuButton = (icon, state, params) => {
+      $scope.menuButtonIcon = icon;
+      if (state) {
+        $scope.menuButton = () => { 
+          if (params) {
+            $state.go(state, params);
+          } else {
+            $state.go(state);
+          }
+        };
+      }
+    };
+  }
+  if (!$scope.toast) {
+    $scope.toast = (message) => {
+      // 简单的toast实现，实际应该使用$mdToast
+      console.log('Toast:', message);
+    };
+  }
   $scope.setTitle('即将过期账号');
   $scope.setMenuButton('arrow_back', 'admin.index');
   $scope.recentUsers = null;
@@ -415,6 +461,24 @@ app.controller('AdminController', ['$scope', '$mdMedia', '$mdSidenav', '$state',
   };
 }])
 .controller('AdminTopFlowController', ['$scope', '$http', '$state', ($scope, $http, $state) => {
+  // 确保 setTitle 和 setMenuButton 函数存在
+  if (!$scope.setTitle) {
+    $scope.setTitle = str => { $scope.title = str; };
+  }
+  if (!$scope.setMenuButton) {
+    $scope.setMenuButton = (icon, state, params) => {
+      $scope.menuButtonIcon = icon;
+      if (state) {
+        $scope.menuButton = () => { 
+          if (params) {
+            $state.go(state, params);
+          } else {
+            $state.go(state);
+          }
+        };
+      }
+    };
+  }
   $scope.setTitle('今日流量排行');
   $scope.setMenuButton('arrow_back', 'admin.index');
   $scope.topUsers = null;
@@ -434,6 +498,24 @@ app.controller('AdminController', ['$scope', '$mdMedia', '$mdSidenav', '$state',
   };
 }])
 .controller('AdminLast5MinFlowController', ['$scope', '$http', '$state', 'adminApi', function($scope, $http, $state, adminApi) {
+  // 确保 setTitle 和 setMenuButton 函数存在
+  if (!$scope.setTitle) {
+    $scope.setTitle = str => { $scope.title = str; };
+  }
+  if (!$scope.setMenuButton) {
+    $scope.setMenuButton = (icon, state, params) => {
+      $scope.menuButtonIcon = icon;
+      if (state) {
+        $scope.menuButton = () => { 
+          if (params) {
+            $state.go(state, params);
+          } else {
+            $state.go(state);
+          }
+        };
+      }
+    };
+  }
   $scope.setTitle('最近5分钟流量');
   $scope.setMenuButton('arrow_back', 'admin.index');
   

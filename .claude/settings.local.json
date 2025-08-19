@@ -4,7 +4,8 @@
       "Bash(npm run check:*)",
       "Bash(nvm use:*)",
       "Bash(node:*)",
-      "Bash(npm start)"
+      "Bash(npm start)",
+      "Bash(npm run fix:*)"
     ],
     "deny": [],
     "ask": []

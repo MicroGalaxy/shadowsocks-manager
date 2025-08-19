@@ -2,6 +2,24 @@ const app = angular.module('app');
 
 app.controller('AdminGroupSettingController', ['$scope', '$http', '$state',
 ($scope, $http, $state) => {
+  // 确保 setTitle 和 setMenuButton 函数存在
+  if (!$scope.setTitle) {
+      $scope.setTitle = str => { $scope.title = str; };
+  }
+  if (!$scope.setMenuButton) {
+      $scope.setMenuButton = (icon, state, params) => {
+          $scope.menuButtonIcon = icon;
+          if (state) {
+              $scope.menuButton = () => { 
+                  if (params) {
+                      $state.go(state, params);
+                  } else {
+                      $state.go(state);
+                  }
+              };
+          }
+      };
+  }
   $scope.setTitle('群组管理');
   $scope.setMenuButton('arrow_back', function() {
     $state.go('admin.settings');
@@ -16,6 +34,24 @@ app.controller('AdminGroupSettingController', ['$scope', '$http', '$state',
 }
 ]).controller('AdminAddGroupController', ['$scope', '$q', '$http', '$state', 'alertDialog', 'setGroupNoticeDialog', 'setGroupOrderDialog',
 ($scope, $q, $http, $state, alertDialog, setGroupNoticeDialog, setGroupOrderDialog) => {
+  // 确保 setTitle 和 setMenuButton 函数存在
+  if (!$scope.setTitle) {
+      $scope.setTitle = str => { $scope.title = str; };
+  }
+  if (!$scope.setMenuButton) {
+      $scope.setMenuButton = (icon, state, params) => {
+          $scope.menuButtonIcon = icon;
+          if (state) {
+              $scope.menuButton = () => { 
+                  if (params) {
+                      $state.go(state, params);
+                  } else {
+                      $state.go(state);
+                  }
+              };
+          }
+      };
+  }
   $scope.setTitle('新增群组');
   $scope.setMenuButton('arrow_back', 'admin.groupSetting');
   $scope.group = {};
@@ -122,6 +158,24 @@ app.controller('AdminGroupSettingController', ['$scope', '$http', '$state',
 }
 ]).controller('AdminEditGroupController', ['$scope', '$http', '$q', '$state', '$stateParams', 'alertDialog', 'setGroupNoticeDialog', 'setGroupOrderDialog',
 ($scope, $http, $q, $state, $stateParams, alertDialog, setGroupNoticeDialog, setGroupOrderDialog) => {
+  // 确保 setTitle 和 setMenuButton 函数存在
+  if (!$scope.setTitle) {
+      $scope.setTitle = str => { $scope.title = str; };
+  }
+  if (!$scope.setMenuButton) {
+      $scope.setMenuButton = (icon, state, params) => {
+          $scope.menuButtonIcon = icon;
+          if (state) {
+              $scope.menuButton = () => { 
+                  if (params) {
+                      $state.go(state, params);
+                  } else {
+                      $state.go(state);
+                  }
+              };
+          }
+      };
+  }
   $scope.setTitle('修改群组');
   $scope.setMenuButton('arrow_back', 'admin.groupSetting');
   $scope.groupId = +$stateParams.groupId;

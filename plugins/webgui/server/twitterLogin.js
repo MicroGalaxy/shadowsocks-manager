@@ -31,7 +31,7 @@ class LoginWithTwitter {
       },
       signature_method: 'HMAC-SHA1',
       hash_function: (baseString, key) => {
-        return crypto.createHmac('sha1', key).update(baseString).digest('base64')
+        return crypto.createHmac('sha1', key).update(baseString).digest('base64');
       }
     });
   }

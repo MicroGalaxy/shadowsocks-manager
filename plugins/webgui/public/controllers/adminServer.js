@@ -2,6 +2,24 @@ const app = angular.module('app');
 
 app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', '$localStorage', 'adminApi', '$timeout', '$interval', 'serverChartDialog',
   ($scope, $http, $state, moment, $localStorage, adminApi, $timeout, $interval, serverChartDialog) => {
+    // 确保 setTitle 和 setMenuButton 函数存在
+    if (!$scope.setTitle) {
+        $scope.setTitle = str => { $scope.title = str; };
+    }
+    if (!$scope.setMenuButton) {
+        $scope.setMenuButton = (icon, state, params) => {
+            $scope.menuButtonIcon = icon;
+            if (state) {
+                $scope.menuButton = () => { 
+                    if (params) {
+                        $state.go(state, params);
+                    } else {
+                        $state.go(state);
+                    }
+                };
+            }
+        };
+    }
     $scope.setTitle('服务器');
     $scope.setMenuSearchButton('search');
     $scope.setMenuRightButton('timeline');
@@ -181,6 +199,24 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
 ])
 .controller('AdminServerPageController', ['$scope', '$state', '$stateParams', '$http', 'moment', '$mdDialog', 'adminApi', '$localStorage', '$mdMedia', '$interval', 'banDialog',
   ($scope, $state, $stateParams, $http, moment, $mdDialog, adminApi, $localStorage, $mdMedia, $interval, banDialog) => {
+    // 确保 setTitle 和 setMenuButton 函数存在
+    if (!$scope.setTitle) {
+        $scope.setTitle = str => { $scope.title = str; };
+    }
+    if (!$scope.setMenuButton) {
+        $scope.setMenuButton = (icon, state, params) => {
+            $scope.menuButtonIcon = icon;
+            if (state) {
+                $scope.menuButton = () => { 
+                    if (params) {
+                        $state.go(state, params);
+                    } else {
+                        $state.go(state);
+                    }
+                };
+            }
+        };
+    }
     $scope.setTitle('服务器');
     $scope.setMenuButton('arrow_back', 'admin.server');
     $scope.visiblePortNumber = 60;
@@ -467,6 +503,24 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
 ])
 .controller('AdminAddServerController', ['$scope', '$state', '$stateParams', '$http', 'alertDialog', '$q',
   ($scope, $state, $stateParams, $http, alertDialog, $q) => {
+    // 确保 setTitle 和 setMenuButton 函数存在
+    if (!$scope.setTitle) {
+        $scope.setTitle = str => { $scope.title = str; };
+    }
+    if (!$scope.setMenuButton) {
+        $scope.setMenuButton = (icon, state, params) => {
+            $scope.menuButtonIcon = icon;
+            if (state) {
+                $scope.menuButton = () => { 
+                    if (params) {
+                        $state.go(state, params);
+                    } else {
+                        $state.go(state);
+                    }
+                };
+            }
+        };
+    }
     $scope.setTitle('新增服务器');
     $scope.setMenuButton('arrow_back', 'admin.server');
     $scope.methods = [
@@ -551,7 +605,7 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
           type: 'server',
           key: serverId,
           tags: $scope.tags,
-        })
+        });
       }).then(() => {
         alertDialog.show('添加服务器成功', '确定');
         $state.go('admin.server');
@@ -566,6 +620,24 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
 ])
 .controller('AdminEditServerController', ['$scope', '$state', '$stateParams', '$http', 'confirmDialog', 'alertDialog', '$q',
   ($scope, $state, $stateParams, $http, confirmDialog, alertDialog, $q) => {
+    // 确保 setTitle 和 setMenuButton 函数存在
+    if (!$scope.setTitle) {
+        $scope.setTitle = str => { $scope.title = str; };
+    }
+    if (!$scope.setMenuButton) {
+        $scope.setMenuButton = (icon, state, params) => {
+            $scope.menuButtonIcon = icon;
+            if (state) {
+                $scope.menuButton = () => { 
+                    if (params) {
+                        $state.go(state, params);
+                    } else {
+                        $state.go(state);
+                    }
+                };
+            }
+        };
+    }
     $scope.setTitle('编辑服务器');
     const serverId = $stateParams.serverId;
     $scope.setMenuButton('arrow_back', function() {

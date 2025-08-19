@@ -1,6 +1,24 @@
 const app = angular.module('app');
 
 app.controller('AdminSharedIpController', ['$scope', '$state', '$stateParams', '$http', '$mdDialog', '$mdToast', function($scope, $state, $stateParams, $http, $mdDialog, $mdToast) {
+    // 确保 setTitle 和 setMenuButton 函数存在
+    if (!$scope.setTitle) {
+        $scope.setTitle = str => { $scope.title = str; };
+    }
+    if (!$scope.setMenuButton) {
+        $scope.setMenuButton = (icon, state, params) => {
+            $scope.menuButtonIcon = icon;
+            if (state) {
+                $scope.menuButton = () => { 
+                    if (params) {
+                        $state.go(state, params);
+                    } else {
+                        $state.go(state);
+                    }
+                };
+            }
+        };
+    }
     $scope.port = $stateParams.port;
     $scope.setTitle(`共享IP列表 [${$scope.port}]`);
     $scope.setMenuButton('arrow_back', 'admin.account');
