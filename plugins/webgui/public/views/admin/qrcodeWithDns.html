@@ -69,7 +69,7 @@
       /* DNS 网格容器 */
       .dns-grid-container {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
         gap: 16px;
         margin-top: 16px;
       }
@@ -209,7 +209,7 @@
       
       /* 按钮内文字 */
       .btn-text {
-        font-size: 13px;
+        font-size: 12px;
         line-height: 1;
         white-space: nowrap;
         vertical-align: middle;
@@ -217,7 +217,7 @@
       }
       
       .small-btn .btn-text {
-        font-size: 11px;
+        font-size: 10px;
         vertical-align: middle;
         display: inline-block;
       }
@@ -362,6 +362,10 @@
                 <i class="material-icons btn-icon">qr_code</i>
                 <span class="btn-text">显示二维码</span>
               </button>
+              <button class="custom-btn" style="background-color: #4CAF50; color: white;" ng-click="importSelected()">
+                <i class="material-icons btn-icon">get_app</i>
+                <span class="btn-text">导入</span>
+              </button>
             </div>
           </div>
         </md-card-content>
@@ -395,6 +399,10 @@
                 <button class="custom-btn small-btn accent-btn" ng-click="showQrCodeForConfig(config)">
                   <i class="material-icons btn-icon">qr_code</i>
                   <span class="btn-text">二维码</span>
+                </button>
+                <button class="custom-btn small-btn" style="background-color: #4CAF50; color: white;" ng-click="importConfig(config)">
+                  <i class="material-icons btn-icon">get_app</i>
+                  <span class="btn-text">导入</span>
                 </button>
               </div>
             </md-card-content>

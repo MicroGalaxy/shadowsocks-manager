@@ -1036,6 +1036,27 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
       copyToClipboard(config.config, config.name);
     };
     
+    // 导入指定配置到软件
+    $scope.importConfig = (config) => {
+      try {
+        let clientName = '';
+        if (server.type === 'Shadowsocks') {
+          clientName = 'Shadowsocks客户端';
+        } else if (server.type === 'Trojan') {
+          clientName = 'Trojan客户端';
+        } else if (server.type === 'WireGuard') {
+          clientName = 'WireGuard客户端';
+        }
+        
+        // 尝试打开协议链接，调用本地客户端
+        window.location.href = config.config;
+        toastService(`正在尝试导入到${clientName}...`);
+      } catch (err) {
+        console.error('Failed to open protocol link:', err);
+        toastService('无法调用客户端，请确保已安装相应软件');
+      }
+    };
+    
     // 复制选中的链接
     $scope.copySelected = () => {
       if ($scope.selectedConfig) {
@@ -1047,6 +1068,29 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
     $scope.showQrCode = () => {
       if ($scope.selectedConfig) {
         $scope.showQrCodeDialog($scope.selectedConfig, $scope.selectedName);
+      }
+    };
+    
+    // 一键导入选中配置到软件
+    $scope.importSelected = () => {
+      if ($scope.selectedConfig) {
+        try {
+          let clientName = '';
+          if (server.type === 'Shadowsocks') {
+            clientName = 'Shadowsocks客户端';
+          } else if (server.type === 'Trojan') {
+            clientName = 'Trojan客户端';
+          } else if (server.type === 'WireGuard') {
+            clientName = 'WireGuard客户端';
+          }
+          
+          // 尝试打开协议链接，调用本地客户端
+          window.location.href = $scope.selectedConfig;
+          toastService(`正在尝试导入到${clientName}...`);
+        } catch (err) {
+          console.error('Failed to open protocol link:', err);
+          toastService('无法调用客户端，请确保已安装相应软件');
+        }
       }
     };
     
