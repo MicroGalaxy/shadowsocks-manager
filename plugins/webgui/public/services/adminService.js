@@ -367,16 +367,28 @@ app.factory('adminApi', ['$http', '$q', 'moment', 'preload', '$timeout', 'config
       }
     };
 
+    const formatUsedBytes = (bytes) => {
+      if (bytes >= 1000000000) {
+        return (bytes / 1000000000).toFixed(2) + 'G';
+      } else if (bytes >= 1000000) {
+        return (bytes / 1000000).toFixed(2) + 'M';
+      } else if (bytes >= 1000) {
+        return (bytes / 1000).toFixed(2) + 'K';
+      } else {
+        return bytes + 'B';
+      }
+    };
+
     let flowInfo = '';
     
     if (account.data.flow > 0) {
       flowInfo = `账号：${account.port}
-已使用流量：${formatBytes(usedFlow)}
-剩余流量：${formatBytes(Math.max(0, remainingFlow))}
+已使用流量：${formatUsedBytes(usedFlow)}
+剩余流量：${formatUsedBytes(Math.max(0, remainingFlow))}
 总流量：${formatBytes(totalFlow)}`;
     } else {
       flowInfo = `账号：${account.port}
-已使用流量：${formatBytes(usedFlow)}
+已使用流量：${formatUsedBytes(usedFlow)}
 总流量：不限量`;
     }
 
