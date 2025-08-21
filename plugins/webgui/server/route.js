@@ -391,6 +391,16 @@ app.get('/serviceworker.js', async (req, res) => {
       success[0].value = JSON.parse(success[0].value);
       return success[0].value;
     });
+    
+    // 更新 serviceWorkerTime 以确保 PWA 缓存更新
+    const currentTime = Date.now();
+    if (!setting.serviceWorkerTime || (currentTime - setting.serviceWorkerTime > 60000)) { // 1分钟内不重复更新
+      setting.serviceWorkerTime = currentTime;
+      await knex('webguiSetting').where({ key: 'base' }).update({
+        value: JSON.stringify(setting)
+      });
+    }
+    
     res.header('Content-Type', 'text/javascript');
     res.render('serviceworker.js', {
       serviceWorker: !!setting.serviceWorker,

@@ -1,4 +1,4 @@
-const ONLINE_CACHE_NAME = '2021-09-02 20:45:32 <%= serviceWorkerTime%>';
+const ONLINE_CACHE_NAME = 'ssmgr-cache-<%= serviceWorkerTime || Date.now() %>';
 const isSWOpen = JSON.parse('<%= serviceWorker%>');
 
 const emptyCacheUrl = [];
@@ -164,25 +164,56 @@ self.addEventListener('fetch', event => {
   const isRoot = () => {
     return (event.request.url === self.registration.scope);
   };
-  if (isMatch()) {
+  const isApiRequest = () => {
+    return event.request.url.includes('/api/');
+  };
+  const isStaticResource = () => {
+    return event.request.url.match(/\.(js|css|html|png|jpg|jpeg|svg|woff|woff2|ttf|eot)(\?.*)?$/);
+  };
+
+  if (isApiRequest()) {
+    // API 请求始终使用网络优先
+    event.respondWith(fetch(event.request));
+  } else if (isMatch()) {
+    // 页面路由：网络优先，缓存降级
     event.respondWith(
       fetch(event.request)
-      .then(response=> response)
+      .then(response => response)
       .catch(err => caches.match(new Request('/')))
-      .then(response=> response)
-    );
-  } else if (isRoot()) {
-    event.respondWith(
-      fetch(event.request)
-      .then(response=> response)
-      .catch(err=> caches.match(event.request))
       .then(response => response)
     );
+  } else if (isRoot()) {
+    // 根路径：网络优先，缓存降级
+    event.respondWith(
+      fetch(event.request)
+      .then(response => response)
+      .catch(err => caches.match(event.request))
+      .then(response => response)
+    );
+  } else if (isStaticResource()) {
+    // 静态资源：网络优先（确保更新），缓存降级
+    event.respondWith(
+      fetch(event.request)
+      .then(response => {
+        // 更新缓存
+        if (response && response.status === 200) {
+          const responseClone = response.clone();
+          caches.open(ONLINE_CACHE_NAME).then(cache => {
+            cache.put(event.request, responseClone);
+          });
+        }
+        return response;
+      })
+      .catch(err => {
+        return caches.match(event.request);
+      })
+    );
   } else {
+    // 其他请求：缓存优先
     event.respondWith(
       caches.match(event.request)
       .then(response => {
-        return response ? response : fetch(event.request);
+        return response || fetch(event.request);
       })
     );
   }
