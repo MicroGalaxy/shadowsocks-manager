@@ -536,6 +536,9 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
         $scope.toast('到期时间已复制到剪贴板');
       });
     };
+    $scope.copyFlowAndCycle = () => {
+      adminApi.copyFlowAndCycle($scope.account, $scope.serverPortFlow, $scope.toast);
+    };
     $scope.expireTimeSheet = time => {
       if($scope.id !== 1) { return; }
       if(!time) { return; }

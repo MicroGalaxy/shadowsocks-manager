@@ -350,6 +350,58 @@ app.factory('adminApi', ['$http', '$q', 'moment', 'preload', '$timeout', 'config
     });
   };
 
+  const copyFlowAndCycle = (account, serverPortFlow, toastFn) => {
+    const usedFlow = serverPortFlow || 0;
+    const totalFlow = account.data.flow + (account.data.flowPack || 0);
+    const remainingFlow = totalFlow - usedFlow;
+    
+    const formatBytes = (bytes) => {
+      if (bytes >= 1000000000) {
+        return (bytes / 1000000000).toFixed(0) + 'G';
+      } else if (bytes >= 1000000) {
+        return (bytes / 1000000).toFixed(0) + 'M';
+      } else if (bytes >= 1000) {
+        return (bytes / 1000).toFixed(0) + 'K';
+      } else {
+        return bytes + 'B';
+      }
+    };
+
+    let flowInfo = '';
+    
+    if (account.data.flow > 0) {
+      flowInfo = `账号：${account.port}
+已使用流量：${formatBytes(usedFlow)}
+剩余流量：${formatBytes(Math.max(0, remainingFlow))}
+总流量：${formatBytes(totalFlow)}`;
+    } else {
+      flowInfo = `账号：${account.port}
+已使用流量：${formatBytes(usedFlow)}
+总流量：不限量`;
+    }
+
+    if (account.type >= 2 && account.type <= 5) {
+      const fromDate = new Date(account.data.from);
+      const toDate = new Date(account.data.to);
+      const formatDate = (date) => {
+        const year = date.getFullYear();
+        const month = ('0' + (date.getMonth() + 1)).slice(-2);
+        const day = ('0' + date.getDate()).slice(-2);
+        const hour = ('0' + date.getHours()).slice(-2);
+        const minute = ('0' + date.getMinutes()).slice(-2);
+        return `${year}-${month}-${day} ${hour}:${minute}`;
+      };
+      
+      flowInfo += `
+周期开始：${formatDate(fromDate)}
+周期结束：${formatDate(toDate)}`;
+    }
+
+    navigator.clipboard.writeText(flowInfo).then(() => {
+      toastFn('流量和周期信息已复制到剪贴板');
+    });
+  };
+
   const getAccountByPort = port => {
     return $http.get('/api/admin/account/port/' + port).then(success => success.data);
   };
@@ -379,6 +431,7 @@ app.factory('adminApi', ['$http', '$q', 'moment', 'preload', '$timeout', 'config
     getIpInfo,
     changePassword,
     copyRenewTopic,
+    copyFlowAndCycle,
     getLast5MinFlow, // 确保这个方法被导出
   };
 }]);
