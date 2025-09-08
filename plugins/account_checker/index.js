@@ -553,7 +553,7 @@ cron.minute(async () => {
           const serverId = +accountLeft.split(':')[0];
           const accountId = +accountLeft.split(':')[1];
           const start = Date.now();
-          await checkAccount(serverId, accountId).catch(err => {});
+          checkAccount(serverId, accountId).catch(err => {});
           if(Date.now() - start < (1000 / speed)) {
             await sleep(1000 / speed - (Date.now() - start));
           }
@@ -562,7 +562,7 @@ cron.minute(async () => {
           const serverId = +accountRight.split(':')[0];
           const accountId = +accountRight.split(':')[1];
           const start = Date.now();
-          await checkAccount(serverId, accountId).catch(err => {});
+          checkAccount(serverId, accountId).catch(err => {});
           if(Date.now() - start < (1000 / speed)) {
             await sleep(1000 / speed - (Date.now() - start));
           }
