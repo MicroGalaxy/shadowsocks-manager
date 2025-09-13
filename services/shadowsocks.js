@@ -16,32 +16,38 @@ const host = config.shadowsocks.address.split(':')[0];
 const port = +config.shadowsocks.address.split(':')[1];
 const mPort = +config.manager.address.split(':')[1];
 
-// Create IPv6 socket with dual-stack support
-const clientV6 = dgram.createSocket('udp6');
-clientV6.setRecvBufferSize(64 * 1024);
-clientV6.setSendBufferSize(64 * 1024);
-
-// Use IPv6 socket for communication (supports both IPv4 and IPv6)
-const client = clientV6;
-
-// Bind IPv6 socket to listen on both IPv4 and IPv6
+// Create UDP socket with dual-stack support
+let client;
 try {
-  // Set IPv6Only to false to enable dual-stack (IPv4 + IPv6)
-  clientV6.bind(mPort, '::', () => {
+  // Try to create dual-stack IPv6 socket (supports both IPv4 and IPv6)
+  client = dgram.createSocket({ type: 'udp6', ipv6Only: false });
+  client.bind(mPort, '::', () => {
     try {
-      clientV6.setRecvBufferSize(64 * 1024);
-      clientV6.setSendBufferSize(64 * 1024);
-      logger.info('Dual-stack socket (IPv4 + IPv6) bound successfully on port', mPort);
+      client.setRecvBufferSize(64 * 1024);
+      client.setSendBufferSize(64 * 1024);
+      logger.info('Dual-stack UDP socket (IPv4 + IPv6) bound successfully on port', mPort);
     } catch (err) {
       logger.warn('Failed to configure socket buffers:', err.message);
     }
   });
 } catch (err) {
-  logger.error('Failed to bind dual-stack socket:', err.message);
+  logger.warn('Failed to bind dual-stack socket, falling back to IPv4:', err.message);
   // Fallback to IPv4 only
-  const clientV4 = dgram.createSocket('udp4');
-  clientV4.bind(mPort, '0.0.0.0');
-  logger.info('Fallback to IPv4-only socket on port', mPort);
+  try {
+    client = dgram.createSocket('udp4');
+    client.bind(mPort, '0.0.0.0', () => {
+      try {
+        client.setRecvBufferSize(64 * 1024);
+        client.setSendBufferSize(64 * 1024);
+        logger.info('IPv4-only UDP socket bound successfully on port', mPort);
+      } catch (err) {
+        logger.warn('Failed to configure socket buffers:', err.message);
+      }
+    });
+  } catch (fallbackErr) {
+    logger.error('Failed to bind IPv4 socket:', fallbackErr.message);
+    throw fallbackErr;
+  }
 }
 
 const knex = appRequire('init/knex').knex;
