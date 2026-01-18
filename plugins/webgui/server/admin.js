@@ -918,8 +918,8 @@ exports.getSharedIpRecords = async (req, res) => {
 
 exports.getSharedIpStats = async (req, res) => {
   try {
-    // 获取最近一周的时间范围
-    const oneWeekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+    // 获取最近一周的时间范围（datetime格式）
+    const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     
     // 获取分页参数
     const page = parseInt(req.query.page) || 1;
