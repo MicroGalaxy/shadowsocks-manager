@@ -124,11 +124,15 @@ const list = async (options = {}) => {
         return { status: -1, index };
       });
     };
-    serverList.forEach((server, index) => {
-      serverStatus.push(getServerStatus(server, index));
-    });
-    const status = await Promise.all(serverStatus);
-    status.forEach(f => {
+    const statusResults = [];
+    const batchSize = 5;
+    for (let i = 0; i < serverList.length; i += batchSize) {
+      const chunk = serverList.slice(i, i + batchSize);
+      const promises = chunk.map((server, idx) => getServerStatus(server, i + idx));
+      const results = await Promise.all(promises);
+      statusResults.push(...results);
+    }
+    statusResults.forEach(f => {
       serverList[f.index].status = f.status;
       serverList[f.index].isGfw = !!f.isGfw;
       serverList[f.index].number = f.number;

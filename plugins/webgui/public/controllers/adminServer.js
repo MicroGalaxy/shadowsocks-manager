@@ -80,12 +80,26 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
     }
     $scope.servers = $localStorage.admin.serverInfo.data;
     $scope.online = {};
+    let isUpdating = false;
+
     const updateServerInfo = () => {
-      $http.get('/api/admin/account/online').then(success => {
-        $scope.online = success.data;
-      });
-      adminApi.getServer(true).then(servers => {
+      if (isUpdating) return;
+      
+      isUpdating = true;
+
+      // 使用批量请求，先获取基础信息
+      const requests = [
+        $http.get('/api/admin/account/online'),
+        adminApi.getServer(true)
+      ];
+
+      Promise.all(requests).then(([onlineResponse, servers]) => {
+        isUpdating = false;
+        $scope.online = onlineResponse.data;
+
         if(servers.map(s => s.id).join('') === $scope.servers.map(s => s.id).join('')) {
+          // 服务器列表未变化，只更新数据
+          $localStorage.admin.serverInfo.time = Date.now();
           $scope.servers.forEach((server, index) => {
             server.host = servers[index].host;
             server.name = servers[index].name;
@@ -93,16 +107,22 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
             server.status = servers[index].status;
             server.isGfw = servers[index].isGfw;
             server.number = servers[index].number;
-            adminApi.getServerFlow(server.id).then(flow => {
-              if(!server.flow) {
-                server.flow = {};
+
+            $timeout(() => {
+              // 只在需要时获取流量数据
+              if($scope.serverChart.showFlow) {
+                adminApi.getServerFlow(server.id).then(flow => {
+                  if(!server.flow) {
+                    server.flow = {};
+                  }
+                  server.flow.today = flow.today;
+                  server.flow.week = flow.week;
+                  server.flow.month = flow.month;
+                });
               }
-              server.flow.today = flow.today;
-              server.flow.week = flow.week;
-              server.flow.month = flow.month;
-            });
-            if($scope.serverChart.showChart) {
-              $timeout(() => {
+
+              // 只在需要时获取图表数据
+              if($scope.serverChart.showChart) {
                 adminApi.getServerFlowLastHour(server.id)
                 .then(success => {
                   if(!server.chart) {
@@ -115,21 +135,24 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
                   });
                   server.sumFlowOneHour = server.chart.data[0].reduce((a, b) => a + b);
                 });
-              }, index * 1000);
-            }
+              }
+            }, Math.floor(index / 2) * 1000);
           });
         } else {
+          // 服务器列表有变化，重新加载
           $localStorage.admin.serverInfo = {
             time: Date.now(),
             data: servers,
           };
           $scope.servers = servers;
           $scope.servers.forEach((server, index) => {
-            adminApi.getServerFlow(server.id).then(flow => {
-              server.flow = flow;
-            });
-            if($scope.serverChart.showChart) {
-              $timeout(() => {
+            $timeout(() => {
+              if($scope.serverChart.showFlow) {
+                adminApi.getServerFlow(server.id).then(flow => {
+                  server.flow = flow;
+                });
+              }
+              if($scope.serverChart.showChart) {
                 adminApi.getServerFlowLastHour(server.id)
                 .then(success => {
                   if(!server.chart) {
@@ -142,8 +165,8 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
                   });
                   server.sumFlowOneHour = server.chart.data[0].reduce((a, b) => a + b);
                 });
-              }, index * 1000);
-            }
+              }
+            }, Math.floor(index / 2) * 1000);
           });
         }
         const { number } = $scope.servers.reduce((a, b) => {
@@ -155,21 +178,22 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
         } else {
           $scope.setFabNumber($scope.servers.length + ' / ' + number);
         }
+      }).catch(err => {
+        isUpdating = false;
+        console.error('Failed to update server info:', err);
       });
     };
     updateServerInfo();
     $scope.$on('visibilitychange', (event, status) => {
       if(status === 'visible') {
-        if($localStorage.admin.serverInfo && Date.now() - $localStorage.admin.serverInfo.time >= 30 * 1000) {
-          updateServerInfo();
-        }
+        updateServerInfo();
       }
     });
     $scope.setInterval($interval(() => {
-      if(document.visibilityState === 'visible' && $localStorage.admin.serverInfo && Date.now() - $localStorage.admin.serverInfo.time >= 90 * 1000) {
+      if(document.visibilityState === 'visible' && $localStorage.admin.serverInfo && Date.now() - $localStorage.admin.serverInfo.time >= 600 * 1000) {
         updateServerInfo();
       }
-    }, 15 * 1000));
+    }, 60 * 1000));
     $scope.toServerPage = (serverId) => {
       $state.go('admin.serverPage', { serverId });
     };

@@ -88,39 +88,48 @@ app.factory('adminApi', ['$http', '$q', 'moment', 'preload', '$timeout', 'config
     return macAccountPromise;
   };
 
+  let serverFlowPromise = {};
   const getServerFlow = serverId => {
-    return $q.all([
-      $http.get('/api/admin/flow/' + serverId, {
-        params: {
-          time: [
-            moment().hour(0).minute(0).second(0).millisecond(0).toDate().valueOf(),
-            moment().toDate().valueOf(),
-          ],
-        }
-      }),
-      $http.get('/api/admin/flow/' + serverId, {
+    // 如果已有正在进行的请求，直接返回
+    if(serverFlowPromise[serverId] && !serverFlowPromise[serverId].$$state.status) {
+      return serverFlowPromise[serverId];
+    }
+    
+    const results = {};
+    
+    serverFlowPromise[serverId] = $http.get('/api/admin/flow/' + serverId, {
+      params: {
+        time: [
+          moment().hour(0).minute(0).second(0).millisecond(0).toDate().valueOf(),
+          moment().toDate().valueOf(),
+        ],
+      }
+    }).then(success => {
+      results.today = success.data[0];
+      return $http.get('/api/admin/flow/' + serverId, {
         params: {
           time: [
             moment().day(0).hour(0).minute(0).second(0).millisecond(0).toDate().valueOf(),
             moment().toDate().valueOf(),
           ],
         }
-      }),
-      $http.get('/api/admin/flow/' + serverId, {
+      });
+    }).then(success => {
+      results.week = success.data[0];
+      return $http.get('/api/admin/flow/' + serverId, {
         params: {
           time: [
             moment().date(1).hour(0).minute(0).second(0).millisecond(0).toDate().valueOf(),
             moment().toDate().valueOf(),
           ],
         }
-      }),
-    ]).then(success => {
-      return {
-        today: success[0].data[0],
-        week: success[1].data[0],
-        month: success[2].data[0],
-      };
+      });
+    }).then(success => {
+      results.month = success.data[0];
+      return results;
     });
+
+    return serverFlowPromise[serverId];
   };
 
   let serverFlowLastHourPromise = {};
