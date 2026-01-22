@@ -2,14 +2,25 @@
     <div layout="row" layout-wrap>
         <div flex-xs="100" flex-sm="50" flex-md="33" flex-gt-md="25" ng-repeat="a in recentUsers track by $index">
             <md-card ng-click="toUser(a)" md-colors="{{ accountColor(a) }}" class="hover-mouse hover-flow" style="min-width: 250px;">
-                <md-card-content>
-                    <div layout="row" layout-align="space-between center" style="word-break: keep-all; white-space:nowrap; overflow: hidden; text-overflow:ellipsis;">
-                        <div flex="30" ng-if="a.mac">账号{{ a.port }}</div>
-                        <div flex="30" ng-if="!a.mac">{{ a.port }}</div>
-                        <button ng-click="copyRenewTopic(a); $event.stopPropagation();" flex="45" ng-if="!a.mac && a.data" class="md-button md-raised">{{a.data.expire | date : 'MM-dd'}} ({{a.data.flow/1000000000 | number : 0}}G)</button>
-                        <div flex layout="row" layout-align="end center">
-                            <span ng-if="!a.mac" style="color: #aaa; font-size: 0.8em; text-overflow: ellipsis; overflow: hidden;">{{a.user || a.password}}</span>
-                            <div><md-icon>chevron_right</md-icon></div>
+                <md-card-content style="padding: 12px;">
+                    <div layout="column">
+                        <div layout="row" layout-align="space-between center">
+                            <div style="font-size: 16px; font-weight: bold;">
+                                <span ng-if="a.mac">账号{{ a.port }}</span>
+                                <span ng-if="!a.mac">{{ a.port }}</span>
+                            </div>
+                            <div layout="row" layout-align="end center">
+                                <button ng-click="copyRenewTopic(a); $event.stopPropagation();" 
+                                        ng-if="!a.mac && a.data"
+                                        class="md-button md-raised"
+                                        style="margin: 0 4px 0 0; min-height: 24px; line-height: 24px; font-size: 12px; padding: 0 8px;">
+                                    {{a.data.expire | date : 'MM-dd'}} ({{a.data.flow/1000000000 | number : 0}}G)
+                                </button>
+                                <md-icon style="min-width: 24px;">chevron_right</md-icon>
+                            </div>
+                        </div>
+                        <div layout="row" layout-align="start center" style="margin-top: 8px;">
+                            <span ng-if="!a.mac" style="color: #777; font-size: 13px; margin-right: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 150px;">{{a.user || a.password}}</span>
                         </div>
                     </div>
                 </md-card-content>
