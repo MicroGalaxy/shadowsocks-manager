@@ -878,6 +878,7 @@ const getAccountAndPaging = async (opt) => {
   const page = opt.page || 1;
   const pageSize = opt.pageSize || 20;
   const sort = opt.sort || 'port_asc';
+  console.log('[AccountPlugin] getAccountAndPaging sort:', sort);
   const filter = opt.filter;
 
   const where = {};
@@ -903,9 +904,19 @@ const getAccountAndPaging = async (opt) => {
     'user.id as userId',
     'user.email as user',
   ])
-  .leftJoin('user', 'user.id', 'account_plugin.userId')
-  .orderBy('account_plugin.port', 'ASC')
-  .where(where);
+  .leftJoin('user', 'user.id', 'account_plugin.userId');
+
+  if (sort === 'id_asc') {
+    account = account.orderBy('account_plugin.id', 'ASC');
+  } else if (sort === 'id_desc') {
+    account = account.orderBy('account_plugin.id', 'DESC');
+  } else if (sort === 'port_desc') {
+    account = account.orderBy('account_plugin.port', 'DESC');
+  } else {
+    account = account.orderBy('account_plugin.port', 'ASC');
+  }
+  
+  account = account.where(where);
 
   if(!filter.hasUser && filter.noUser) {
     account = await account.whereNull('user.id');
@@ -971,6 +982,10 @@ const getAccountAndPaging = async (opt) => {
       if(!a.data) { return 1; }
       if(!b.data) { return -1; }
       return a.data.expire >= b.data.expire ? 1 : -1;
+    } else if (sort === 'id_desc') {
+      return +a.id <= +b.id ? 1 : -1;
+    } else if (sort === 'id_asc') {
+      return +a.id >= +b.id ? 1 : -1;
     }
   });
 
