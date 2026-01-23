@@ -595,6 +595,29 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
         clickOutsideToClose: true
       });
     };
+
+    $scope.addFlowPackDialog = (ev) => {
+      $mdDialog.show({
+        controller: 'AddFlowPackController',
+        templateUrl: '/public/views/dialog/addFlowPack.html',
+        parent: angular.element(document.body),
+        targetEvent: ev,
+        clickOutsideToClose: true,
+        locals: {
+          accountId: $scope.accountId,
+          accountData: $scope.account.data,
+          accountType: $scope.account.type,
+          orderId: $scope.account.orderId
+        }
+      })
+      .then(() => {
+        // 刷新数据
+        $scope.getServerPortData($scope.server, $scope.accountId);
+        $http.get(`/api/admin/account/${ $scope.accountId }`).then(success => {
+             $scope.account.data = success.data.data;
+        });
+      }, () => {});
+    };
   }
 ])
 .controller('AdminAddAccountController', ['$scope', '$state', '$http', '$mdBottomSheet', 'alertDialog', '$filter', 'setAccountServerDialog',
@@ -1130,6 +1153,67 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
     // 关闭对话框
     $scope.cancel = () => {
       $mdDialog.cancel();
+    };
+  }
+])
+.controller('AddFlowPackController', ['$scope', '$mdDialog', '$http', 'accountId', 'accountData', 'accountType', 'orderId',
+  ($scope, $mdDialog, $http, accountId, accountData, accountType, orderId) => {
+    $scope.orders = [];
+    $scope.selectedOrder = null;
+    $scope.createTime = Date.now();
+    $scope.endTime = null;
+
+    $http.get('/api/admin/order').then(success => {
+      // 过滤出流量包订单：baseId 必须等于当前账号的 orderId
+      if (orderId) {
+        $scope.orders = success.data.filter(f => f.baseId === orderId);
+      } else {
+        // 如果账号没有 orderId，可能无法匹配流量包，暂且显示空或所有？
+        // 按照严格逻辑，没有套餐就不能买流量包，这里显示空
+        $scope.orders = [];
+      }
+      
+      // 如果有可用的流量包，默认选中第一个
+      if ($scope.orders.length > 0) {
+        $scope.selectedOrder = $scope.orders[0];
+        $scope.updateDetails();
+      }
+    });
+
+    $scope.updateDetails = () => {
+      if (!$scope.selectedOrder) return;
+      
+      $scope.createTime = Date.now();
+      
+      if (accountType === 1) {
+        // 不限量账号，永久有效
+        $scope.endTime = null; 
+      } else if (accountData && accountData.to && accountData.from) {
+        // 周期账号：有效期 = 当前周期剩余 + 下一个周期
+        // 逻辑：如果现在买，它在当前周期有效，且在下一个周期有效。
+        // 所以失效时间应该是 下一个周期的结束时间。
+        // 周期长度
+        const cycleLength = accountData.to - accountData.from;
+        // 当前周期结束时间是 accountData.to
+        // 下一个周期结束时间
+        $scope.endTime = accountData.to + cycleLength;
+      }
+    };
+
+    $scope.cancel = () => {
+      $mdDialog.cancel();
+    };
+
+    $scope.confirm = () => {
+      $http.post(`/api/admin/account/${accountId}/flowPack`, {
+        orderId: $scope.selectedOrder.id,
+        createTime: $scope.createTime
+      }).then(() => {
+        $mdDialog.hide();
+      }).catch(err => {
+        console.error(err);
+        alert('添加失败');
+      });
     };
   }
 ]);

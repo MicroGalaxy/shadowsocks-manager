@@ -710,6 +710,30 @@ exports.resetAccountFlow = (req, res) => {
   });
 };
 
+exports.addFlowPack = async (req, res) => {
+  try {
+    const accountId = +req.params.accountId;
+    const orderId = +req.body.orderId;
+    const createTime = +req.body.createTime || Date.now();
+
+    const order = await knex('webgui_order').where({ id: orderId }).first();
+    if (!order) {
+      return res.status(404).send('Order not found');
+    }
+
+    await knex('webgui_flow_pack').insert({
+      accountId,
+      flow: order.flow,
+      createTime: createTime,
+    });
+    await accountFlow.edit(accountId);
+    res.send('success');
+  } catch (err) {
+    console.log(err);
+    res.status(500).end();
+  }
+};
+
 exports.newPortForAddAccount = async (req, res) => {
   try {
     let newPort;

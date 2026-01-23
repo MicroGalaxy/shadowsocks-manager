@@ -206,7 +206,7 @@ const isOverFlow = async (server, account) => {
       sumFlow += Math.ceil(flow * serverObj[s].scale);
     }
 
-    const flowPacks = await knex('webgui_flow_pack').where({ accountId: account.id }).whereBetween('createTime', [startTime, endTime]);
+    const flowPacks = await knex('webgui_flow_pack').where({ accountId: account.id }).whereBetween('createTime', [startTime - timePeriod, endTime]);
     const flowWithFlowPacks = flowPacks.reduce((a, b) => {
       return { flow: a.flow + b.flow };
     }, { flow: data.flow }).flow;

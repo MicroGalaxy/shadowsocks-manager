@@ -1,0 +1,46 @@
+<md-dialog aria-label="添加流量包">
+    <md-toolbar>
+        <div class="md-toolbar-tools">
+            <h2>添加流量包</h2>
+            <span flex></span>
+            <md-button class="md-icon-button" ng-click="cancel()">
+                <md-icon>close</md-icon>
+            </md-button>
+        </div>
+    </md-toolbar>
+    <md-dialog-content>
+        <div class="md-dialog-content" style="min-width: 300px;">
+            <div layout="column">
+                <md-input-container>
+                    <label>选择流量包</label>
+                    <md-select ng-model="selectedOrder" ng-change="updateDetails()">
+                        <md-option ng-repeat="order in orders" ng-value="order">
+                            {{order.name}} ({{order.flow | flow}})
+                        </md-option>
+                    </md-select>
+                </md-input-container>
+
+                <div ng-if="selectedOrder" layout="column" style="margin-top: 10px;">
+                    <div layout="row" layout-align="space-between center" style="margin-bottom: 8px;">
+                        <span style="color: #666;">流量大小：</span>
+                        <span style="font-weight: bold;">{{ selectedOrder.flow | flow }}</span>
+                    </div>
+                    <div layout="row" layout-align="space-between center" style="margin-bottom: 8px;">
+                        <span style="color: #666;">生效时间：</span>
+                        <span>{{ createTime | date:'yyyy-MM-dd HH:mm:ss' }}</span>
+                    </div>
+                    <div layout="row" layout-align="space-between center" style="margin-bottom: 8px;">
+                        <span style="color: #666;">预计失效时间：</span>
+                        <span>{{ endTime | date:'yyyy-MM-dd HH:mm:ss' }}</span>
+                        <!-- <span style="font-size: 0.8em; color: #999;">(当前周期 + 下一周期)</span> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </md-dialog-content>
+    <md-dialog-actions layout="row">
+        <span flex></span>
+        <md-button ng-click="cancel()">取消</md-button>
+        <md-button class="md-primary md-raised" ng-click="confirm()" ng-disabled="!selectedOrder">确定添加</md-button>
+    </md-dialog-actions>
+</md-dialog>

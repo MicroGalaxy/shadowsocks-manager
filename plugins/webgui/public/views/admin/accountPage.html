@@ -83,12 +83,14 @@
                                 </div>
                             </md-list-item>
                             <md-divider ng-show="isWG(server)"></md-divider>
-                            <md-list-item ng-click="copyFlowAndCycle()">
+                            <md-list-item>
                                 <div flex layout="row" layout-align="space-between center">
-                                    <div flex="40" translate>流量：</div>
-                                    <div flex="60" style="text-align:right">
-                                        <!-- <span ng-if="account.type === 1" translate><span style="color: #333">{{ serverPortFlow | flow }}</span> / 不限量</span> -->
-                                        <span ng-if="account.type >= 1 && account.type <= 5"><span ng-style="server.isFlowOutOfLimit ? {color: '#a33'} : {color: '#333'}">{{ serverPortFlow | flow }}</span> / <span ng-show="account.data.flow > 0">{{ account.data.flow + account.data.flowPack | flow}}</span><span ng-show="!account.data || account.data.flow <= 0">∞</span></span>
+                                    <div flex="30" translate>流量：</div>
+                                    <div flex="70" style="text-align:right" layout="row" layout-align="end center">
+                                        <div flex style="margin-right: 10px; cursor: pointer;" ng-click="copyFlowAndCycle()">
+                                            <span ng-if="account.type >= 1 && account.type <= 5"><span ng-style="server.isFlowOutOfLimit ? {color: '#a33'} : {color: '#333'}">{{ serverPortFlow | flow }}</span> / <span ng-show="account.data.flow > 0">{{ account.data.flow + account.data.flowPack | flow}}</span><span ng-show="!account.data || account.data.flow <= 0">∞</span></span>
+                                        </div>
+                                        <md-button class="md-raised md-primary md-small" style="min-height: 24px; line-height: 24px; font-size: 12px; margin: 0; padding: 0 8px;" ng-click="addFlowPackDialog($event)">添加流量包</md-button>
                                     </div>
                                 </div>
                             </md-list-item>
