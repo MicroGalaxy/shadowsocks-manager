@@ -94,6 +94,7 @@ app.get('/api/admin/account/newPort', isAdmin, isSuperAdmin, admin.newPortForAdd
 app.put('/api/admin/account/:accountId(\\d+)/port', isAdmin, isSuperAdmin, admin.changeAccountPort);
 app.put('/api/admin/account/:accountId(\\d+)/data', isAdmin, isSuperAdmin, admin.changeAccountData);
 app.put('/api/admin/account/:accountId(\\d+)/time', isAdmin, isSuperAdmin, admin.changeAccountTime);
+app.post('/api/admin/account/:accountId(\\d+)/renew', isAdmin, isSuperAdmin, admin.renewAccount);
 app.post('/api/admin/account/:accountId(\\d+)/flowPack', isAdmin, isSuperAdmin, admin.addFlowPack);
 app.delete('/api/admin/account/:accountId(\\d+)', isAdmin, isSuperAdmin, admin.deleteAccount);
 app.post('/api/admin/account/:accountId(\\d+)/resetFlow', isAdmin, isSuperAdmin, admin.resetAccountFlow);

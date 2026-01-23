@@ -83,14 +83,11 @@
                                 </div>
                             </md-list-item>
                             <md-divider ng-show="isWG(server)"></md-divider>
-                            <md-list-item>
+                            <md-list-item ng-click="copyFlowAndCycle()">
                                 <div flex layout="row" layout-align="space-between center">
-                                    <div flex="30" translate>流量：</div>
-                                    <div flex="70" style="text-align:right" layout="row" layout-align="end center">
-                                        <div flex style="margin-right: 10px; cursor: pointer;" ng-click="copyFlowAndCycle()">
-                                            <span ng-if="account.type >= 1 && account.type <= 5"><span ng-style="server.isFlowOutOfLimit ? {color: '#a33'} : {color: '#333'}">{{ serverPortFlow | flow }}</span> / <span ng-show="account.data.flow > 0">{{ account.data.flow + account.data.flowPack | flow}}</span><span ng-show="!account.data || account.data.flow <= 0">∞</span></span>
-                                        </div>
-                                        <md-button class="md-raised md-primary md-small" style="min-height: 24px; line-height: 24px; font-size: 12px; margin: 0; padding: 0 8px;" ng-click="addFlowPackDialog($event)">添加流量包</md-button>
+                                    <div flex="40" translate>流量：</div>
+                                    <div flex="60" style="text-align:right">
+                                        <span ng-if="account.type >= 1 && account.type <= 5"><span ng-style="server.isFlowOutOfLimit ? {color: '#a33'} : {color: '#333'}">{{ serverPortFlow | flow }}</span> / <span ng-show="account.data.flow > 0">{{ account.data.flow + account.data.flowPack | flow}}</span><span ng-show="!account.data || account.data.flow <= 0">∞</span></span>
                                     </div>
                                 </div>
                             </md-list-item>
@@ -122,6 +119,16 @@
                                         <span ng-if="account.type >=2 && account.type <= 5 && account.active !== 0">
                                             <span ng-if="account.active !== 0" style="font-size: 0.9em;">{{account.data.expire | date : 'yyyy-MM-dd HH:mm'}}</span><br><span style="font-size: 0.9em;" ng-style="fontColor(account)">{{ account.data.expire | timeago | translateTime }}</span>
                                         </span>
+                                    </div>
+                                </div>
+                            </md-list-item>
+                            <md-divider></md-divider>
+                            <md-list-item>
+                                <div flex layout="row" layout-align="space-between center">
+                                    <div flex="40" translate>操作：</div>
+                                    <div flex="60" style="text-align:right" layout="row" layout-align="end center">
+                                        <md-button class="md-raised md-primary" ng-click="addFlowPackDialog($event)" style="min-height: 24px; line-height: 24px; font-size: 13px; margin: 0 10px 0 0; padding: 0 8px;">添加流量包</md-button>
+                                        <md-button class="md-raised md-primary" ng-click="renewAccountDialog($event)" style="min-height: 24px; line-height: 24px; font-size: 13px; margin: 0; padding: 0 8px;">续费</md-button>
                                     </div>
                                 </div>
                             </md-list-item>

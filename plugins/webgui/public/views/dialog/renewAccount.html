@@ -1,0 +1,36 @@
+<md-dialog aria-label="续费账号">
+    <md-toolbar>
+        <div class="md-toolbar-tools">
+            <h2>续费账号</h2>
+            <span flex></span>
+            <md-button class="md-icon-button" ng-click="cancel()">
+                <md-icon>close</md-icon>
+            </md-button>
+        </div>
+    </md-toolbar>
+    <md-dialog-content>
+        <div class="md-dialog-content" style="min-width: 300px;">
+            <div layout="column">
+                <div layout="row" layout-align="space-between center" style="margin-bottom: 15px;">
+                    <span style="color: #666;">当前到期时间：</span>
+                    <span style="font-weight: bold;">{{ currentExpire | date:'yyyy-MM-dd HH:mm' }}</span>
+                </div>
+                
+                <div layout="row" layout-align="space-between center" style="margin-bottom: 15px;">
+                    <span style="color: #666;">续费周期：</span>
+                    <span>{{ cycleName }}</span>
+                </div>
+
+                <div layout="row" layout-align="space-between center" style="padding-top: 10px; border-top: 1px dashed #ddd;">
+                    <span style="color: #666;">预计到期时间：</span>
+                    <span style="font-weight: bold; color: #4CAF50;">{{ newExpire | date:'yyyy-MM-dd HH:mm' }}</span>
+                </div>
+            </div>
+        </div>
+    </md-dialog-content>
+    <md-dialog-actions layout="row">
+        <span flex></span>
+        <md-button ng-click="cancel()">取消</md-button>
+        <md-button class="md-primary md-raised" ng-click="confirm()">确定续费</md-button>
+    </md-dialog-actions>
+</md-dialog>

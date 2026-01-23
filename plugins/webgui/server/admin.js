@@ -224,6 +224,22 @@ exports.changeAccountTime = (req, res) => {
   });
 };
 
+exports.renewAccount = async (req, res) => {
+  try {
+    const accountId = +req.params.accountId;
+    const accountInfo = await account.getAccount({ id: accountId }).then(s => s[0]);
+    let renewCycle = 1;
+    if (accountInfo && accountInfo.orderCycle) {
+      renewCycle = accountInfo.orderCycle;
+    }
+    await account.addAccountLimit(accountId, renewCycle);
+    res.send('success');
+  } catch (err) {
+    console.log(err);
+    res.status(500).end();
+  }
+};
+
 exports.getRecentSignUpUsers = (req, res) => {
   const group = req.adminInfo.id === 1 ? -1 : req.adminInfo.group;
   const number = req.query.number ? +req.query.number : 5;

@@ -618,6 +618,81 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
         });
       }, () => {});
     };
+
+    $scope.renewAccountDialog = (ev) => {
+      // 只有周期性账号才能续费 (Type 2-5)
+      if ($scope.account.type < 2 || $scope.account.type > 5) {
+        alert('只有周期性账号(周/月/天/时)支持此操作');
+        return;
+      }
+
+      $mdDialog.show({
+        controller: 'RenewAccountController',
+        templateUrl: '/public/views/dialog/renewAccount.html',
+        parent: angular.element(document.body),
+        targetEvent: ev,
+        clickOutsideToClose: true,
+        locals: {
+          accountId: $scope.accountId,
+          accountData: $scope.account.data,
+          accountType: $scope.account.type,
+          orderCycle: $scope.account.orderCycle || 1
+        }
+      })
+      .then(() => {
+        // 刷新数据
+        $http.get(`/api/admin/account/${ $scope.accountId }`).then(success => {
+             $scope.account.data = success.data.data;
+        });
+      }, () => {});
+    };
+  }
+])
+.controller('RenewAccountController', ['$scope', '$mdToast', '$mdDialog', '$http', 'accountId', 'accountData', 'accountType', 'orderCycle',
+  ($scope, $mdToast, $mdDialog, $http, accountId, accountData, accountType, orderCycle) => {
+    $scope.currentExpire = accountData.expire;
+    
+    const timeMap = {
+      2: { name: '周', ms: 7 * 24 * 3600000 },
+      3: { name: '月', ms: 30 * 24 * 3600000 },
+      4: { name: '天', ms: 24 * 3600000 },
+      5: { name: '小时', ms: 3600000 }
+    };
+
+    const cycle = timeMap[accountType];
+    const duration = cycle.ms * orderCycle;
+    const days = duration / (24 * 3600000);
+    
+    if (days >= 1) {
+      $scope.cycleName = `+ ${days} 天`;
+    } else {
+      $scope.cycleName = `+ ${duration / 3600000} 小时`;
+    }
+    
+    // 计算预计到期时间
+    const now = Date.now();
+    
+    if ($scope.currentExpire < now) {
+      // 已过期，从现在开始计算 + orderCycle 周期
+      $scope.newExpire = now + duration;
+    } else {
+      // 未过期，在当前到期时间上 + orderCycle 周期
+      $scope.newExpire = $scope.currentExpire + duration;
+    }
+
+    $scope.cancel = () => {
+      $mdDialog.cancel();
+    };
+
+    $scope.confirm = () => {
+      $http.post(`/api/admin/account/${accountId}/renew`).then(() => {
+        $mdToast.showSimple('续费成功');
+        $mdDialog.hide();
+      }).catch(err => {
+        console.error(err);
+        alert('续费失败');
+      });
+    };
   }
 ])
 .controller('AdminAddAccountController', ['$scope', '$state', '$http', '$mdBottomSheet', 'alertDialog', '$filter', 'setAccountServerDialog',
@@ -1156,8 +1231,8 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
     };
   }
 ])
-.controller('AddFlowPackController', ['$scope', '$mdDialog', '$http', 'accountId', 'accountData', 'accountType', 'orderId',
-  ($scope, $mdDialog, $http, accountId, accountData, accountType, orderId) => {
+.controller('AddFlowPackController', ['$scope', '$mdToast', '$mdDialog', '$http', 'accountId', 'accountData', 'accountType', 'orderId',
+  ($scope, $mdToast, $mdDialog, $http, accountId, accountData, accountType, orderId) => {
     $scope.orders = [];
     $scope.selectedOrder = null;
     $scope.createTime = Date.now();
@@ -1209,6 +1284,7 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
         orderId: $scope.selectedOrder.id,
         createTime: $scope.createTime
       }).then(() => {
+        $mdToast.showSimple('添加流量包成功');
         $mdDialog.hide();
       }).catch(err => {
         console.error(err);

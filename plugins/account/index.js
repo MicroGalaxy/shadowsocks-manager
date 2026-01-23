@@ -109,6 +109,7 @@ const getAccount = async (options = {}) => {
     'account_plugin.type',
     'account_plugin.orderId',
     'webgui_order.name as orderName',
+    'webgui_order.cycle as orderCycle',
     'account_plugin.userId',
     'account_plugin.server',
     'account_plugin.port',
