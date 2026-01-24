@@ -124,11 +124,19 @@
                             </md-list-item>
                             <md-divider></md-divider>
                             <md-list-item>
-                                <div flex layout="row" layout-align="space-between center">
-                                    <div flex="40" translate>操作：</div>
-                                    <div flex="60" style="text-align:right" layout="row" layout-align="end center">
-                                        <md-button class="md-raised md-primary" ng-click="addFlowPackDialog($event)" style="min-height: 24px; line-height: 24px; font-size: 13px; margin: 0 10px 0 0; padding: 0 8px;">添加流量包</md-button>
-                                        <md-button class="md-raised md-primary" ng-click="renewAccountDialog($event)" style="min-height: 24px; line-height: 24px; font-size: 13px; margin: 0; padding: 0 8px;">续费</md-button>
+                                <div flex layout="row" layout-xs="column" layout-align="space-between center" layout-align-xs="start stretch">
+                                    <div flex="40" flex-xs="100" translate>操作：</div>
+                                    <div flex="60" flex-xs="100" layout="row" layout-align="end start" layout-align-xs="space-between start">
+                                        <div layout="column" flex-xs="50" style="margin-right: 5px;" layout-align="start stretch">
+                                            <md-button class="md-raised md-primary" ng-click="addFlowPackDialog($event)" style="margin: 0 0 6px 0;">添加流量包</md-button>
+                                            <md-button ng-show="isSS(server)" class="md-raised md-primary" ng-click="showNewQrcodeDialog(server, account)" style="margin: 0;">{{ '账号二维码' | translate }}</md-button>
+                                            <md-button ng-show="isWG(server)" class="md-raised md-primary" ng-click="showNewQrcodeDialog(server, account)" style="margin: 0;">{{ '账号二维码' | translate }}</md-button>
+                                            <md-button ng-show="isTJ(server)" class="md-raised md-primary" ng-click="showNewQrcodeDialog(server, account)" style="margin: 0;">{{ '账号二维码' | translate }}</md-button>
+                                        </div>
+                                        <div layout="column" flex-xs="50" style="margin-left: 5px;" layout-align="start stretch">
+                                            <md-button class="md-raised md-primary" ng-click="renewAccountDialog($event)" style="margin: 0 0 6px 0;">续费</md-button>
+                                            <md-button class="md-raised md-primary" ng-click="downloadShadowsocksR()" style="margin: 0;">{{ '下载ShadowsocksR' | translate }}</md-button>
+                                        </div>
                                     </div>
                                 </div>
                             </md-list-item>
@@ -145,12 +153,7 @@
                                 <p translate>查看共享IP</p>
                                 <md-icon class="md-secondary">chevron_right</md-icon>
                             </md-list-item>
-                            <md-divider></md-divider>
-                            <md-list-item>
-                                <div flex layout="row" layout-align="space-between center">
-                                    <div flex="40" translate>备注：</div><div flex="60" style="text-align:right">{{ server.comment }}</div>
-                                </div>
-                            </md-list-item>
+
                             <md-divider></md-divider>
                         </md-list>
                     </div>
@@ -159,11 +162,7 @@
                 <div layout="row" layout-align="center center" layout-wrap ng-if="servers.length">
                     <div flex-lg="10"></div>
                     <div flex="70" flex-md="80" flex-sm="100" flex-xs="100">
-                        <md-button class="md-primary" ng-click="downloadShadowsocksR()">{{ '下载ShadowsocksR' | translate }}</md-button>
                         <md-button class="md-primary" ng-click="subscribe(account.id)" ng-if="config.subscribe">{{ '订阅链接' | translate }}</md-button>
-                        <md-button ng-show="isSS(server)" class="md-primary" ng-click="showNewQrcodeDialog(server, account)">{{ '账号二维码' | translate }}</md-button>
-                        <md-button ng-show="isWG(server)" class="md-primary" ng-click="showNewQrcodeDialog(server, account)">{{ '账号二维码' | translate }}</md-button>
-                        <md-button ng-show="isTJ(server)" class="md-primary" ng-click="showNewQrcodeDialog(server, account)">{{ '账号二维码' | translate }}</md-button>
                     </div>
                     <div flex-lg="10"></div>
                 </div>
