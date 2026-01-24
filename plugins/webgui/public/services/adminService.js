@@ -163,6 +163,7 @@ app.factory('adminApi', ['$http', '$q', 'moment', 'preload', '$timeout', 'config
       $http.get('/api/admin/flow/top').then(success => success.data),
       $http.get('/api/admin/flow/top5min').then(success => success.data),
       $http.get('/api/admin/sharedip/stats?pageSize=5').then(success => success.data.data),
+      $http.get('/api/admin/system/stats').then(success => success.data),
     ]).then(success => {
       return {
         signup: success[0],
@@ -172,6 +173,7 @@ app.factory('adminApi', ['$http', '$q', 'moment', 'preload', '$timeout', 'config
         topFlow: success[4],
         last5minFlow: success[5],
         sharedIpStats: success[6],
+        systemStats: success[7],
       };
     });
     return indexInfoPromise;

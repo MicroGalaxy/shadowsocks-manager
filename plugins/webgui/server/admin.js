@@ -1011,3 +1011,107 @@ exports.deleteSharedIpRecords = async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 };
+
+exports.getSystemStats = async (req, res) => {
+  try {
+    const now = Date.now();
+    const sevenDaysLater = now + 7 * 24 * 60 * 60 * 1000;
+
+    const accounts = await account.getAccount();
+    
+    let expiredCount = 0;
+    let unexpiredCount = 0;
+    let expiringSoonCount = 0;
+    let usedPorts = new Set();
+
+    accounts.forEach(acc => {
+      usedPorts.add(acc.port);
+      
+      let data = acc.data;
+      if (typeof data === 'string') {
+        try { data = JSON.parse(data); } catch(e) { data = {}; }
+      }
+      
+      // Calculate expire time similar to getAccount logic
+      if(acc.type >= 2 && acc.type <= 5) {
+        const time = {
+          '2': 7 * 24 * 3600000,
+          '3': 30 * 24 * 3600000,
+          '4': 24 * 3600000,
+          '5': 3600000,
+        };
+        if (!data.expire && data.create && data.limit) {
+             data.expire = data.create + data.limit * time[acc.type];
+        }
+      }
+      
+      // Only count non-infinite accounts (type != 1) for expiration stats
+      if (acc.type !== 1 && data && data.expire) {
+        if (data.expire < now) {
+          expiredCount++;
+        } else {
+          unexpiredCount++;
+          if (data.expire < sevenDaysLater) {
+            expiringSoonCount++;
+          }
+        }
+      }
+    });
+
+    // Remaining Allocatable Accounts
+    const accountSetting = await knex('webguiSetting').where({ key: 'account' }).first();
+    let remainingPorts = 0;
+    if (accountSetting) {
+        try {
+          const val = JSON.parse(accountSetting.value);
+          if (val.port && val.port.start && val.port.end) {
+            const totalPorts = val.port.end - val.port.start + 1;
+            remainingPorts = totalPorts - usedPorts.size;
+            if (remainingPorts < 0) remainingPorts = 0;
+          }
+        } catch (e) {}
+    }
+
+    // User Count
+    const userCountResult = await knex('user').count('id as count').first();
+    const userCount = userCountResult ? userCountResult.count : 0;
+
+    // Server Count
+    const servers = await knex('server').select();
+    const serverCount = servers.length;
+    
+    // Offline Server Count
+    let offlineServerCount = 0;
+    const allTags = await knex('tag').where({ type: 'server' }).select('key', 'name');
+    
+    // Create a map of serverId -> tags
+    const serverTags = {};
+    allTags.forEach(tag => {
+        if (!serverTags[tag.key]) {
+            serverTags[tag.key] = [];
+        }
+        serverTags[tag.key].push(tag.name);
+    });
+
+    servers.forEach(server => {
+        const tags = serverTags[server.id] || [];
+        if (tags.includes('#pause') || tags.includes('#_pause')) {
+            offlineServerCount++;
+        }
+    });
+
+    res.send({
+        expiredCount,
+        unexpiredCount,
+        expiringSoonCount,
+        remainingPorts,
+        userCount,
+        serverCount,
+        offlineServerCount
+    });
+
+  } catch (err) {
+    console.log(err);
+    res.status(500).send('Error getting system stats');
+  }
+};

@@ -2,6 +2,59 @@
     <div flex-xs="100" flex-sm="100" flex-gt-sm="50">
         <md-card>
             <md-card-header>
+                <md-card-header-text>
+                    <span class="md-headline" translate>系统状态</span>
+                </md-card-header-text>
+            </md-card-header>
+            <md-card-content>
+                <md-list>
+                    <md-divider></md-divider>
+                    <md-list-item>
+                        <div flex layout="row" layout-align="space-between center">
+                            <div flex="60" translate>已过期账号数</div>
+                            <div flex="40" style="text-align: right; color: #F44336">{{ systemStats.expiredCount || '-' }}</div>
+                        </div>
+                        <md-divider></md-divider>
+                    </md-list-item>
+                    <md-list-item>
+                        <div flex layout="row" layout-align="space-between center">
+                            <div flex="60" translate>即将过期账号数/ 未过期账号数</div>
+                            <div flex="40" style="text-align: right;">
+                                <span style="color: #FF9800">{{ systemStats.expiringSoonCount || '-' }}</span> / <span style="color: #4CAF50">{{ systemStats.unexpiredCount || '-' }}</span>
+                            </div>
+                        </div>
+                        <md-divider></md-divider>
+                    </md-list-item>
+                     <md-list-item>
+                        <div flex layout="row" layout-align="space-between center">
+                            <div flex="60" translate>剩余可分配账号数</div>
+                            <div flex="40" style="text-align: right;">{{ systemStats.remainingPorts || '-' }}</div>
+                        </div>
+                        <md-divider></md-divider>
+                    </md-list-item>
+                    <md-list-item>
+                        <div flex layout="row" layout-align="space-between center">
+                            <div flex="60" translate>用户数</div>
+                            <div flex="40" style="text-align: right;">{{ systemStats.userCount || '-' }}</div>
+                        </div>
+                        <md-divider></md-divider>
+                    </md-list-item>
+                    <md-list-item>
+                        <div flex layout="row" layout-align="space-between center">
+                            <div flex="60" translate>服务器数 / 掉线</div>
+                            <div flex="40" style="text-align: right;">
+                                {{ systemStats.serverCount || '-' }} / <span ng-style="systemStats.offlineServerCount > 0 ? {color: '#F44336'} : {}">{{ systemStats.offlineServerCount || '-' }}</span>
+                            </div>
+                        </div>
+                        <md-divider></md-divider>
+                    </md-list-item>
+                </md-list>
+            </md-card-content>
+        </md-card>
+    </div>
+    <div flex-xs="100" flex-sm="100" flex-gt-sm="50">
+        <md-card>
+            <md-card-header>
                 <md-card-header-text ng-click="toRecentSignup()">
                     <span class="md-headline" translate style="cursor: pointer;">最新注册用户</span>
                 </md-card-header-text>

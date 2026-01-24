@@ -206,6 +206,7 @@ app.controller('AdminController', ['$scope', '$mdMedia', '$mdSidenav', '$state',
       $scope.topFlow = $localStorage.admin.indexInfo.data.topFlow;
       $scope.last5minFlow = $localStorage.admin.indexInfo.data.last5minFlow;
       $scope.sharedIpStats = $localStorage.admin.indexInfo.data.sharedIpStats;
+      $scope.systemStats = $localStorage.admin.indexInfo.data.systemStats;
     }
     // 跳转到用户详情页 - 用于最近注册用户
     $scope.toUserById = userId => {
@@ -303,6 +304,7 @@ app.controller('AdminController', ['$scope', '$mdMedia', '$mdSidenav', '$state',
         $scope.topFlow = success.topFlow;
         $scope.last5minFlow = success.last5minFlow;
         $scope.sharedIpStats = success.sharedIpStats;
+        $scope.systemStats = success.systemStats;
       });
     };
     updateIndexInfo();
