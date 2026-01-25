@@ -11,6 +11,7 @@ const adminServer = appRequire('plugins/webgui/server/adminServer');
 const adminForward = appRequire('plugins/webgui/server/adminForward');
 const adminDnsRecord = appRequire('plugins/webgui/server/adminDnsRecord');
 const adminAppleId = appRequire('plugins/webgui/server/adminAppleId');
+const adminServerCommand = appRequire('plugins/webgui/server/adminServerCommand');
 const adminFlow = appRequire('plugins/webgui/server/adminFlow');
 const adminSetting = appRequire('plugins/webgui/server/adminSetting');
 const adminNotice = appRequire('plugins/webgui/server/adminNotice');
@@ -78,6 +79,7 @@ app.get('/api/admin/server/:serverId(\\d+)', isAdmin, adminServer.getOneServer);
 app.post('/api/admin/server', isAdmin, isSuperAdmin, adminServer.addServer);
 app.put('/api/admin/server/:serverId(\\d+)', isAdmin, isSuperAdmin, adminServer.editServer);
 app.delete('/api/admin/server/:serverId(\\d+)', isAdmin, isSuperAdmin, adminServer.deleteServer);
+app.post('/api/admin/server/:serverId(\\d+)/execute', isAdmin, isSuperAdmin, adminServer.executeCommand);
 
 app.get('/api/admin/account', isAdmin, admin.getAccount);
 app.post('/api/admin/accountWithPage', isAdmin, admin.getAccountAndPaging);
@@ -230,6 +232,12 @@ app.get('/api/admin/appleid/:recordId(\\d+)', isAdmin, adminAppleId.getOneAppleI
 app.post('/api/admin/appleid', isAdmin, isSuperAdmin, adminAppleId.addAppleId);
 app.put('/api/admin/appleid/:recordId(\\d+)', isAdmin, isSuperAdmin, adminAppleId.editAppleId);
 app.delete('/api/admin/appleid/:recordId(\\d+)', isAdmin, isSuperAdmin, adminAppleId.deleteAppleId);
+
+app.get('/api/admin/serverCommand', isAdmin, adminServerCommand.getServerCommands);
+app.get('/api/admin/serverCommand/:id(\\d+)', isAdmin, adminServerCommand.getOneServerCommand);
+app.post('/api/admin/serverCommand', isAdmin, isSuperAdmin, adminServerCommand.addServerCommand);
+app.put('/api/admin/serverCommand/:id(\\d+)', isAdmin, isSuperAdmin, adminServerCommand.editServerCommand);
+app.delete('/api/admin/serverCommand/:id(\\d+)', isAdmin, isSuperAdmin, adminServerCommand.deleteServerCommand);
 
 app.get('/api/user/notice', isUser, user.getNotice);
 app.get('/api/user/account', isUser, user.getAccount);

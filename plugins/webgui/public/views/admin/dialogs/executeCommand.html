@@ -1,0 +1,58 @@
+<md-dialog aria-label="Execute Command">
+    <form ng-cloak>
+        <md-toolbar>
+            <div class="md-toolbar-tools">
+                <h2>执行命令</h2>
+                <span flex></span>
+                <md-button class="md-icon-button" ng-click="cancel()">
+                    <md-icon>close</md-icon>
+                </md-button>
+            </div>
+        </md-toolbar>
+
+        <md-dialog-content>
+            <div class="md-dialog-content" style="min-width: 400px;">
+                <div ng-if="!loading && commands.length === 0" layout="column" layout-align="center center" style="padding: 20px;">
+                    <p>没有可用命令，请先在设置中添加常用命令。</p>
+                </div>
+                <div layout="column" ng-if="!executing && !result && commands.length > 0">
+                    <md-input-container class="md-block">
+                        <label>选择命令</label>
+                        <md-select ng-model="form.selectedCommand" placeholder="请选择命令">
+                            <md-option ng-repeat="cmd in commands" ng-value="cmd">
+                                {{cmd.name}} ({{cmd.server_command}})
+                            </md-option>
+                        </md-select>
+                    </md-input-container>
+                </div>
+
+                <div layout="column" layout-align="center center" ng-if="executing">
+                    <md-progress-circular md-mode="indeterminate"></md-progress-circular>
+                    <p style="margin-top: 20px;">正在执行命令...</p>
+                </div>
+
+                <div layout="column" ng-if="result">
+                    <h3>执行结果:</h3>
+                    <pre style="background: #f5f5f5; padding: 10px; overflow: auto; max-height: 300px;">{{result}}</pre>
+                </div>
+            </div>
+        </md-dialog-content>
+
+        <md-dialog-actions layout="row" ng-if="!executing && !result">
+            <span flex></span>
+            <md-button ng-click="cancel()">
+                取消
+            </md-button>
+            <md-button class="md-raised md-primary" ng-click="execute()" ng-disabled="!form.selectedCommand" ng-if="commands.length > 0">
+                执行
+            </md-button>
+        </md-dialog-actions>
+        
+        <md-dialog-actions layout="row" ng-if="result">
+            <span flex></span>
+            <md-button class="md-raised md-primary" ng-click="cancel()">
+                关闭
+            </md-button>
+        </md-dialog-actions>
+    </form>
+</md-dialog>

@@ -18,6 +18,9 @@ const add = async options => {
     wgPort,
     tjPort,
     pluginOptions,
+    ssh_port,
+    ssh_user,
+    ssh_password,
   } = options;
   const [ serverId ] = await knex('server').insert({
     type,
@@ -34,6 +37,9 @@ const add = async options => {
     wgPort,
     tjPort,
     pluginOptions,
+    ssh_port,
+    ssh_user,
+    ssh_password,
   });
   accountFlow.addServer(serverId);
   return [ serverId ];
@@ -55,6 +61,7 @@ const edit = async options => {
     name, host, port, password, method, scale = 1, comment = '', shift = 0,
     key, net, wgPort, tjPort, pluginOptions,
     check,
+    ssh_port, ssh_user, ssh_password,
   } = options;
   const serverInfo = await knex('server').where({ id }).then(s => s[0]);
   if(serverInfo.shift !== shift) {
@@ -88,6 +95,9 @@ const edit = async options => {
     wgPort,
     tjPort,
     pluginOptions,
+    ssh_port,
+    ssh_user,
+    ssh_password,
   });
 };
 
@@ -108,6 +118,9 @@ const list = async (options = {}) => {
     'wgPort',
     'tjPort',
     'pluginOptions',
+    'ssh_port',
+    'ssh_user',
+    'ssh_password',
   ]).orderBy('name');
   if(options.status) {
     const serverStatus = [];

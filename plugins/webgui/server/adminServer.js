@@ -2,6 +2,7 @@ const manager = appRequire('services/manager');
 const serverManager = appRequire('plugins/flowSaver/server');
 const webguiTag = appRequire('plugins/webgui_tag');
 const knex = appRequire('init/knex').knex;
+const Client = require('ssh2').Client;
 
 exports.getServers = (req, res) => {
   serverManager.list({
@@ -52,6 +53,9 @@ exports.addServer = async (req, res) => {
     req.checkBody('method', 'Invalid method').notEmpty();
     req.checkBody('scale', 'Invalid scale').notEmpty();
     req.checkBody('shift', 'Invalid shift').isInt();
+    req.checkBody('ssh_port', 'Invalid ssh_port').isInt({min: 1, max: 65535});
+    req.checkBody('ssh_user', 'Invalid ssh_user').notEmpty();
+    req.checkBody('ssh_password', 'Invalid ssh_password').notEmpty();
     const result = await req.getValidationResult();
     if(!result.isEmpty()) { return Promise.reject(result.array()); }
     const type = req.body.type;
@@ -70,6 +74,9 @@ exports.addServer = async (req, res) => {
     const wgPort = isWG ? req.body.wgPort : null;
     const tjPort = isTj ? req.body.tjPort : null;
     const pluginOptions = req.body.pluginOptions;
+    const ssh_port = +req.body.ssh_port;
+    const ssh_user = req.body.ssh_user;
+    const ssh_password = req.body.ssh_password;
     await manager.send({
       command: 'flow',
       options: { clear: false, },
@@ -93,6 +100,9 @@ exports.addServer = async (req, res) => {
       wgPort,
       tjPort,
       pluginOptions,
+      ssh_port,
+      ssh_user,
+      ssh_password,
     });
     res.send({ serverId });
   } catch(err) {
@@ -111,6 +121,9 @@ exports.editServer = async (req, res) => {
     req.checkBody('method', 'Invalid method').notEmpty();
     req.checkBody('scale', 'Invalid scale').notEmpty();
     req.checkBody('shift', 'Invalid shift').isInt();
+    req.checkBody('ssh_port', 'Invalid ssh_port').isInt({min: 1, max: 65535});
+    req.checkBody('ssh_user', 'Invalid ssh_user').notEmpty();
+    req.checkBody('ssh_password', 'Invalid ssh_password').notEmpty();
     const result = await req.getValidationResult();
     if(!result.isEmpty()) { return Promise.reject(result.array()); }
     const serverId = req.params.serverId;
@@ -131,6 +144,9 @@ exports.editServer = async (req, res) => {
     const tjPort = isTj ? req.body.tjPort : null;
     const pluginOptions = req.body.pluginOptions;
     const check = +req.body.check;
+    const ssh_port = +req.body.ssh_port;
+    const ssh_user = req.body.ssh_user;
+    const ssh_password = req.body.ssh_password;
     await manager.send({
       command: 'flow',
       options: { clear: false, },
@@ -156,6 +172,9 @@ exports.editServer = async (req, res) => {
       tjPort,
       pluginOptions,
       check,
+      ssh_port,
+      ssh_user,
+      ssh_password,
     });
     res.send('success');
   } catch(err) {
@@ -197,5 +216,52 @@ exports.setTags = async (req, res) => {
   } catch(err) {
     console.log(err);
     res.status(403).end();
+  }
+};
+
+exports.executeCommand = async (req, res) => {
+  try {
+    const serverId = req.params.serverId;
+    const commandId = req.body.commandId;
+    
+    // Fetch server info
+    const server = await knex('server').where({ id: serverId }).first();
+    if (!server) return res.status(404).send('Server not found');
+    
+    // Fetch command
+    const commandObj = await knex('server_command').where({ id: commandId }).first();
+    if (!commandObj) return res.status(404).send('Command not found');
+    
+    const host = server.host.split(':')[0];
+    const conn = new Client();
+    conn.on('ready', () => {
+      conn.exec(commandObj.server_command, (err, stream) => {
+        if (err) {
+          conn.end();
+          return res.status(500).send(err.message);
+        }
+        let output = '';
+        stream.on('close', (code, signal) => {
+          conn.end();
+          res.send({ output });
+        }).on('data', (data) => {
+          output += data;
+        }).stderr.on('data', (data) => {
+          output += data;
+        });
+      });
+    }).on('error', (err) => {
+        console.log(err);
+        res.status(500).send('SSH Connection failed: ' + err.message);
+    }).connect({
+      host: host,
+      port: server.ssh_port || 22,
+      username: server.ssh_user,
+      password: server.ssh_password,
+      readyTimeout: 20000,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).end();
   }
 };

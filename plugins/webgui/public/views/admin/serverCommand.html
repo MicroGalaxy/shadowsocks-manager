@@ -1,0 +1,25 @@
+<div layout="row" layout-wrap>
+    <div ng-if="!commands.length && !loading" class="zero-element">没有常用命令<br /><span class="zero-element-link" ng-if="id === 1" ng-click="addCommand()">点击这里添加</span></div>
+    <div ng-if="loading" layout="row" layout-align="center center" style="width: 100%; height: 200px;">
+        <md-progress-circular md-mode="indeterminate"></md-progress-circular>
+    </div>
+    <div flex-xs="100" flex-sm="50" flex-md="33" flex-gt-md="25" ng-repeat="command in commands track by command.id" ng-show="showCommand(command.name)">
+        <md-card class="hover-mouse" ng-click="editCommand(command.id)">
+            <md-card-header>
+                <md-card-header-text>
+                    <span class="md-headline">{{command.name}}</span>
+                </md-card-header-text>
+            </md-card-header>
+            <md-card-content>
+                <div layout="column">
+                    <div layout="row" layout-align="start center">
+                        <code style="flex: 1; word-break: break-all; background: #f5f5f5; padding: 5px; border-radius: 4px;">{{command.server_command}}</code>
+                        <md-button class="md-icon-button" style="margin: 0; min-width: 40px;" ng-click="copyToClipboard(command.server_command, '命令', $event)" aria-label="复制">
+                            <md-icon>content_copy</md-icon>
+                        </md-button>
+                    </div>
+                </div>
+            </md-card-content>
+        </md-card>
+    </div>
+</div>

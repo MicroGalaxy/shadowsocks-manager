@@ -91,6 +91,27 @@
                     </div>
                 </md-input-container>
                 <md-input-container class="md-block">
+                    <label translate>SSH端口</label>
+                    <input type="number" required name="ssh_port" ng-model="server.ssh_port">
+                    <div ng-messages="serverForm.ssh_port.$error">
+                        <div ng-message="required" translate>SSH端口不能为空</div>
+                    </div>
+                </md-input-container>
+                <md-input-container class="md-block">
+                    <label translate>SSH用户</label>
+                    <input type="text" required name="ssh_user" ng-model="server.ssh_user">
+                    <div ng-messages="serverForm.ssh_user.$error">
+                        <div ng-message="required" translate>SSH用户不能为空</div>
+                    </div>
+                </md-input-container>
+                <md-input-container class="md-block">
+                    <label translate>SSH密码</label>
+                    <input type="text" required name="ssh_password" ng-model="server.ssh_password">
+                    <div ng-messages="serverForm.ssh_password.$error">
+                        <div ng-message="required" translate>SSH密码不能为空</div>
+                    </div>
+                </md-input-container>
+                <md-input-container class="md-block">
                     <label translate>插件参数</label>
                     <input type="text" name="pluginOptions" ng-model="server.pluginOptions">
                 </md-input-container>

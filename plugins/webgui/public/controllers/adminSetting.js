@@ -49,6 +49,10 @@ app.controller('AdminSettingsController', ['$scope', '$state',
           to: 'admin.accountSetting',
         },
         {
+          name: '常用命令',
+          to: 'admin.serverCommand',
+        },
+        {
           name: '修改密码',
           to: 'admin.passwordSetting',
         },

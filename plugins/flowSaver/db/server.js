@@ -21,6 +21,27 @@ const createTable = async () => {
         table.string('pluginOptions');
       });
     }
+
+    const hasSshPort = await knex.schema.hasColumn(tableName, 'ssh_port');
+    if(!hasSshPort) {
+      await knex.schema.table(tableName, function(table) {
+        table.integer('ssh_port');
+      });
+    }
+
+    const hasSshUser = await knex.schema.hasColumn(tableName, 'ssh_user');
+    if(!hasSshUser) {
+      await knex.schema.table(tableName, function(table) {
+        table.string('ssh_user');
+      });
+    }
+
+    const hasSshPassword = await knex.schema.hasColumn(tableName, 'ssh_password');
+    if(!hasSshPassword) {
+      await knex.schema.table(tableName, function(table) {
+        table.string('ssh_password');
+      });
+    }
   } else {
     await knex.schema.createTable(tableName, function(table) {
       table.increments('id');
@@ -38,6 +59,9 @@ const createTable = async () => {
       table.integer('wgPort');
       table.integer('tjPort');
       table.string('pluginOptions');
+      table.integer('ssh_port');
+      table.string('ssh_user');
+      table.string('ssh_password');
     });
   }
   const list = await knex('server').select(['name', 'host', 'port', 'password']);

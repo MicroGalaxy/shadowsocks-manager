@@ -523,6 +523,53 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
       if ($scope.visiblePortNumber < maxLength)
       $scope.visiblePortNumber = Math.min(maxLength, $scope.visiblePortNumber + 30);
     };
+    $scope.openExecuteCommandDialog = (ev) => {
+      const cdn = window.cdn || '';
+      $mdDialog.show({
+          controller: 'ExecuteCommandDialogController',
+          templateUrl: `${cdn}/public/views/admin/dialogs/executeCommand.html`,
+          parent: angular.element(document.body),
+          targetEvent: ev,
+          clickOutsideToClose: true,
+          fullscreen: $mdMedia('xs'),
+          locals: {
+              serverId: serverId
+          }
+      });
+    };
+  }
+])
+.controller('ExecuteCommandDialogController', ['$scope', '$http', '$mdDialog', 'serverId',
+  ($scope, $http, $mdDialog, serverId) => {
+    $scope.form = {};
+    $scope.commands = [];
+    $scope.loading = true;
+    $scope.executing = false;
+    $scope.result = '';
+    
+    $http.get('/api/admin/serverCommand').then(success => {
+      $scope.commands = success.data;
+      $scope.loading = false;
+    });
+
+    $scope.cancel = () => {
+      $mdDialog.cancel();
+    };
+
+    $scope.execute = () => {
+      if (!$scope.form.selectedCommand) return;
+      
+      $scope.executing = true;
+      $http.post(`/api/admin/server/${serverId}/execute`, {
+        commandId: $scope.form.selectedCommand.id
+      }).then(success => {
+        $scope.executing = false;
+        $scope.result = success.data.output || 'Command executed successfully with no output.';
+      }).catch(err => {
+        $scope.executing = false;
+        $scope.result = 'Error: ' + (err.data || err.statusText);
+      });
+    };
   }
 ])
 .controller('AdminAddServerController', ['$scope', '$state', '$stateParams', '$http', 'alertDialog', '$q',
@@ -586,6 +633,9 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
       wgPort: $stateParams.wgPort,
       tjPort: $stateParams.tjPort,
       pluginOptions: $stateParams.pluginOptions,
+      ssh_port: $stateParams.ssh_port || 22,
+      ssh_user: $stateParams.ssh_user || 'root',
+      ssh_password: $stateParams.ssh_password,
     };
     $scope.tags = ($stateParams.tags || []);
     $scope.tagsAutoComplete = {
@@ -621,6 +671,9 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
         wgPort: $scope.server.wgPort ? +$scope.server.wgPort : null,
         tjPort: $scope.server.tjPort ? +$scope.server.tjPort : null,
         pluginOptions: $scope.server.pluginOptions,
+        ssh_port: +$scope.server.ssh_port,
+        ssh_user: $scope.server.ssh_user,
+        ssh_password: $scope.server.ssh_password,
       }, {
         timeout: 15000,
       }).then(success => {
@@ -685,6 +738,9 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
         tjPort: $scope.server.tjPort,
         pluginOptions: $scope.server.pluginOptions,
         tags: $scope.tags,
+        ssh_port: $scope.server.ssh_port,
+        ssh_user: $scope.server.ssh_user,
+        ssh_password: $scope.server.ssh_password,
       });
     });
     $scope.server = { check: 1 };
@@ -758,6 +814,9 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
       $scope.server.wgPort = success.data.wgPort;
       $scope.server.tjPort = success.data.tjPort;
       $scope.server.pluginOptions = success.data.pluginOptions;
+      $scope.server.ssh_port = +success.data.ssh_port;
+      $scope.server.ssh_user = success.data.ssh_user;
+      $scope.server.ssh_password = success.data.ssh_password;
     });
     $scope.confirm = () => {
       alertDialog.loading();
@@ -783,6 +842,9 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
           tjPort: $scope.server.tjPort ? +$scope.server.tjPort : null,
           pluginOptions: $scope.server.pluginOptions,
           check: $scope.server.check,
+          ssh_port: +$scope.server.ssh_port,
+          ssh_user: $scope.server.ssh_user,
+          ssh_password: $scope.server.ssh_password,
         }),
       ]).then(() => {
         alertDialog.show('修改服务器成功', '确定');
