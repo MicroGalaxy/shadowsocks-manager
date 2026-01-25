@@ -646,6 +646,20 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
         });
       }, () => {});
     };
+
+    $scope.showUsageTraceDialog = (ev) => {
+      $mdDialog.show({
+        controller: 'UsageTraceDialogController',
+        templateUrl: '/public/views/admin/dialogs/usageTrace.html',
+        parent: angular.element(document.body),
+        targetEvent: ev,
+        clickOutsideToClose: true,
+        fullscreen: $mdMedia('xs'),
+        locals: {
+          accountId: $scope.accountId
+        }
+      });
+    };
   }
 ])
 .controller('RenewAccountController', ['$scope', '$mdToast', '$mdDialog', '$http', 'accountId', 'accountData', 'accountType', 'orderCycle',
@@ -1290,6 +1304,52 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
         console.error(err);
         alert('添加失败');
       });
+    };
+  }
+])
+.controller('UsageTraceDialogController', ['$scope', '$mdDialog', '$http', 'accountId',
+  ($scope, $mdDialog, $http, accountId) => {
+    $scope.loading = true;
+    $scope.records = [];
+    $scope.currentPage = 1;
+    $scope.pageSize = 20;
+    $scope.total = 0;
+
+    $scope.getRecords = () => {
+      $scope.loading = true;
+      $http.get(`/api/admin/account/${accountId}/usageTrace`, {
+        params: {
+          page: $scope.currentPage,
+          pageSize: $scope.pageSize
+        }
+      }).then(success => {
+        $scope.records = success.data.data;
+        $scope.total = success.data.total;
+        $scope.loading = false;
+      }).catch(err => {
+        console.error(err);
+        $scope.loading = false;
+      });
+    };
+
+    $scope.getRecords();
+
+    $scope.nextPage = () => {
+      if ($scope.currentPage * $scope.pageSize < $scope.total) {
+        $scope.currentPage++;
+        $scope.getRecords();
+      }
+    };
+
+    $scope.prevPage = () => {
+      if ($scope.currentPage > 1) {
+        $scope.currentPage--;
+        $scope.getRecords();
+      }
+    };
+
+    $scope.cancel = () => {
+      $mdDialog.cancel();
     };
   }
 ]);

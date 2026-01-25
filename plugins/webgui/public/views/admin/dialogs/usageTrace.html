@@ -1,0 +1,80 @@
+<md-dialog aria-label="Usage Trace" style="max-width: 95%; width: 800px;">
+    <form ng-cloak>
+        <md-toolbar>
+            <div class="md-toolbar-tools">
+                <h2>使用轨迹</h2>
+                <span flex></span>
+                <md-button class="md-icon-button" ng-click="cancel()">
+                    <md-icon>close</md-icon>
+                </md-button>
+            </div>
+        </md-toolbar>
+
+        <md-dialog-content>
+            <div class="md-dialog-content" style="padding: 16px;">
+                <div ng-if="loading" layout="row" layout-align="center center" style="height: 200px;">
+                    <md-progress-circular md-mode="indeterminate"></md-progress-circular>
+                </div>
+
+                <div ng-if="!loading && records.length === 0" layout="row" layout-align="center center" style="height: 100px;">
+                    暂无数据
+                </div>
+
+                <!-- Desktop Table View -->
+                <div hide-xs ng-if="!loading && records.length > 0" style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; min-width: 600px;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid #e0e0e0; text-align: left; color: rgba(0,0,0,0.54);">
+                                <th style="padding: 15px 10px; font-weight: 500;">端口</th>
+                                <th style="padding: 15px 10px; font-weight: 500;">IP</th>
+                                <th style="padding: 15px 10px; font-weight: 500;">地址</th>
+                                <th style="padding: 15px 10px; font-weight: 500;">中转机</th>
+                                <th style="padding: 15px 10px; font-weight: 500;">Server</th>
+                                <th style="padding: 15px 10px; font-weight: 500;">时间</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="record in records" style="border-bottom: 1px solid #eeeeee;">
+                                <td style="padding: 12px 10px; color: rgba(0,0,0,0.87);">{{record.port}}</td>
+                                <td style="padding: 12px 10px; color: rgba(0,0,0,0.87);">{{record.ip}}</td>
+                                <td style="padding: 12px 10px; color: rgba(0,0,0,0.87);">{{record.address}}</td>
+                                <td style="padding: 12px 10px; color: rgba(0,0,0,0.87);">{{record.forward_name}}</td>
+                                <td style="padding: 12px 10px; color: rgba(0,0,0,0.87);">{{record.server_name}}</td>
+                                <td style="padding: 12px 10px; color: rgba(0,0,0,0.87);">{{record.create_time | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Mobile Card View -->
+                <div hide-gt-xs ng-if="!loading && records.length > 0" layout="column">
+                    <md-card ng-repeat="record in records" style="margin: 8px 0; padding: 0;">
+                        <md-card-content style="padding: 12px;">
+                            <div layout="row" layout-align="space-between center" style="margin-bottom: 8px;">
+                                <span class="md-body-2" style="font-weight: bold; color: #1976d2;">{{record.ip}}</span>
+                                <span class="md-caption" style="color: #666;">{{record.create_time | date:'MM-dd HH:mm'}}</span>
+                            </div>
+                            <div layout="column" style="font-size: 14px; line-height: 1.6;">
+                                <div layout="row"><span style="color: #888; width: 50px;">端口:</span> <span>{{record.port}}</span></div>
+                                <div layout="row" ng-if="record.address"><span style="color: #888; width: 50px;">地址:</span> <span style="flex: 1;">{{record.address}}</span></div>
+                                <div layout="row" ng-if="record.forward_name"><span style="color: #888; width: 50px;">中转:</span> <span style="flex: 1;">{{record.forward_name}}</span></div>
+                                <div layout="row" ng-if="record.server_name"><span style="color: #888; width: 50px;">节点:</span> <span style="flex: 1;">{{record.server_name}}</span></div>
+                            </div>
+                        </md-card-content>
+                    </md-card>
+                </div>
+            </div>
+        </md-dialog-content>
+
+        <md-dialog-actions layout="row" layout-align="end center">
+            <span style="margin-right: 20px; font-size: 12px; color: #666;">共 {{total}} 条记录</span>
+            <md-button ng-click="prevPage()" ng-disabled="currentPage <= 1">
+                上一页
+            </md-button>
+            <span style="margin: 0 10px; line-height: 36px;">{{currentPage}}</span>
+            <md-button ng-click="nextPage()" ng-disabled="currentPage * pageSize >= total">
+                下一页
+            </md-button>
+        </md-dialog-actions>
+    </form>
+</md-dialog>

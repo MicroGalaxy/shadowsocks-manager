@@ -90,6 +90,7 @@ app.get('/api/admin/account/:accountId(\\d+)', isAdmin, admin.getOneAccount);
 app.get('/api/admin/account/:serverId(\\d+)/:accountId(\\d+)/ip', isAdmin, admin.getAccountIp);
 app.get('/api/admin/account/:serverId(\\d+)/:accountId(\\d+)/ban', isSuperAdmin, adminAccount.getBanAccount);
 app.post('/api/admin/account/:serverId(\\d+)/:accountId(\\d+)/ban', isSuperAdmin, adminAccount.banAccount);
+app.get('/api/admin/account/:accountId(\\d+)/usageTrace', isAdmin, adminAccount.getUsageTrace);
 app.get('/api/admin/account/ip/:ip', isAdmin, admin.getAccountIpInfo);
 app.get('/api/admin/account/:accountId(\\d+)/ip', isAdmin, admin.getAccountIpFromAllServer);
 app.post('/api/admin/account', isAdmin, isSuperAdmin, admin.addAccount);

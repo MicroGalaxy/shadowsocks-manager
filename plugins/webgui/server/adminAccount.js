@@ -116,6 +116,82 @@ exports.getBanAccount = (req, res) => {
   });
 };
 
+exports.getUsageTrace = async (req, res) => {
+  try {
+    const accountId = +req.params.accountId;
+    const page = +req.query.page || 1;
+    const pageSize = +req.query.pageSize || 20;
+    
+    const accountInfo = await account.getAccount({ id: accountId }).then(s => s[0]);
+    if (!accountInfo) {
+      return res.status(404).json({ error: 'Account not found' });
+    }
+    const port = accountInfo.port;
+
+    const query = knex('port_ip_record')
+      .where('port_ip_record.port', port)
+      .leftJoin('ip_info', 'port_ip_record.ip', 'ip_info.ip')
+      .leftJoin('forward', 'port_ip_record.forward_id', 'forward.id')
+      .select([
+        'port_ip_record.*',
+        'ip_info.country', 'ip_info.region', 'ip_info.city', 'ip_info.area', 'ip_info.isp',
+        'forward.name as forward_name'
+      ])
+      .orderBy('create_time', 'desc');
+
+    const offset = (page - 1) * pageSize;
+    const countQuery = knex('port_ip_record').where('port', port).count('* as total');
+    
+    const [totalResult] = await countQuery;
+    const total = totalResult.total || totalResult['count(*)'];
+    
+    const records = await query.offset(offset).limit(pageSize);
+
+    if (records.length > 0) {
+        const timestamps = records.map(r => new Date(r.create_time).getTime());
+        const minTime = Math.min(...timestamps);
+        const maxTime = Math.max(...timestamps);
+        
+        const FIVE_MIN = 5 * 60 * 1000;
+        const minTimeRound = Math.floor(minTime / FIVE_MIN) * FIVE_MIN;
+        const maxTimeRound = Math.floor(maxTime / FIVE_MIN) * FIVE_MIN + FIVE_MIN;
+
+        const flowRecords = await knex('saveFlow5min')
+            .where('saveFlow5min.port', port)
+            .whereBetween('time', [minTimeRound, maxTimeRound])
+            .where('flow', '>', 0)
+            .leftJoin('server', 'saveFlow5min.id', 'server.id')
+            .select('saveFlow5min.time', 'server.name', 'server.id');
+            
+        records.forEach(record => {
+            const recordTime = new Date(record.create_time).getTime();
+            const matchedFlow = flowRecords.find(f => {
+                return f.time <= recordTime && recordTime < f.time + FIVE_MIN;
+            });
+            if (matchedFlow) {
+                record.server_name = matchedFlow.name;
+            } else {
+                record.server_name = '';
+            }
+            
+            const addrParts = [record.country, record.region, record.city, record.area, record.isp].filter(Boolean);
+            record.address = addrParts.join(' ');
+        });
+    }
+
+    res.send({
+      data: records,
+      total: total,
+      page: page,
+      pageSize: pageSize
+    });
+
+  } catch (err) {
+    console.log(err);
+    res.status(500).end();
+  }
+};
+
 const isMacAddress = str => {
   return str.match(/^([A-Fa-f0-9]{2}[:-]?){5}[A-Fa-f0-9]{2}$/);
 };
