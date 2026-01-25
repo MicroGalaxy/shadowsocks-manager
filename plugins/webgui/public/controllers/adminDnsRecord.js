@@ -55,23 +55,6 @@ app.controller('AdminDnsRecordController', ['$scope', '$http', '$state', 'adminA
       $state.go('admin.editDnsRecord', { recordId });
     };
 
-    $scope.deleteRecord = (record) => {
-      const confirm = $mdDialog.confirm()
-        .title('删除DNS记录')
-        .textContent(`确定要删除DNS记录 ${record.name} 吗？`)
-        .ok('确定')
-        .cancel('取消');
-      $mdDialog.show(confirm).then(() => {
-        $http.delete('/api/admin/dns/' + record.id).then(() => {
-          getDnsRecords();
-          $scope.toast('删除成功');
-        }).catch(err => {
-          console.log(err);
-          $scope.toast('删除失败: ' + (err.data && err.data.error ? err.data.error : err.statusText));
-        });
-      });
-    };
-
     // 从CloudFlare同步
     $scope.syncFromCloudFlare = () => {
       const prompt = $mdDialog.prompt()
@@ -237,8 +220,8 @@ app.controller('AdminDnsRecordController', ['$scope', '$http', '$state', 'adminA
     };
   }
 ])
-.controller('AdminEditDnsRecordController', ['$scope', '$http', '$state', '$stateParams',
-  ($scope, $http, $state, $stateParams) => {
+.controller('AdminEditDnsRecordController', ['$scope', '$http', '$state', '$stateParams', '$mdDialog',
+  ($scope, $http, $state, $stateParams, $mdDialog) => {
     // 确保 setTitle 和 setMenuButton 函数存在
     if (!$scope.setTitle) {
         $scope.setTitle = str => { $scope.title = str; };
@@ -283,6 +266,23 @@ app.controller('AdminDnsRecordController', ['$scope', '$http', '$state', 'adminA
       $scope.loading = false;
       $scope.toast('获取DNS记录信息失败');
     });
+
+    $scope.deleteRecord = () => {
+      const confirm = $mdDialog.confirm()
+        .title('删除DNS记录')
+        .textContent(`确定要删除DNS记录 ${$scope.record.name} 吗？`)
+        .ok('确定')
+        .cancel('取消');
+      $mdDialog.show(confirm).then(() => {
+        $http.delete('/api/admin/dns/' + recordId).then(() => {
+          $scope.toast('删除成功');
+          $state.go('admin.dnsRecord');
+        }).catch(err => {
+          console.log(err);
+          $scope.toast('删除失败: ' + (err.data && err.data.error ? err.data.error : err.statusText));
+        });
+      });
+    };
 
     $scope.editRecord = () => {
       if (!$scope.record.record_id || !$scope.record.zone_id || !$scope.record.name || !$scope.record.content) {

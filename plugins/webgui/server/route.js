@@ -10,6 +10,7 @@ const adminUser = appRequire('plugins/webgui/server/adminUser');
 const adminServer = appRequire('plugins/webgui/server/adminServer');
 const adminForward = appRequire('plugins/webgui/server/adminForward');
 const adminDnsRecord = appRequire('plugins/webgui/server/adminDnsRecord');
+const adminAppleId = appRequire('plugins/webgui/server/adminAppleId');
 const adminFlow = appRequire('plugins/webgui/server/adminFlow');
 const adminSetting = appRequire('plugins/webgui/server/adminSetting');
 const adminNotice = appRequire('plugins/webgui/server/adminNotice');
@@ -223,6 +224,12 @@ app.post('/api/admin/dns', isAdmin, isSuperAdmin, adminDnsRecord.addDnsRecord);
 app.put('/api/admin/dns/:recordId(\\d+)', isAdmin, isSuperAdmin, adminDnsRecord.editDnsRecord);
 app.delete('/api/admin/dns/:recordId(\\d+)', isAdmin, isSuperAdmin, adminDnsRecord.deleteDnsRecord);
 app.post('/api/admin/dns/sync', isAdmin, isSuperAdmin, adminDnsRecord.syncFromCloudFlare);
+
+app.get('/api/admin/appleid', isAdmin, adminAppleId.getAppleIds);
+app.get('/api/admin/appleid/:recordId(\\d+)', isAdmin, adminAppleId.getOneAppleId);
+app.post('/api/admin/appleid', isAdmin, isSuperAdmin, adminAppleId.addAppleId);
+app.put('/api/admin/appleid/:recordId(\\d+)', isAdmin, isSuperAdmin, adminAppleId.editAppleId);
+app.delete('/api/admin/appleid/:recordId(\\d+)', isAdmin, isSuperAdmin, adminAppleId.deleteAppleId);
 
 app.get('/api/user/notice', isUser, user.getNotice);
 app.get('/api/user/account', isUser, user.getAccount);

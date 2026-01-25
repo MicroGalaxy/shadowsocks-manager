@@ -1,0 +1,88 @@
+<div ng-if="loading" layout="row" layout-align="center center" style="height: 200px;">
+    <md-progress-circular md-mode="indeterminate"></md-progress-circular>
+</div>
+
+<div ng-if="!loading" layout-padding>
+    <md-card>
+        <md-card-header>
+            <md-card-header-text>
+                <span class="md-headline">编辑Apple ID</span>
+                <span class="md-subhead">修改Apple ID信息</span>
+            </md-card-header-text>
+        </md-card-header>
+        <md-card-content>
+            <form name="recordForm" novalidate>
+                <div layout="column" layout-gt-xs="row">
+                    <div flex="50" flex-xs="100">
+                        <md-input-container class="md-block">
+                            <label>Apple ID *</label>
+                            <input ng-model="record.apple_id" name="apple_id" required placeholder="example@icloud.com">
+                            <div ng-messages="recordForm.apple_id.$error">
+                                <div ng-message="required">Apple ID是必填项</div>
+                            </div>
+                        </md-input-container>
+                        
+                        <md-input-container class="md-block">
+                            <label>密码 *</label>
+                            <input ng-model="record.password" name="password" required>
+                            <div ng-messages="recordForm.password.$error">
+                                <div ng-message="required">密码是必填项</div>
+                            </div>
+                        </md-input-container>
+                        
+                        <md-input-container class="md-block">
+                            <label>生日</label>
+                            <md-datepicker ng-model="record.birthday" md-placeholder="选择生日"></md-datepicker>
+                        </md-input-container>
+                        
+                        <div layout="column" style="margin-top: 20px;">
+                            <md-checkbox ng-model="record.status" class="md-primary">
+                                账号状态正常
+                            </md-checkbox>
+                            
+                            <md-checkbox ng-model="record.using" class="md-primary">
+                                正在使用中
+                            </md-checkbox>
+                            
+                            <md-checkbox ng-model="record.shadowrocket" class="md-primary">
+                                已购买小火箭
+                            </md-checkbox>
+                            
+                            <md-checkbox ng-model="record.icloud_photo_status" class="md-primary">
+                                iCloud照片已开启
+                            </md-checkbox>
+                        </div>
+                    </div>
+                    
+                    <div flex="50" flex-xs="100">
+                        <h4 style="margin-bottom: 16px;">安全问题（可选）</h4>
+                        
+                        <md-input-container class="md-block">
+                            <label>你最好的朋友叫什么名字?</label>
+                            <input ng-model="record.question_friend" name="question_friend">
+                        </md-input-container>
+                        
+                        <md-input-container class="md-block">
+                            <label>你的第一份工作是什么?</label>
+                            <input ng-model="record.question_work" name="question_work">
+                        </md-input-container>
+                        
+                        <md-input-container class="md-block">
+                            <label>你的父母在哪里相识?</label>
+                            <input ng-model="record.question_parent" name="question_parent">
+                        </md-input-container>
+                    </div>
+                </div>
+                
+                <md-card-actions layout="row" layout-align="end center">
+                    <md-button ng-click="deleteRecord()" class="md-raised md-warn" style="margin-right: auto;">
+                        删除
+                    </md-button>
+                    <md-button ng-click="editRecord()" class="md-raised md-primary">
+                        保存修改
+                    </md-button>
+                </md-card-actions>
+            </form>
+        </md-card-content>
+    </md-card>
+</div>

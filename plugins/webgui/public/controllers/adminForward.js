@@ -55,23 +55,6 @@ app.controller('AdminForwardController', ['$scope', '$http', '$state', 'adminApi
       $state.go('admin.editForward', { forwardId });
     };
 
-    $scope.deleteForward = (forward) => {
-      const confirm = $mdDialog.confirm()
-        .title('删除中转机')
-        .textContent(`确定要删除中转机 ${forward.name} 吗？`)
-        .ok('确定')
-        .cancel('取消');
-      $mdDialog.show(confirm).then(() => {
-        $http.delete('/api/admin/forward/' + forward.id).then(() => {
-          getForwards();
-          $scope.toast('删除成功');
-        }).catch(err => {
-          console.log(err);
-          $scope.toast('删除失败');
-        });
-      });
-    };
-
     $scope.getStatusText = (status) => {
       return status ? '启用' : '禁用';
     };
@@ -187,8 +170,8 @@ app.controller('AdminForwardController', ['$scope', '$http', '$state', 'adminApi
     };
   }
 ])
-.controller('AdminEditForwardController', ['$scope', '$http', '$state', '$stateParams',
-  ($scope, $http, $state, $stateParams) => {
+.controller('AdminEditForwardController', ['$scope', '$http', '$state', '$stateParams', '$mdDialog',
+  ($scope, $http, $state, $stateParams, $mdDialog) => {
     // 确保 setTitle 和 setMenuButton 函数存在
     if (!$scope.setTitle) {
         $scope.setTitle = str => { $scope.title = str; };
@@ -225,6 +208,23 @@ app.controller('AdminForwardController', ['$scope', '$http', '$state', 'adminApi
       $scope.loading = false;
       $scope.toast('获取中转机信息失败');
     });
+
+    $scope.deleteForward = () => {
+      const confirm = $mdDialog.confirm()
+        .title('删除中转机')
+        .textContent(`确定要删除中转机 ${$scope.forward.name} 吗？`)
+        .ok('确定')
+        .cancel('取消');
+      $mdDialog.show(confirm).then(() => {
+        $http.delete('/api/admin/forward/' + forwardId).then(() => {
+          $scope.toast('删除成功');
+          $state.go('admin.forward');
+        }).catch(err => {
+          console.log(err);
+          $scope.toast('删除失败');
+        });
+      });
+    };
 
     $scope.editForward = () => {
       if (!$scope.forward.name) {

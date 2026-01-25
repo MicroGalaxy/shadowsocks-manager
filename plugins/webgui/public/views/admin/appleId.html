@@ -1,0 +1,61 @@
+<div layout="row" layout-wrap>
+    <div ng-if="!records.length && !loading" class="zero-element">没有Apple ID记录<br /><span class="zero-element-link" ng-if="id === 1" ng-click="addRecord()">点击这里添加</span></div>
+    <div ng-if="loading" layout="row" layout-align="center center" style="width: 100%; height: 200px;">
+        <md-progress-circular md-mode="indeterminate"></md-progress-circular>
+    </div>
+    <div flex-xs="100" flex-sm="50" flex-md="33" flex-gt-md="25" ng-repeat="record in records track by record.id" ng-show="showRecord(record.apple_id)">
+        <md-card class="hover-mouse" ng-click="toRecordPage(record.id)">
+            <md-card-header>
+                <md-card-header-text>
+                    <div layout="column">
+                        <span class="md-title" style="word-break: break-all;">{{record.apple_id}}</span>
+                        <div layout="row" layout-align="start center" style="margin-top: 4px;">
+                            <span style="color: {{getStatusColor(record.status)}}; font-size: 12px; margin-right: 8px;">{{getStatusText(record.status)}}</span>
+                            <span style="color: {{getUsingColor(record.using)}}; font-size: 12px;">{{getUsingText(record.using)}}</span>
+                            <span ng-if="record.shadowrocket" style="color: #9C27B0; font-size: 12px; margin-left: 8px;">小火箭</span>
+                        </div>
+                    </div>
+                </md-card-header-text>
+            </md-card-header>
+            <md-card-content>
+                <div layout="column" style="font-size: 14px;">
+                    <div layout="row" layout-align="start center" style="margin-bottom: 4px;">
+                        <span style="color: #666; min-width: 45px;">密码:</span>
+                        <span style="flex: 1; word-break: break-all;">{{record.password}}</span>
+                        <md-button class="md-icon-button" style="margin: 0; width: 30px; height: 30px; min-width: 30px; min-height: 30px;" ng-click="copyToClipboard(record.password, '密码', $event)" aria-label="复制密码">
+                            <md-icon style="font-size: 16px;">content_copy</md-icon>
+                        </md-button>
+                    </div>
+                    <div ng-if="record.birthday" layout="row" layout-align="start center" style="margin-bottom: 4px;">
+                        <span style="color: #666; min-width: 45px;">生日:</span>
+                        <span>{{record.birthday | date:'yyyy-MM-dd'}}</span>
+                        <md-button class="md-icon-button" style="margin: 0; width: 30px; height: 30px; min-width: 30px; min-height: 30px;" ng-click="copyToClipboard(record.birthday, '生日', $event, true)" aria-label="复制生日">
+                            <md-icon style="font-size: 16px;">content_copy</md-icon>
+                        </md-button>
+                    </div>
+                    <div ng-if="record.question_friend" layout="row" layout-align="start center" style="margin-bottom: 4px;">
+                        <span style="color: #666; min-width: 45px;">朋友:</span>
+                        <span style="flex: 1; word-break: break-all;">{{record.question_friend}}</span>
+                        <md-button class="md-icon-button" style="margin: 0; width: 30px; height: 30px; min-width: 30px; min-height: 30px;" ng-click="copyToClipboard(record.question_friend, '朋友', $event)" aria-label="复制">
+                            <md-icon style="font-size: 16px;">content_copy</md-icon>
+                        </md-button>
+                    </div>
+                    <div ng-if="record.question_work" layout="row" layout-align="start center" style="margin-bottom: 4px;">
+                        <span style="color: #666; min-width: 45px;">工作:</span>
+                        <span style="flex: 1; word-break: break-all;">{{record.question_work}}</span>
+                        <md-button class="md-icon-button" style="margin: 0; width: 30px; height: 30px; min-width: 30px; min-height: 30px;" ng-click="copyToClipboard(record.question_work, '工作', $event)" aria-label="复制">
+                            <md-icon style="font-size: 16px;">content_copy</md-icon>
+                        </md-button>
+                    </div>
+                    <div ng-if="record.question_parent" layout="row" layout-align="start center">
+                        <span style="color: #666; min-width: 45px;">父母:</span>
+                        <span style="flex: 1; word-break: break-all;">{{record.question_parent}}</span>
+                        <md-button class="md-icon-button" style="margin: 0; width: 30px; height: 30px; min-width: 30px; min-height: 30px;" ng-click="copyToClipboard(record.question_parent, '父母', $event)" aria-label="复制">
+                            <md-icon style="font-size: 16px;">content_copy</md-icon>
+                        </md-button>
+                    </div>
+                </div>
+            </md-card-content>
+        </md-card>
+    </div>
+</div>

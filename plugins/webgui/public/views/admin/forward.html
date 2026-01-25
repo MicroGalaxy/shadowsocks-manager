@@ -26,14 +26,6 @@
                     <div ng-if="forward.control_port"><strong>控制端口:</strong> {{forward.control_port}}</div>
                 </div>
             </md-card-content>
-            <md-card-actions layout="row" layout-align="end center" ng-if="id === 1">
-                <md-button class="md-icon-button" ng-click="editForward(forward.id); $event.stopPropagation();" aria-label="编辑">
-                    <md-icon>edit</md-icon>
-                </md-button>
-                <md-button class="md-icon-button" ng-click="deleteForward(forward); $event.stopPropagation();" aria-label="删除">
-                    <md-icon>delete</md-icon>
-                </md-button>
-            </md-card-actions>
         </md-card>
     </div>
 </div>

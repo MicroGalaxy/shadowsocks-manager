@@ -45,6 +45,11 @@ app.controller('AdminController', ['$scope', '$mdMedia', '$mdSidenav', '$state',
       click: 'admin.dnsRecord',
       hide: !!($scope.id !== 1),
     }, {
+      name: 'Apple ID',
+      icon: 'phone_iphone',
+      click: 'admin.appleId',
+      hide: !!($scope.id !== 1),
+    }, {
       name: '用户',
       icon: 'people',
       click: 'admin.user',

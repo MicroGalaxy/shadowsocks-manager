@@ -1,0 +1,114 @@
+<div ng-if="loading" layout="row" layout-align="center center" style="height: 200px;">
+    <md-progress-circular md-mode="indeterminate"></md-progress-circular>
+</div>
+
+<div ng-if="!loading" layout-padding>
+    <md-card>
+        <md-card-header>
+            <md-card-header-text>
+                <span class="md-headline">{{record.apple_id}}</span>
+                <span class="md-subhead">Apple ID详细信息</span>
+            </md-card-header-text>
+        </md-card-header>
+        <md-card-content>
+            <div layout="column" layout-gt-xs="row">
+                <div flex="50" flex-xs="100">
+                    <md-list>
+                        <md-list-item>
+                            <div class="md-list-item-text">
+                                <h3>账号信息</h3>
+                            </div>
+                        </md-list-item>
+                        <md-divider></md-divider>
+                        <md-list-item>
+                            <div class="md-list-item-text" layout="row" layout-align="start center">
+                                <p flex><strong>Apple ID:</strong> {{record.apple_id}}</p>
+                                <md-button class="md-icon-button md-mini" ng-click="copyToClipboard(record.apple_id, 'Apple ID')" aria-label="复制">
+                                    <md-icon>content_copy</md-icon>
+                                </md-button>
+                            </div>
+                        </md-list-item>
+                        <md-list-item>
+                            <div class="md-list-item-text" layout="row" layout-align="start center">
+                                <p flex><strong>密码:</strong> {{record.password}}</p>
+                                <md-button class="md-icon-button md-mini" ng-click="copyToClipboard(record.password, '密码')" aria-label="复制">
+                                    <md-icon>content_copy</md-icon>
+                                </md-button>
+                            </div>
+                        </md-list-item>
+                        <md-list-item>
+                            <div class="md-list-item-text" layout="row" layout-align="start center">
+                                <p flex><strong>生日:</strong> {{record.birthday | date:'yyyy-MM-dd'}}</p>
+                                <md-button class="md-icon-button md-mini" ng-click="copyToClipboard(record.birthday, '生日', true)" aria-label="复制">
+                                    <md-icon>content_copy</md-icon>
+                                </md-button>
+                            </div>
+                        </md-list-item>
+                        <md-list-item>
+                            <div class="md-list-item-text">
+                                <p><strong>状态:</strong> <span ng-style="{'color': record.status ? '#4CAF50' : '#f44336'}">{{getStatusText(record.status)}}</span></p>
+                            </div>
+                        </md-list-item>
+                        <md-list-item>
+                            <div class="md-list-item-text">
+                                <p><strong>使用状态:</strong> <span ng-style="{'color': record.using ? '#FF9800' : '#2196F3'}">{{getUsingText(record.using)}}</span></p>
+                            </div>
+                        </md-list-item>
+                    </md-list>
+                </div>
+                <div flex="50" flex-xs="100">
+                    <md-list>
+                        <md-list-item>
+                            <div class="md-list-item-text">
+                                <h3>安全问题</h3>
+                            </div>
+                        </md-list-item>
+                        <md-divider></md-divider>
+                        <md-list-item ng-if="record.question_friend">
+                            <div class="md-list-item-text" layout="row" layout-align="start center">
+                                <p flex><strong>最好的朋友:</strong> {{record.question_friend}}</p>
+                                <md-button class="md-icon-button md-mini" ng-click="copyToClipboard(record.question_friend, '最好的朋友')" aria-label="复制">
+                                    <md-icon>content_copy</md-icon>
+                                </md-button>
+                            </div>
+                        </md-list-item>
+                        <md-list-item ng-if="record.question_work">
+                            <div class="md-list-item-text" layout="row" layout-align="start center">
+                                <p flex><strong>第一份工作:</strong> {{record.question_work}}</p>
+                                <md-button class="md-icon-button md-mini" ng-click="copyToClipboard(record.question_work, '第一份工作')" aria-label="复制">
+                                    <md-icon>content_copy</md-icon>
+                                </md-button>
+                            </div>
+                        </md-list-item>
+                        <md-list-item ng-if="record.question_parent">
+                            <div class="md-list-item-text" layout="row" layout-align="start center">
+                                <p flex><strong>父母相识:</strong> {{record.question_parent}}</p>
+                                <md-button class="md-icon-button md-mini" ng-click="copyToClipboard(record.question_parent, '父母相识')" aria-label="复制">
+                                    <md-icon>content_copy</md-icon>
+                                </md-button>
+                            </div>
+                        </md-list-item>
+                    </md-list>
+                    <md-list>
+                        <md-list-item>
+                            <div class="md-list-item-text">
+                                <h3>其他信息</h3>
+                            </div>
+                        </md-list-item>
+                        <md-divider></md-divider>
+                        <md-list-item>
+                            <div class="md-list-item-text">
+                                <p><strong>小火箭:</strong> {{getBooleanText(record.shadowrocket)}}</p>
+                            </div>
+                        </md-list-item>
+                        <md-list-item>
+                            <div class="md-list-item-text">
+                                <p><strong>iCloud照片:</strong> {{getBooleanText(record.icloud_photo_status)}}</p>
+                            </div>
+                        </md-list-item>
+                    </md-list>
+                </div>
+            </div>
+        </md-card-content>
+    </md-card>
+</div>
