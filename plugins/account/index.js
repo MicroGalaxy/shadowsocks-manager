@@ -976,13 +976,15 @@ const getAccountAndPaging = async (opt) => {
     } else if (sort === 'port_desc') {
       return a.port <= b.port ? 1 : -1;
     } else if (sort === 'expire_desc') {
-      if(!a.data) { return -1; }
-      if(!b.data) { return 1; }
-      return a.data.expire <= b.data.expire ? 1 : -1;
+      const expireA = (a.type === 1 || !a.data || isNaN(a.data.expire)) ? Infinity : a.data.expire;
+      const expireB = (b.type === 1 || !b.data || isNaN(b.data.expire)) ? Infinity : b.data.expire;
+      if (expireA === expireB) return 0;
+      return expireB - expireA;
     } else if (sort === 'expire_asc') {
-      if(!a.data) { return 1; }
-      if(!b.data) { return -1; }
-      return a.data.expire >= b.data.expire ? 1 : -1;
+      const expireA = (a.type === 1 || !a.data || isNaN(a.data.expire)) ? Infinity : a.data.expire;
+      const expireB = (b.type === 1 || !b.data || isNaN(b.data.expire)) ? Infinity : b.data.expire;
+      if (expireA === expireB) return 0;
+      return expireA - expireB;
     } else if (sort === 'id_desc') {
       return +a.id <= +b.id ? 1 : -1;
     } else if (sort === 'id_asc') {
