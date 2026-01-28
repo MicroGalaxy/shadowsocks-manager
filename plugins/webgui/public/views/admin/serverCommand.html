@@ -7,7 +7,12 @@
         <md-card class="hover-mouse" ng-click="editCommand(command.id)">
             <md-card-header>
                 <md-card-header-text>
-                    <span class="md-headline">{{command.name}}</span>
+                    <div layout="row" layout-align="space-between center">
+                        <span class="md-headline">{{command.name}}</span>
+                        <span class="md-subhead" style="font-size: 12px; background: #eee; padding: 2px 6px; border-radius: 4px;">
+                            {{command.type === 'forward' ? '中转机' : '服务器'}}
+                        </span>
+                    </div>
                 </md-card-header-text>
             </md-card-header>
             <md-card-content>

@@ -8,7 +8,15 @@ const createTable = async () => {
       table.increments('id');
       table.string('name');
       table.string('server_command');
+      table.string('type').defaultTo('server'); // server or forward
     });
+  } else {
+    const hasType = await knex.schema.hasColumn(tableName, 'type');
+    if (!hasType) {
+      await knex.schema.table(tableName, function(table) {
+        table.string('type').defaultTo('server');
+      });
+    }
   }
 };
 

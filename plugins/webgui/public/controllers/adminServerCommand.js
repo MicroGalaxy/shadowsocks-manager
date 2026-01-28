@@ -81,11 +81,12 @@ app.controller('AdminServerCommandController', ['$scope', '$http', '$state', '$m
     
     $scope.command = {
       name: '',
-      server_command: ''
+      server_command: '',
+      type: 'server'
     };
 
     $scope.addCommand = () => {
-      if (!$scope.command.name || !$scope.command.server_command) {
+      if (!$scope.command.name || !$scope.command.server_command || !$scope.command.type) {
         $scope.toast('请填写完整信息');
         return;
       }
@@ -137,7 +138,7 @@ app.controller('AdminServerCommandController', ['$scope', '$http', '$state', '$m
     };
 
     $scope.editCommand = () => {
-      if (!$scope.command.name || !$scope.command.server_command) {
+      if (!$scope.command.name || !$scope.command.server_command || !$scope.command.type) {
         $scope.toast('请填写完整信息');
         return;
       }

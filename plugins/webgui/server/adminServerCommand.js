@@ -2,7 +2,14 @@ const knex = appRequire('init/knex').knex;
 
 exports.getServerCommands = async (req, res) => {
   try {
-    const commands = await knex('server_command').select().orderBy('id', 'desc');
+    const type = req.query.type;
+    let query = knex('server_command').select().orderBy('id', 'desc');
+    
+    if (type) {
+      query = query.where({ type });
+    }
+    
+    const commands = await query;
     res.send(commands);
   } catch (err) {
     console.log(err);
@@ -34,8 +41,12 @@ exports.addServerCommand = async (req, res) => {
       return res.status(400).json({ errors: result.array() });
     }
 
-    const { name, server_command } = req.body;
-    const [id] = await knex('server_command').insert({ name, server_command });
+    const { name, server_command, type } = req.body;
+    const [id] = await knex('server_command').insert({ 
+      name, 
+      server_command,
+      type: type || 'server'
+    });
     res.send({ id });
   } catch (err) {
     console.log(err);
@@ -54,8 +65,12 @@ exports.editServerCommand = async (req, res) => {
       return res.status(400).json({ errors: result.array() });
     }
 
-    const { name, server_command } = req.body;
-    await knex('server_command').where({ id }).update({ name, server_command });
+    const { name, server_command, type } = req.body;
+    await knex('server_command').where({ id }).update({ 
+      name, 
+      server_command,
+      type: type || 'server'
+    });
     res.send('success');
   } catch (err) {
     console.log(err);

@@ -68,8 +68,8 @@ app.controller('AdminForwardController', ['$scope', '$http', '$state', 'adminApi
     }, 'add');
   }
 ])
-.controller('AdminForwardPageController', ['$scope', '$http', '$state', '$stateParams',
-  ($scope, $http, $state, $stateParams) => {
+.controller('AdminForwardPageController', ['$scope', '$http', '$state', '$stateParams', '$mdDialog', '$mdMedia',
+  ($scope, $http, $state, $stateParams, $mdDialog, $mdMedia) => {
     // 确保 setTitle 和 setMenuButton 函数存在
     if (!$scope.setTitle) {
         $scope.setTitle = str => { $scope.title = str; };
@@ -115,6 +115,54 @@ app.controller('AdminForwardController', ['$scope', '$http', '$state', 'adminApi
     $scope.setFabButton(() => {
       $scope.editForward();
     }, 'edit');
+
+    $scope.openExecuteCommandDialog = (ev) => {
+      const cdn = window.cdn || '';
+      $mdDialog.show({
+          controller: 'ForwardExecuteCommandDialogController',
+          templateUrl: `${cdn}/public/views/admin/dialogs/executeCommand.html`,
+          parent: angular.element(document.body),
+          targetEvent: ev,
+          clickOutsideToClose: true,
+          fullscreen: $mdMedia('xs'),
+          locals: {
+              forwardId: forwardId
+          }
+      });
+    };
+  }
+])
+.controller('ForwardExecuteCommandDialogController', ['$scope', '$http', '$mdDialog', 'forwardId',
+  ($scope, $http, $mdDialog, forwardId) => {
+    $scope.form = {};
+    $scope.commands = [];
+    $scope.loading = true;
+    $scope.executing = false;
+    $scope.result = '';
+    
+    $http.get('/api/admin/serverCommand', { params: { type: 'forward' } }).then(success => {
+      $scope.commands = success.data;
+      $scope.loading = false;
+    });
+
+    $scope.cancel = () => {
+      $mdDialog.cancel();
+    };
+
+    $scope.execute = () => {
+      if (!$scope.form.selectedCommand) return;
+      
+      $scope.executing = true;
+      $http.post(`/api/admin/forward/${forwardId}/execute`, {
+        commandId: $scope.form.selectedCommand.id
+      }).then(success => {
+        $scope.executing = false;
+        $scope.result = success.data.output || 'Command executed successfully with no output.';
+      }).catch(err => {
+        $scope.executing = false;
+        $scope.result = 'Error: ' + (err.data || err.statusText);
+      });
+    };
   }
 ])
 .controller('AdminAddForwardController', ['$scope', '$http', '$state',

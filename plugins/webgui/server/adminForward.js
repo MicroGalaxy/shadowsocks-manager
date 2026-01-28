@@ -1,4 +1,5 @@
 const knex = appRequire('init/knex').knex;
+const Client = require('ssh2').Client;
 
 exports.getForwards = async (req, res) => {
   try {
@@ -138,6 +139,55 @@ exports.deleteForward = async (req, res) => {
     const forwardId = req.params.forwardId;
     await knex('forward').where({ id: +forwardId }).del();
     res.send('success');
+  } catch (err) {
+    console.log(err);
+    res.status(500).end();
+  }
+};
+
+exports.executeCommand = async (req, res) => {
+  try {
+    const forwardId = req.params.forwardId;
+    const commandId = req.body.commandId;
+    
+    // Fetch forward info
+    const forward = await knex('forward').where({ id: forwardId }).first();
+    if (!forward) return res.status(404).send('Forward not found');
+    
+    // Fetch command
+    const commandObj = await knex('server_command').where({ id: commandId }).first();
+    if (!commandObj) return res.status(404).send('Command not found');
+    
+    const host = forward.domain || forward.ipv4;
+    if (!host) return res.status(400).send('No host address available (domain or ipv4)');
+
+    const conn = new Client();
+    conn.on('ready', () => {
+      conn.exec(commandObj.server_command, (err, stream) => {
+        if (err) {
+          conn.end();
+          return res.status(500).send(err.message);
+        }
+        let output = '';
+        stream.on('close', (code, signal) => {
+          conn.end();
+          res.send({ output });
+        }).on('data', (data) => {
+          output += data;
+        }).stderr.on('data', (data) => {
+          output += data;
+        });
+      });
+    }).on('error', (err) => {
+        console.log(err);
+        res.status(500).send('SSH Connection failed: ' + err.message);
+    }).connect({
+      host: host,
+      port: forward.ssh_port || 22,
+      username: forward.ssh_user,
+      password: forward.ssh_password,
+      readyTimeout: 20000,
+    });
   } catch (err) {
     console.log(err);
     res.status(500).end();

@@ -219,6 +219,7 @@ app.get('/api/admin/forward/:forwardId(\\d+)', isAdmin, adminForward.getOneForwa
 app.post('/api/admin/forward', isAdmin, isSuperAdmin, adminForward.addForward);
 app.put('/api/admin/forward/:forwardId(\\d+)', isAdmin, isSuperAdmin, adminForward.editForward);
 app.delete('/api/admin/forward/:forwardId(\\d+)', isAdmin, isSuperAdmin, adminForward.deleteForward);
+app.post('/api/admin/forward/:forwardId(\\d+)/execute', isAdmin, isSuperAdmin, adminForward.executeCommand);
 
 app.get('/api/admin/dns', isAdmin, adminDnsRecord.getDnsRecords);
 app.get('/api/admin/dns/forwards', isAdmin, adminDnsRecord.getForwardDomains);

@@ -466,7 +466,18 @@ app.controller('AdminController', ['$scope', '$mdMedia', '$mdSidenav', '$state',
       $scope.toast('续费话术已复制到剪贴板');
     });
   };
-}])
+
+  $scope.copyToClipboard = (text) => {
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(() => {
+      $scope.toast('复制成功: ' + text);
+    }).catch(err => {
+      console.error('复制失败', err);
+      $scope.toast('复制失败');
+    });
+  };
+}
+])
 .controller('AdminTopFlowController', ['$scope', '$http', '$state', ($scope, $http, $state) => {
   // 确保 setTitle 和 setMenuButton 函数存在
   if (!$scope.setTitle) {

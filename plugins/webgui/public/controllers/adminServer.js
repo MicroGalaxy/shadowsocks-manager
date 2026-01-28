@@ -547,7 +547,7 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
     $scope.executing = false;
     $scope.result = '';
     
-    $http.get('/api/admin/serverCommand').then(success => {
+    $http.get('/api/admin/serverCommand', { params: { type: 'server' } }).then(success => {
       $scope.commands = success.data;
       $scope.loading = false;
     });

@@ -14,6 +14,14 @@
             <form name="commandForm" novalidate>
                 <div layout="column">
                     <md-input-container class="md-block">
+                        <label>类型 *</label>
+                        <md-select ng-model="command.type" required>
+                            <md-option value="server">服务器</md-option>
+                            <md-option value="forward">中转机</md-option>
+                        </md-select>
+                    </md-input-container>
+
+                    <md-input-container class="md-block">
                         <label>名称 *</label>
                         <input ng-model="command.name" name="name" required>
                         <div ng-messages="commandForm.name.$error">
