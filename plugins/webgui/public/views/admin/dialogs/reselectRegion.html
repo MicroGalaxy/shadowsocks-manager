@@ -1,0 +1,34 @@
+<md-dialog aria-label="重配地区">
+    <form ng-cloak>
+        <md-toolbar>
+            <div class="md-toolbar-tools">
+                <h2>重配地区</h2>
+                <span flex></span>
+                <md-button class="md-icon-button" ng-click="cancel()">
+                    <md-icon>close</md-icon>
+                </md-button>
+            </div>
+        </md-toolbar>
+        <md-dialog-content>
+            <div class="md-dialog-content" layout="column" ng-style="{'min-width': ($mdMedia('gt-xs') ? '400px' : 'auto')}">
+                <p class="md-body-1">请选择用于重配的目标地区。默认为“全部”。</p>
+                <md-input-container>
+                    <label>选择地区</label>
+                    <md-select ng-model="selectedRegion">
+                        <md-option value="all">全部 (all)</md-option>
+                        <md-option ng-repeat="region in regions" ng-value="region">
+                            {{region}}
+                        </md-option>
+                    </md-select>
+                </md-input-container>
+            </div>
+        </md-dialog-content>
+        <md-dialog-actions layout="row">
+            <span flex></span>
+            <md-button ng-click="cancel()">取消</md-button>
+            <md-button class="md-raised md-warn" ng-click="confirm()" ng-disabled="submitting">
+                {{ submitting ? '提交中...' : '确定' }}
+            </md-button>
+        </md-dialog-actions>
+    </form>
+</md-dialog>

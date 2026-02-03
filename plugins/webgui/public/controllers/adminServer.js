@@ -1,7 +1,7 @@
 const app = angular.module('app');
 
-app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', '$localStorage', 'adminApi', '$timeout', '$interval', 'serverChartDialog',
-  ($scope, $http, $state, moment, $localStorage, adminApi, $timeout, $interval, serverChartDialog) => {
+app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', '$localStorage', 'adminApi', '$timeout', '$interval', 'serverChartDialog', '$mdDialog', '$mdMedia',
+  ($scope, $http, $state, moment, $localStorage, adminApi, $timeout, $interval, serverChartDialog, $mdDialog, $mdMedia) => {
     // 确保 setTitle 和 setMenuButton 函数存在
     if (!$scope.setTitle) {
         $scope.setTitle = str => { $scope.title = str; };
@@ -218,6 +218,21 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
         };
       }
       return {};
+    };
+
+    $scope.openBatchExecuteCommandDialog = (ev) => {
+      const cdn = window.cdn || '';
+      $mdDialog.show({
+          controller: 'ExecuteCommandDialogController',
+          templateUrl: `${cdn}/public/views/admin/dialogs/executeCommand.html`,
+          parent: angular.element(document.body),
+          targetEvent: ev,
+          clickOutsideToClose: true,
+          fullscreen: $mdMedia('xs'),
+          locals: {
+              serverId: 'all'
+          }
+      });
     };
   }
 ])

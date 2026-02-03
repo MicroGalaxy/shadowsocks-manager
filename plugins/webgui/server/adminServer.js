@@ -222,6 +222,68 @@ exports.setTags = async (req, res) => {
   }
 };
 
+exports.executeBatchCommand = async (req, res) => {
+  try {
+    const commandId = req.body.commandId;
+    
+    // Fetch command
+    const commandObj = await knex('server_command').where({ id: commandId }).first();
+    if (!commandObj) return res.status(404).send('Command not found');
+    
+    // Fetch all servers
+    const servers = await knex('server').select();
+    
+    if (servers.length === 0) {
+        return res.send({ output: 'No servers found.' });
+    }
+
+    const results = await Promise.all(servers.map(async (server) => {
+        const host = server.host.split(':')[0];
+        const header = `=== ${server.name} (${host}) ===\n`;
+        
+        if (!host) return header + 'No host address available.\n';
+        // Note: Some servers might use key auth which isn't fully implemented in DB schema for standard servers unless handled in specific ways.
+        // Assuming ssh_user and ssh_password are required as per existing logic.
+        if (!server.ssh_user || !server.ssh_password) return header + 'No SSH credentials configured.\n';
+
+        return new Promise((resolve) => {
+             const conn = new Client();
+             let output = '';
+             conn.on('ready', () => {
+               conn.exec(commandObj.server_command, (err, stream) => {
+                 if (err) {
+                   conn.end();
+                   resolve(header + 'Exec Error: ' + err.message + '\n');
+                   return;
+                 }
+                 stream.on('close', () => {
+                   conn.end();
+                   resolve(header + output + '\n');
+                 }).on('data', (data) => {
+                   output += data;
+                 }).stderr.on('data', (data) => {
+                   output += data;
+                 });
+               });
+             }).on('error', (err) => {
+                 resolve(header + 'Connection Failed: ' + err.message + '\n');
+             }).connect({
+               host: host,
+               port: server.ssh_port || 22,
+               username: server.ssh_user,
+               password: server.ssh_password,
+               readyTimeout: 20000,
+             });
+        });
+    }));
+
+    res.send({ output: results.join('\n') });
+  } catch (err) {
+    console.log(err);
+    res.status(500).end();
+  }
+};
+
 exports.executeCommand = async (req, res) => {
   try {
     const serverId = req.params.serverId;

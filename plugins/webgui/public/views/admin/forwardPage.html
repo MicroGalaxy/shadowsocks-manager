@@ -12,7 +12,7 @@
         </md-card-header>
         <md-card-content>
             <div layout="column" layout-gt-xs="row">
-                <div flex-gt-xs="50" flex="100">
+                <div flex-gt-xs="33" flex="100">
                     <md-list>
                         <md-list-item>
                             <div class="md-list-item-text">
@@ -47,7 +47,7 @@
                         </md-list-item>
                     </md-list>
                 </div>
-                <div flex-gt-xs="50" flex="100">
+                <div flex-gt-xs="33" flex="100">
                     <md-list>
                         <md-list-item>
                             <div class="md-list-item-text">
@@ -78,6 +78,32 @@
                         <md-list-item ng-if="forward.control_port">
                             <div class="md-list-item-text">
                                 <p><strong>控制端口:</strong> {{forward.control_port}}</p>
+                            </div>
+                        </md-list-item>
+                    </md-list>
+                </div>
+                <div flex-gt-xs="33" flex="100">
+                    <md-list>
+                        <md-list-item>
+                            <div class="md-list-item-text">
+                                <h3>操作</h3>
+                            </div>
+                        </md-list-item>
+                        <md-divider></md-divider>
+                        <md-list-item>
+                            <div class="md-list-item-text">
+                                <md-button class="md-raised md-primary" ng-click="checkPort()" ng-disabled="checkingPort">
+                                    {{ checkingPort ? '检查中' : '检查端口' }}
+                                </md-button>
+                                <md-button class="md-raised md-warn" ng-click="reloadConfig()" ng-disabled="reloadingConfig">
+                                    {{ reloadingConfig ? '重载中' : '重载配置' }}
+                                </md-button>
+                                <md-button class="md-raised" ng-click="checkServer()" ng-disabled="checkingServer">
+                                    {{ checkingServer ? 'Server检查中' : 'Server检查' }}
+                                </md-button>
+                                <md-button class="md-raised" ng-click="openReselectRegionDialog($event)">
+                                    重配地区
+                                </md-button>
                             </div>
                         </md-list-item>
                     </md-list>

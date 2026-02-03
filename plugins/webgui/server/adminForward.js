@@ -145,6 +145,65 @@ exports.deleteForward = async (req, res) => {
   }
 };
 
+exports.executeBatchCommand = async (req, res) => {
+  try {
+    const commandId = req.body.commandId;
+    
+    // Fetch command
+    const commandObj = await knex('server_command').where({ id: commandId }).first();
+    if (!commandObj) return res.status(404).send('Command not found');
+    
+    // Fetch all enabled forwards
+    const forwards = await knex('forward').where({ status: 1 });
+    
+    if (forwards.length === 0) {
+        return res.send({ output: 'No enabled forwards found.' });
+    }
+
+    const results = await Promise.all(forwards.map(async (forward) => {
+        const host = forward.domain || forward.ipv4;
+        const header = `=== ${forward.name} (${host}) ===\n`;
+        
+        if (!host) return header + 'No host address available.\n';
+
+        return new Promise((resolve) => {
+             const conn = new Client();
+             let output = '';
+             conn.on('ready', () => {
+               conn.exec(commandObj.server_command, (err, stream) => {
+                 if (err) {
+                   conn.end();
+                   resolve(header + 'Exec Error: ' + err.message + '\n');
+                   return;
+                 }
+                 stream.on('close', () => {
+                   conn.end();
+                   resolve(header + output + '\n');
+                 }).on('data', (data) => {
+                   output += data;
+                 }).stderr.on('data', (data) => {
+                   output += data;
+                 });
+               });
+             }).on('error', (err) => {
+                 resolve(header + 'Connection Failed: ' + err.message + '\n');
+             }).connect({
+               host: host,
+               port: forward.ssh_port || 22,
+               username: forward.ssh_user,
+               password: forward.ssh_password,
+               readyTimeout: 20000,
+             });
+        });
+    }));
+
+    res.send({ output: results.join('\n') });
+  } catch (err) {
+    console.log(err);
+    res.status(500).end();
+  }
+};
+
 exports.executeCommand = async (req, res) => {
   try {
     const forwardId = req.params.forwardId;
@@ -377,7 +436,8 @@ exports.getForwardTargetServers = async (req, res) => {
                     name: s.name,
                     ipv4: ipv4,
                     ipv6: ipv6,
-                    ipMode: ipMode
+                    ipMode: ipMode,
+                    region: comment.region
                 };
             } catch (e) {
                 return null;

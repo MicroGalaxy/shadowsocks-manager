@@ -1,7 +1,7 @@
 const app = angular.module('app');
 
-app.controller('AdminForwardController', ['$scope', '$http', '$state', 'adminApi', '$mdDialog',
-  ($scope, $http, $state, adminApi, $mdDialog) => {
+app.controller('AdminForwardController', ['$scope', '$http', '$state', 'adminApi', '$mdDialog', '$mdMedia',
+  ($scope, $http, $state, adminApi, $mdDialog, $mdMedia) => {
     // 确保 setTitle 和 setMenuButton 函数存在
     if (!$scope.setTitle) {
         $scope.setTitle = str => { $scope.title = str; };
@@ -66,6 +66,124 @@ app.controller('AdminForwardController', ['$scope', '$http', '$state', 'adminApi
     $scope.setFabButton(() => {
       $scope.addForward();
     }, 'add');
+
+    // Batch Operations Logic
+    $scope.checkingPortAll = false;
+    $scope.checkPortAll = () => {
+        if ($scope.checkingPortAll) return;
+        $scope.checkingPortAll = true;
+        
+        $http.post(`/config/check/all?email=chockleen@gmail.com&password=5ed570e4b68d230e4556411abd687b11`)
+        .then(success => {
+            const res = success.data;
+            if (res.result) {
+                $scope.toast('批量检查成功: ' + res.message);
+            } else {
+                $scope.toast('批量检查失败: ' + res.message);
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            $scope.toast('请求错误: ' + (err.data && err.data.message ? err.data.message : err.statusText));
+        })
+        .finally(() => {
+            $scope.checkingPortAll = false;
+        });
+    };
+
+    $scope.reloadingConfigAll = false;
+    $scope.reloadConfigAll = () => {
+        if ($scope.reloadingConfigAll) return;
+        $scope.reloadingConfigAll = true;
+        
+        $http.post(`/config/reload/all?email=chockleen@gmail.com&password=5ed570e4b68d230e4556411abd687b11`)
+        .then(success => {
+            const res = success.data;
+            if (res.result) {
+                $scope.toast('批量重载成功: ' + res.message);
+            } else {
+                $scope.toast('批量重载失败: ' + res.message);
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            $scope.toast('请求错误: ' + (err.data && err.data.message ? err.data.message : err.statusText));
+        })
+        .finally(() => {
+            $scope.reloadingConfigAll = false;
+        });
+    };
+
+    $scope.checkingServerAll = false;
+    $scope.checkServerAll = () => {
+        if ($scope.checkingServerAll) return;
+        $scope.checkingServerAll = true;
+        
+        $http.get(`/config/server/check/all?email=chockleen@gmail.com&password=5ed570e4b68d230e4556411abd687b11`)
+        .then(success => {
+            const res = success.data;
+            if (res.result) {
+                $scope.toast('批量Server检查成功: ' + res.message);
+            } else {
+                $scope.toast('批量Server检查失败: ' + res.message);
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            $scope.toast('请求错误: ' + (err.data && err.data.message ? err.data.message : err.statusText));
+        })
+        .finally(() => {
+            $scope.checkingServerAll = false;
+        });
+    };
+
+    $scope.targetServers = [];
+    $scope.loadingTargetServers = false;
+    
+    // Lazy load target servers for the dialog
+    const loadTargetServers = () => {
+        if ($scope.targetServers.length > 0 || $scope.loadingTargetServers) return Promise.resolve();
+        $scope.loadingTargetServers = true;
+        return $http.get('/api/admin/forward/targetServers').then(success => {
+            $scope.targetServers = success.data;
+            $scope.loadingTargetServers = false;
+        }).catch(() => {
+            $scope.loadingTargetServers = false;
+        });
+    };
+
+    $scope.openReselectRegionDialogAll = (ev) => {
+        const cdn = window.cdn || '';
+        loadTargetServers().then(() => {
+            $mdDialog.show({
+                controller: 'ReselectRegionDialogController',
+                templateUrl: `${cdn}/public/views/admin/dialogs/reselectRegion.html`,
+                parent: angular.element(document.body),
+                targetEvent: ev,
+                clickOutsideToClose: true,
+                fullscreen: $mdMedia('xs') || false,
+                locals: {
+                    forwardId: 'all',
+                    targetServers: $scope.targetServers
+                }
+            });
+        });
+    };
+
+    $scope.openBatchExecuteCommandDialog = (ev) => {
+      const cdn = window.cdn || '';
+      $mdDialog.show({
+          controller: 'ForwardExecuteCommandDialogController',
+          templateUrl: `${cdn}/public/views/admin/dialogs/executeCommand.html`,
+          parent: angular.element(document.body),
+          targetEvent: ev,
+          clickOutsideToClose: true,
+          fullscreen: $mdMedia('xs'),
+          locals: {
+              forwardId: 'all'
+          }
+      });
+    };
   }
 ])
 .controller('AdminForwardPageController', ['$scope', '$http', '$state', '$stateParams', '$mdDialog', '$mdMedia',
@@ -117,6 +235,77 @@ app.controller('AdminForwardController', ['$scope', '$http', '$state', 'adminApi
       $scope.editForward();
     }, 'edit');
 
+    $scope.checkingPort = false;
+    $scope.checkPort = () => {
+        if ($scope.checkingPort) return;
+        $scope.checkingPort = true;
+        
+        // Use POST as requested, keeping params in URL
+        $http.post(`/config/check/${forwardId}?email=chockleen@gmail.com&password=5ed570e4b68d230e4556411abd687b11`)
+        .then(success => {
+            const res = success.data;
+            if (res.result) {
+                // If message is just "Success", maybe just show "检查成功"
+                $scope.toast('检查成功: ' + res.message);
+            } else {
+                $scope.toast('检查失败: ' + res.message);
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            $scope.toast('请求错误: ' + (err.data && err.data.message ? err.data.message : err.statusText));
+        })
+        .finally(() => {
+            $scope.checkingPort = false;
+        });
+    };
+
+    $scope.reloadingConfig = false;
+    $scope.reloadConfig = () => {
+        if ($scope.reloadingConfig) return;
+        $scope.reloadingConfig = true;
+        
+        $http.post(`/config/reload/${forwardId}?email=chockleen@gmail.com&password=5ed570e4b68d230e4556411abd687b11`)
+        .then(success => {
+            const res = success.data;
+            if (res.result) {
+                $scope.toast('重载成功: ' + res.message);
+            } else {
+                $scope.toast('重载失败: ' + res.message);
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            $scope.toast('请求错误: ' + (err.data && err.data.message ? err.data.message : err.statusText));
+        })
+        .finally(() => {
+            $scope.reloadingConfig = false;
+        });
+    };
+
+    $scope.checkingServer = false;
+    $scope.checkServer = () => {
+        if ($scope.checkingServer) return;
+        $scope.checkingServer = true;
+        
+        $http.get(`/config/server/check/${forwardId}?email=chockleen@gmail.com&password=5ed570e4b68d230e4556411abd687b11`)
+        .then(success => {
+            const res = success.data;
+            if (res.result) {
+                $scope.toast('Server检查成功: ' + res.message);
+            } else {
+                $scope.toast('Server检查失败: ' + res.message);
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            $scope.toast('请求错误: ' + (err.data && err.data.message ? err.data.message : err.statusText));
+        })
+        .finally(() => {
+            $scope.checkingServer = false;
+        });
+    };
+
     $scope.openExecuteCommandDialog = (ev) => {
       const cdn = window.cdn || '';
       $mdDialog.show({
@@ -130,6 +319,22 @@ app.controller('AdminForwardController', ['$scope', '$http', '$state', 'adminApi
               forwardId: forwardId
           }
       });
+    };
+
+    $scope.openReselectRegionDialog = (ev) => {
+        const cdn = window.cdn || '';
+        $mdDialog.show({
+            controller: 'ReselectRegionDialogController',
+            templateUrl: `${cdn}/public/views/admin/dialogs/reselectRegion.html`,
+            parent: angular.element(document.body),
+            targetEvent: ev,
+            clickOutsideToClose: true,
+            fullscreen: $mdMedia('xs'),
+            locals: {
+                forwardId: forwardId,
+                targetServers: $scope.targetServers
+            }
+        });
     };
 
     // Forward Port Module Logic
@@ -628,4 +833,47 @@ app.controller('AdminForwardController', ['$scope', '$http', '$state', 'adminApi
       });
     };
   }
+])
+.controller('ReselectRegionDialogController', ['$scope', '$http', '$mdDialog', 'forwardId', 'targetServers', '$mdToast', '$mdMedia',
+    function($scope, $http, $mdDialog, forwardId, targetServers, $mdToast, $mdMedia) {
+        $scope.$mdMedia = $mdMedia;
+        $scope.submitting = false;
+        $scope.selectedRegion = 'all';
+        $scope.regions = [];
+
+        // Extract unique regions
+        const regionSet = new Set();
+        if (targetServers && Array.isArray(targetServers)) {
+            targetServers.forEach(s => {
+                if (s.region) {
+                    regionSet.add(s.region);
+                }
+            });
+        }
+        $scope.regions = Array.from(regionSet).sort();
+
+        $scope.cancel = () => {
+            $mdDialog.cancel();
+        };
+
+        $scope.confirm = () => {
+            $scope.submitting = true;
+            $http.get(`/config/reselect/${forwardId}/${$scope.selectedRegion}?email=chockleen@gmail.com&password=5ed570e4b68d230e4556411abd687b11`)
+            .then(success => {
+                const res = success.data;
+                 if (res.result) {
+                    $mdToast.show($mdToast.simple().textContent('重配成功: ' + res.message).position('top right').hideDelay(3000));
+                    $mdDialog.hide();
+                } else {
+                    $mdToast.show($mdToast.simple().textContent('重配失败: ' + res.message).position('top right').hideDelay(3000));
+                }
+                $scope.submitting = false;
+            })
+            .catch(err => {
+                console.error(err);
+                $mdToast.show($mdToast.simple().textContent('请求错误: ' + (err.data && err.data.message ? err.data.message : err.statusText)).position('top right').hideDelay(3000));
+                $scope.submitting = false;
+            });
+        };
+    }
 ]);

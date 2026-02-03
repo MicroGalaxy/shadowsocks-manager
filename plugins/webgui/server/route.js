@@ -79,6 +79,7 @@ app.get('/api/admin/server/:serverId(\\d+)', isAdmin, adminServer.getOneServer);
 app.post('/api/admin/server', isAdmin, isSuperAdmin, adminServer.addServer);
 app.put('/api/admin/server/:serverId(\\d+)', isAdmin, isSuperAdmin, adminServer.editServer);
 app.delete('/api/admin/server/:serverId(\\d+)', isAdmin, isSuperAdmin, adminServer.deleteServer);
+app.post('/api/admin/server/all/execute', isAdmin, isSuperAdmin, adminServer.executeBatchCommand);
 app.post('/api/admin/server/:serverId(\\d+)/execute', isAdmin, isSuperAdmin, adminServer.executeCommand);
 
 app.get('/api/admin/account', isAdmin, admin.getAccount);
@@ -219,6 +220,7 @@ app.get('/api/admin/forward/:forwardId(\\d+)', isAdmin, adminForward.getOneForwa
 app.post('/api/admin/forward', isAdmin, isSuperAdmin, adminForward.addForward);
 app.put('/api/admin/forward/:forwardId(\\d+)', isAdmin, isSuperAdmin, adminForward.editForward);
 app.delete('/api/admin/forward/:forwardId(\\d+)', isAdmin, isSuperAdmin, adminForward.deleteForward);
+app.post('/api/admin/forward/all/execute', isAdmin, isSuperAdmin, adminForward.executeBatchCommand);
 app.post('/api/admin/forward/:forwardId(\\d+)/execute', isAdmin, isSuperAdmin, adminForward.executeCommand);
 app.get('/api/admin/forward/:forwardId(\\d+)/ports', isAdmin, adminForward.getForwardPorts);
 app.post('/api/admin/forward/:forwardId(\\d+)/ports', isAdmin, isSuperAdmin, adminForward.addForwardPort);
