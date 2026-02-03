@@ -224,6 +224,7 @@ app.get('/api/admin/forward/:forwardId(\\d+)/ports', isAdmin, adminForward.getFo
 app.post('/api/admin/forward/:forwardId(\\d+)/ports', isAdmin, isSuperAdmin, adminForward.addForwardPort);
 app.put('/api/admin/forward/:forwardId(\\d+)/ports/:port(\\d+)', isAdmin, isSuperAdmin, adminForward.editForwardPort);
 app.delete('/api/admin/forward/:forwardId(\\d+)/ports/:port(\\d+)', isAdmin, isSuperAdmin, adminForward.deleteForwardPort);
+app.post('/api/admin/forward/:forwardId(\\d+)/ports/batchEdit', isAdmin, isSuperAdmin, adminForward.batchEditForwardPort);
 app.get('/api/admin/forward/targetServers', isAdmin, adminForward.getForwardTargetServers);
 
 app.get('/api/admin/dns', isAdmin, adminDnsRecord.getDnsRecords);

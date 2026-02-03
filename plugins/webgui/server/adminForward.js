@@ -301,6 +301,26 @@ exports.deleteForwardPort = async (req, res) => {
   }
 };
 
+exports.batchEditForwardPort = async (req, res) => {
+  try {
+    const forwardId = req.params.forwardId;
+    const { sourceHost, targetHost } = req.body;
+
+    if (!sourceHost || !targetHost) {
+        return res.status(400).send('Source and target hosts are required');
+    }
+
+    await knex('forwardport')
+      .where({ forwardId: +forwardId, host: sourceHost })
+      .update({ host: targetHost });
+      
+    res.send('success');
+  } catch (err) {
+    console.log(err);
+    res.status(500).end();
+  }
+};
+
 exports.getForwardTargetServers = async (req, res) => {
     try {
         const port = req.query.port;
@@ -323,7 +343,7 @@ exports.getForwardTargetServers = async (req, res) => {
         }
 
         // 2. Fetch servers
-        const query = knex('server').select('id', 'name', 'comment');
+        const query = knex('server').select('id', 'name', 'comment').orderBy('name', 'asc');
         
         // Only filter by ID if we found specific servers for the port
         if (serverIds) {

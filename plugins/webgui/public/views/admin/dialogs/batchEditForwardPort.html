@@ -1,0 +1,98 @@
+<md-dialog aria-label="批量切换连接地址">
+    <form ng-cloak ng-submit="save()">
+        <md-toolbar>
+            <div class="md-toolbar-tools">
+                <h2>批量切换连接地址</h2>
+                <span flex></span>
+                <md-button class="md-icon-button" ng-click="cancel()">
+                    <md-icon>close</md-icon>
+                </md-button>
+            </div>
+        </md-toolbar>
+
+        <md-dialog-content>
+            <div class="md-dialog-content" style="padding: 24px;" ng-style="{'min-width': ($mdMedia('gt-xs') ? '600px' : 'auto')}">
+                <div layout="row" layout-xs="column" layout-align="space-between start" layout-align-xs="start stretch">
+                    <!-- 左侧：源地址选择 -->
+                    <div flex="45" flex-xs="100" layout="column">
+                        <h3 class="md-subhead" style="margin-top: 0;">第一步：选择源地址</h3>
+                        
+                        <md-input-container>
+                            <label>选择源服务器</label>
+                            <md-select ng-model="source.selectedServer" ng-change="onSourceServerChange()" required>
+                                <md-option ng-repeat="server in servers" ng-value="server">
+                                    {{server.name}}
+                                </md-option>
+                            </md-select>
+                        </md-input-container>
+
+                        <div ng-if="source.selectedServer">
+                            <md-radio-group ng-model="source.ipMode" layout="row" style="margin-bottom: 15px;">
+                                <md-radio-button value="ipv4" class="md-primary" ng-disabled="!source.selectedServer.ipv4.length">IPv4</md-radio-button>
+                                <md-radio-button value="ipv6" class="md-primary" ng-disabled="!source.selectedServer.ipv6.length">IPv6</md-radio-button>
+                            </md-radio-group>
+
+                            <md-input-container>
+                                <label>选择要替换的地址</label>
+                                <md-select ng-model="form.sourceHost" required>
+                                    <md-option ng-repeat="ip in getSourceAvailableIps()" ng-value="ip">
+                                        {{ip}}
+                                    </md-option>
+                                </md-select>
+                            </md-input-container>
+                        </div>
+                    </div>
+
+                    <!-- 中间箭头 -->
+                    <div flex="10" flex-xs="100" layout="row" layout-align="center center" style="padding-top: 40px; padding-bottom: 20px;">
+                        <md-icon hide-xs style="font-size: 32px; height: 32px; width: 32px;">arrow_forward</md-icon>
+                        <md-icon hide-gt-xs style="font-size: 32px; height: 32px; width: 32px;">arrow_downward</md-icon>
+                    </div>
+
+                    <!-- 右侧：目标地址选择 -->
+                    <div flex="45" flex-xs="100" layout="column">
+                        <h3 class="md-subhead" style="margin-top: 0;">第二步：选择新地址</h3>
+                        
+                        <md-input-container>
+                            <label>选择目标服务器</label>
+                            <md-select ng-model="target.selectedServer" ng-change="onTargetServerChange()" required>
+                                <md-option ng-repeat="server in servers" ng-value="server">
+                                    {{server.name}}
+                                </md-option>
+                            </md-select>
+                        </md-input-container>
+
+                        <div ng-if="target.selectedServer">
+                            <md-radio-group ng-model="target.ipMode" layout="row" style="margin-bottom: 15px;">
+                                <md-radio-button value="ipv4" class="md-primary" ng-disabled="!target.selectedServer.ipv4.length">IPv4</md-radio-button>
+                                <md-radio-button value="ipv6" class="md-primary" ng-disabled="!target.selectedServer.ipv6.length">IPv6</md-radio-button>
+                            </md-radio-group>
+
+                            <md-input-container>
+                                <label>选择新的连接地址</label>
+                                <md-select ng-model="form.targetHost" required>
+                                    <md-option ng-repeat="ip in getTargetAvailableIps()" ng-value="ip">
+                                        {{ip}}
+                                    </md-option>
+                                </md-select>
+                            </md-input-container>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="md-caption" style="color: rgba(0,0,0,0.54); margin-top: 16px;">
+                    <md-icon style="font-size: 16px; height: 16px; width: 16px; vertical-align: text-bottom;">info</md-icon>
+                    注意：此操作将把列表中所有连接地址为 "<b>{{form.sourceHost || '...'}}</b>" 的记录批量修改为 "<b>{{form.targetHost || '...'}}</b>"。
+                </div>
+            </div>
+        </md-dialog-content>
+
+        <md-dialog-actions layout="row">
+            <span flex></span>
+            <md-button ng-click="cancel()">取消</md-button>
+            <md-button type="submit" class="md-primary md-raised" ng-disabled="!form.sourceHost || !form.targetHost || form.sourceHost === form.targetHost">
+                确定批量修改
+            </md-button>
+        </md-dialog-actions>
+    </form>
+</md-dialog>

@@ -208,10 +208,115 @@ app.controller('AdminForwardController', ['$scope', '$http', '$state', 'adminApi
             $scope.loadPorts();
         });
     };
+
+    $scope.openBatchEditDialog = (ev) => {
+        const cdn = window.cdn || '';
+        $mdDialog.show({
+            controller: 'BatchEditForwardPortDialogController',
+            templateUrl: `${cdn}/public/views/admin/dialogs/batchEditForwardPort.html`,
+            parent: angular.element(document.body),
+            targetEvent: ev,
+            clickOutsideToClose: true,
+            fullscreen: $mdMedia('xs'),
+            locals: {
+                forwardId: forwardId,
+                targetServers: $scope.targetServers
+            }
+        }).then(() => {
+            $scope.toast('批量修改成功');
+            $scope.loadPorts();
+        });
+    };
   }
 ])
-.controller('ForwardPortDialogController', ['$scope', '$http', '$mdDialog', 'forwardId', 'portItem', '$timeout',
-    function($scope, $http, $mdDialog, forwardId, portItem, $timeout) {
+.controller('BatchEditForwardPortDialogController', ['$scope', '$http', '$mdDialog', 'forwardId', 'targetServers', '$mdToast', '$mdMedia',
+    function($scope, $http, $mdDialog, forwardId, targetServers, $mdToast, $mdMedia) {
+        $scope.$mdMedia = $mdMedia;
+        $scope.servers = targetServers;
+        
+        $scope.form = {
+            sourceHost: '',
+            targetHost: ''
+        };
+
+        $scope.source = {
+            selectedServer: null,
+            ipMode: 'ipv4'
+        };
+
+        $scope.target = {
+            selectedServer: null,
+            ipMode: 'ipv4'
+        };
+
+        // Helper to determine IP mode based on server capability
+        const determineIpMode = (server) => {
+            if (server.ipMode === 16 && server.ipv6.length > 0) return 'ipv6';
+            if (server.ipMode === 6 && server.ipv6.length > 0) return 'ipv6';
+            if (server.ipv4.length > 0) return 'ipv4';
+            return 'ipv6';
+        };
+
+        $scope.onSourceServerChange = () => {
+            $scope.form.sourceHost = ''; // Reset host
+            if ($scope.source.selectedServer) {
+                $scope.source.ipMode = determineIpMode($scope.source.selectedServer);
+                // Auto select first IP
+                const ips = $scope.getSourceAvailableIps();
+                if (ips.length > 0) $scope.form.sourceHost = ips[0];
+            }
+        };
+
+        $scope.onTargetServerChange = () => {
+            $scope.form.targetHost = ''; // Reset host
+            if ($scope.target.selectedServer) {
+                $scope.target.ipMode = determineIpMode($scope.target.selectedServer);
+                // Auto select first IP
+                const ips = $scope.getTargetAvailableIps();
+                if (ips.length > 0) $scope.form.targetHost = ips[0];
+            }
+        };
+
+        $scope.getSourceAvailableIps = () => {
+            if (!$scope.source.selectedServer) return [];
+            return $scope.source.ipMode === 'ipv4' ? $scope.source.selectedServer.ipv4 : $scope.source.selectedServer.ipv6;
+        };
+
+        $scope.getTargetAvailableIps = () => {
+            if (!$scope.target.selectedServer) return [];
+            return $scope.target.ipMode === 'ipv4' ? $scope.target.selectedServer.ipv4 : $scope.target.selectedServer.ipv6;
+        };
+
+        $scope.cancel = () => {
+            $mdDialog.cancel();
+        };
+
+        $scope.save = () => {
+            const confirm = $mdDialog.confirm()
+                .title('确认批量修改')
+                .textContent(`确定要将所有地址为 ${$scope.form.sourceHost} 的端口转发修改为 ${$scope.form.targetHost} 吗？`)
+                .ok('确定')
+                .cancel('取消');
+
+            $mdDialog.show(confirm).then(() => {
+                $http.post(`/api/admin/forward/${forwardId}/ports/batchEdit`, $scope.form).then(() => {
+                    $mdDialog.hide();
+                    // Show a simple alert or toast if possible, but here we just close
+                }).catch(err => {
+                    console.error(err);
+                    $mdToast.show(
+                        $mdToast.simple()
+                            .textContent('错误: ' + (err.data || err.statusText))
+                            .position('top right')
+                            .hideDelay(3000)
+                    );
+                });
+            });
+        };
+    }
+])
+.controller('ForwardPortDialogController', ['$scope', '$http', '$mdDialog', 'forwardId', 'portItem', '$timeout', '$mdToast',
+    function($scope, $http, $mdDialog, forwardId, portItem, $timeout, $mdToast) {
         $scope.servers = [];
         $scope.isEdit = !!portItem;
         $scope.isLoadingServers = false;
@@ -324,14 +429,24 @@ app.controller('AdminForwardController', ['$scope', '$http', '$state', 'adminApi
                     $mdDialog.hide();
                 }).catch(err => {
                     console.error(err);
-                    alert('Error: ' + (err.data || err.statusText));
+                    $mdToast.show(
+                        $mdToast.simple()
+                            .textContent('错误: ' + (err.data || err.statusText))
+                            .position('top right')
+                            .hideDelay(3000)
+                    );
                 });
             } else {
                 $http.post(`/api/admin/forward/${forwardId}/ports`, data).then(() => {
                     $mdDialog.hide();
                 }).catch(err => {
                     console.error(err);
-                    alert('Error: ' + (err.data || err.statusText));
+                    $mdToast.show(
+                        $mdToast.simple()
+                            .textContent('错误: ' + (err.data || err.statusText))
+                            .position('top right')
+                            .hideDelay(3000)
+                    );
                 });
             }
         };
