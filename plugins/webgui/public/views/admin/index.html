@@ -41,9 +41,9 @@
                     </md-list-item>
                     <md-list-item>
                         <div flex layout="row" layout-align="space-between center">
-                            <div flex="60" translate>服务器数 / 掉线</div>
+                            <div flex="60" translate>掉线 / 服务器数</div>
                             <div flex="40" style="text-align: right;">
-                                {{ systemStats.serverCount || '-' }} / <span ng-style="systemStats.offlineServerCount > 0 ? {color: '#F44336'} : {}">{{ systemStats.offlineServerCount || '-' }}</span>
+                                <span ng-style="systemStats.offlineServerCount > 0 ? {color: '#F44336'} : {}">{{ systemStats.offlineServerCount || '-' }}</span> / {{ systemStats.serverCount || '-' }}
                             </div>
                         </div>
                         <md-divider></md-divider>
