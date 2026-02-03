@@ -144,17 +144,20 @@ exports.editServer = async (req, res) => {
     const tjPort = isTj ? req.body.tjPort : null;
     const pluginOptions = req.body.pluginOptions;
     const check = +req.body.check;
+    const noCheck = +req.body.noCheck;
     const ssh_port = +req.body.ssh_port;
     const ssh_user = req.body.ssh_user;
     const ssh_password = req.body.ssh_password;
-    await manager.send({
-      command: 'flow',
-      options: { clear: false, },
-    }, {
-      host: address,
-      port,
-      password,
-    });
+    if (!noCheck) {
+      await manager.send({
+        command: 'flow',
+        options: { clear: false, },
+      }, {
+        host: address,
+        port,
+        password,
+      });
+    }
     await serverManager.edit({
       id: serverId,
       type,

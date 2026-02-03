@@ -743,7 +743,7 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
         ssh_password: $scope.server.ssh_password,
       });
     });
-    $scope.server = { check: 1 };
+    $scope.server = { check: 1, noCheck: 0 };
     $scope.methods = [
       'aes-256-cfb',
       'aes-192-cfb',
@@ -842,6 +842,7 @@ app.controller('AdminServerController', ['$scope', '$http', '$state', 'moment', 
           tjPort: $scope.server.tjPort ? +$scope.server.tjPort : null,
           pluginOptions: $scope.server.pluginOptions,
           check: $scope.server.check,
+          noCheck: $scope.server.noCheck,
           ssh_port: +$scope.server.ssh_port,
           ssh_user: $scope.server.ssh_user,
           ssh_password: $scope.server.ssh_password,
