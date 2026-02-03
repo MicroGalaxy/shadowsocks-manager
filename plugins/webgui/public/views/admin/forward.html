@@ -18,8 +18,8 @@
             </md-card-header>
             <md-card-content>
                 <div layout="column">
-                    <div ng-if="forward.ipv4"><strong>IPv4:</strong> {{forward.ipv4}}</div>
-                    <div ng-if="forward.ipv6"><strong>IPv6:</strong> {{forward.ipv6}}</div>
+                    <div ng-if="forward.ipv4" style="word-break: break-all;"><strong>IPv4:</strong> {{forward.ipv4}}</div>
+                    <div ng-if="forward.ipv6" style="word-break: break-all;"><strong>IPv6:</strong> {{forward.ipv6}}</div>
                     <div ng-if="forward.domain"><strong>域名:</strong> {{forward.domain}}</div>
                     <div ng-if="forward.ssh_user"><strong>SSH用户:</strong> {{forward.ssh_user}}</div>
                     <div ng-if="forward.ssh_port"><strong>SSH端口:</strong> {{forward.ssh_port}}</div>
