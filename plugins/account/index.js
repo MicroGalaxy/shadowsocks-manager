@@ -417,94 +417,56 @@ const setAccountLimit = async (userId, accountId, orderId) => {
     });
   }
   if(!accountId || !account) {
-    const getNewPort = () => {
-      let orderPorts = [];
+    const getNewPort = async () => {
+      let candidatePorts = [];
       if(orderInfo.portRange !== '0') {
         try {
           orderInfo.portRange.split(',').filter(f => f.trim()).forEach(f => {
-            if(f.indexOf('-')) {
-              const start = f.split('-').filter(f => f.trim())[0];
-              const end = f.split('-').filter(f => f.trim())[1];
-              if(start >= end) { return; }
-              for(let p = start; p <= end; p++) {
-                orderPorts.indexOf(p) >= 0 || orderPorts.push(p);
+            if(f.includes('-')) {
+              const parts = f.split('-').map(s => s.trim());
+              const start = parseInt(parts[0]);
+              const end = parseInt(parts[1]);
+              if(start < end) {
+                for(let p = start; p <= end; p++) {
+                  candidatePorts.push(p);
+                }
               }
             } else {
-              orderPorts.indexOf(+f) >= 0 || orderPorts.push(+f);
+              candidatePorts.push(parseInt(f));
             }
           });
         } catch(err) {
           console.log(err);
         }
       }
-      return knex('webguiSetting').select().where({
-        key: 'account',
-      }).then(success => {
-        if(!success.length) { return Promise.reject('settings not found'); }
-        success[0].value = JSON.parse(success[0].value);
-        return success[0].value.port;
-      }).then(port => {
-        if(port.random) {
-          const getRandomPort = () => {
-            if(orderPorts.length) {
-              return orderPorts[Math.floor(Math.random() * orderPorts.length)];
-            } else {
-              return Math.floor(Math.random() * (port.end - port.start + 1) + port.start);
-            }
-          };
-          let retry = 0;
-          let myPort = getRandomPort();
-          const checkIfPortExists = port => {
-            let myPort = port;
-            return knex('account_plugin').select()
-            .where({ port }).then(success => {
-              if(success.length && retry <= 30) {
-                retry++;
-                myPort = getRandomPort();
-                return checkIfPortExists(myPort);
-              } else if (success.length && retry > 30) {
-                return Promise.reject('Can not get a random port');
-              } else {
-                return myPort;
-              }
-            });
-          };
-          return checkIfPortExists(myPort);
-        } else {
-          let query;
-          if(orderPorts.length) {
-            query = knex('account_plugin').select()
-            .whereIn('port', orderPorts)
-            .orderBy('port', 'ASC');
-          } else {
-            query = knex('account_plugin').select()
-            .whereBetween('port', [port.start, port.end])
-            .orderBy('port', 'ASC');
-          }
-          return query.then(success => {
-            const portArray = success.map(m => m.port);
-            let myPort;
-            if(orderPorts.length) {
-              for(const p of orderPorts) {
-                if(portArray.indexOf(+p) < 0) {
-                  myPort = p; break;
-                }
-              }
-            } else {
-              for(let p = port.start; p <= port.end; p++) {
-                if(portArray.indexOf(+p) < 0) {
-                  myPort = p; break;
-                }
-              }
-            }
-            if(myPort) {
-              return myPort;
-            } else {
-              return Promise.reject('no port');
-            }
-          });
+
+      const setting = await knex('webguiSetting').where({ key: 'account' }).first();
+      if (!setting) throw new Error('settings not found');
+      const portConfig = JSON.parse(setting.value).port;
+
+      if (candidatePorts.length === 0) {
+        for(let i = portConfig.start; i <= portConfig.end; i++) {
+          candidatePorts.push(i);
         }
-      });
+      } else {
+        candidatePorts = [...new Set(candidatePorts)];
+      }
+
+      const usedPorts = await knex('account_plugin').select('port');
+      const usedPortSet = new Set(usedPorts.map(u => u.port));
+
+      const availablePorts = candidatePorts.filter(p => !usedPortSet.has(p));
+
+      if (availablePorts.length === 0) {
+        throw new Error('no port');
+      }
+
+      if (portConfig.random) {
+        return availablePorts[Math.floor(Math.random() * availablePorts.length)];
+      } else {
+        availablePorts.sort((a, b) => a - b);
+        return availablePorts[0];
+      }
     };
     const port = await getNewPort();
     await addAccount(orderType, {
@@ -637,42 +599,29 @@ const addAccountTime = async (userId, accountId, accountType, accountPeriod = 1)
   const accountInfo = await checkIfAccountExists(accountId);
   if(!accountInfo) {
     const getNewPort = async () => {
-      const port = await knex('webguiSetting').select().where({
-        key: 'account',
-      }).then(success => {
-        if(!success.length) { return Promise.reject('settings not found'); }
-        success[0].value = JSON.parse(success[0].value);
-        return success[0].value.port;
-      });
-      if(port.random) {
-        const getRandomPort = () => Math.floor(Math.random() * (port.end - port.start + 1) + port.start);
-        let retry = 0;
-        let myPort = getRandomPort();
-        const checkIfPortExists = port => {
-          let myPort = port;
-          return knex('account_plugin').select()
-          .where({ port }).then(success => {
-            if(success.length && retry <= 30) {
-              retry++;
-              myPort = getRandomPort();
-              return checkIfPortExists(myPort);
-            } else if (success.length && retry > 30) {
-              return Promise.reject('Can not get a random port');
-            } else {
-              return myPort;
-            }
-          });
-        };
-        return checkIfPortExists(myPort);
+      const setting = await knex('webguiSetting').where({ key: 'account' }).first();
+      if (!setting) throw new Error('settings not found');
+      const portConfig = JSON.parse(setting.value).port;
+
+      const candidatePorts = [];
+      for (let i = portConfig.start; i <= portConfig.end; i++) {
+        candidatePorts.push(i);
+      }
+
+      const usedPorts = await knex('account_plugin').select('port');
+      const usedPortSet = new Set(usedPorts.map(u => u.port));
+
+      const availablePorts = candidatePorts.filter(p => !usedPortSet.has(p));
+
+      if (availablePorts.length === 0) {
+        throw new Error('Can not get a random port');
+      }
+
+      if (portConfig.random) {
+        return availablePorts[Math.floor(Math.random() * availablePorts.length)];
       } else {
-        return knex('account_plugin').select()
-        .whereBetween('port', [port.start, port.end])
-        .orderBy('port', 'DESC').limit(1).then(success => {
-          if(success.length) {
-            return success[0].port + 1;
-          }
-          return port.start;
-        });
+        availablePorts.sort((a, b) => a - b);
+        return availablePorts[0];
       }
     };
     const port = await getNewPort();
