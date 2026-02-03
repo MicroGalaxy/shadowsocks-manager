@@ -220,6 +220,11 @@ app.post('/api/admin/forward', isAdmin, isSuperAdmin, adminForward.addForward);
 app.put('/api/admin/forward/:forwardId(\\d+)', isAdmin, isSuperAdmin, adminForward.editForward);
 app.delete('/api/admin/forward/:forwardId(\\d+)', isAdmin, isSuperAdmin, adminForward.deleteForward);
 app.post('/api/admin/forward/:forwardId(\\d+)/execute', isAdmin, isSuperAdmin, adminForward.executeCommand);
+app.get('/api/admin/forward/:forwardId(\\d+)/ports', isAdmin, adminForward.getForwardPorts);
+app.post('/api/admin/forward/:forwardId(\\d+)/ports', isAdmin, isSuperAdmin, adminForward.addForwardPort);
+app.put('/api/admin/forward/:forwardId(\\d+)/ports/:port(\\d+)', isAdmin, isSuperAdmin, adminForward.editForwardPort);
+app.delete('/api/admin/forward/:forwardId(\\d+)/ports/:port(\\d+)', isAdmin, isSuperAdmin, adminForward.deleteForwardPort);
+app.get('/api/admin/forward/targetServers', isAdmin, adminForward.getForwardTargetServers);
 
 app.get('/api/admin/dns', isAdmin, adminDnsRecord.getDnsRecords);
 app.get('/api/admin/dns/forwards', isAdmin, adminDnsRecord.getForwardDomains);

@@ -193,3 +193,180 @@ exports.executeCommand = async (req, res) => {
     res.status(500).end();
   }
 };
+
+exports.getForwardPorts = async (req, res) => {
+  try {
+    const forwardId = req.params.forwardId;
+    const page = +req.query.page || 1;
+    const pageSize = +req.query.pageSize || 10;
+    const searchPort = req.query.searchPort;
+    const searchAddress = req.query.searchAddress;
+    const searchServerId = req.query.searchServerId;
+
+    const query = knex('forwardport').where({ forwardId: +forwardId });
+
+    if (searchPort) {
+      query.where('port', 'like', `%${searchPort}%`);
+    }
+
+    if (searchServerId) {
+        // If searching by server, we need to find all IPs for that server
+        const server = await knex('server').where({ id: +searchServerId }).first();
+        if (server && server.comment) {
+            try {
+                const comment = JSON.parse(server.comment);
+                const ips = [...(comment.ipv4 || []), ...(comment.ipv6 || [])];
+                if (ips.length > 0) {
+                   query.whereIn('host', ips);
+                } else {
+                   // Server has no IPs, return empty
+                   query.whereRaw('1 = 0');
+                }
+            } catch (e) {
+                 query.whereRaw('1 = 0');
+            }
+        } else {
+             query.whereRaw('1 = 0');
+        }
+    } else if (searchAddress) {
+      query.where('host', 'like', `%${searchAddress}%`);
+    }
+
+    const totalRes = await query.clone().count('* as count').first();
+    const total = totalRes.count;
+
+    const ports = await query.orderBy('port', 'asc')
+      .offset((page - 1) * pageSize)
+      .limit(pageSize);
+
+    res.send({
+      total,
+      data: ports
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).end();
+  }
+};
+
+exports.addForwardPort = async (req, res) => {
+  try {
+    const forwardId = req.params.forwardId;
+    const { port, host } = req.body;
+    
+    // Check if port exists for this forwardId
+    const exist = await knex('forwardport').where({ forwardId: +forwardId, port: +port }).first();
+    if (exist) {
+        return res.status(400).send('Port already exists');
+    }
+
+    await knex('forwardport').insert({
+      forwardId: +forwardId,
+      port: +port,
+      host,
+    });
+    res.send('success');
+  } catch (err) {
+    console.log(err);
+    res.status(500).end();
+  }
+};
+
+exports.editForwardPort = async (req, res) => {
+  try {
+    const forwardId = req.params.forwardId;
+    const port = req.params.port;
+    const { host } = req.body;
+
+    await knex('forwardport').where({ forwardId: +forwardId, port: +port }).update({
+      host
+    });
+    res.send('success');
+  } catch (err) {
+    console.log(err);
+    res.status(500).end();
+  }
+};
+
+exports.deleteForwardPort = async (req, res) => {
+  try {
+    const forwardId = req.params.forwardId;
+    const port = req.params.port;
+
+    await knex('forwardport').where({ forwardId: +forwardId, port: +port }).del();
+    res.send('success');
+  } catch (err) {
+    console.log(err);
+    res.status(500).end();
+  }
+};
+
+exports.getForwardTargetServers = async (req, res) => {
+    try {
+        const port = req.query.port;
+        
+        let serverIds = null;
+        
+        // 1. If port is provided, check account_plugin
+        if (port) {
+            const plugin = await knex('account_plugin').where({ port: +port }).first();
+            if (plugin && plugin.server) {
+                try {
+                    const ids = JSON.parse(plugin.server);
+                    if (Array.isArray(ids) && ids.length > 0) {
+                        serverIds = ids;
+                    }
+                } catch (e) {
+                    // ignore error
+                }
+            }
+        }
+
+        // 2. Fetch servers
+        const query = knex('server').select('id', 'name', 'comment');
+        
+        // Only filter by ID if we found specific servers for the port
+        if (serverIds) {
+            query.whereIn('id', serverIds);
+        }
+        
+        const servers = await query;
+
+        // 3. Filter and process servers based on ipMode and available IPs
+        const validServers = servers.map(s => {
+            try {
+                const comment = JSON.parse(s.comment);
+                let ipv4 = comment.ipv4 || [];
+                let ipv6 = comment.ipv6 || [];
+                const ipMode = comment.ipMode; // May be undefined, meaning default behavior
+
+                // Filter based on ipMode
+                if (ipMode === 4) { // IPV4Only
+                    ipv6 = [];
+                } else if (ipMode === 6) { // IPV6Only
+                    ipv4 = [];
+                }
+                // IPV4Prefer(14), IPV6Prefer(16), Unknown(999) or others -> keep both
+
+                if (ipv4.length === 0 && ipv6.length === 0) {
+                    return null;
+                }
+
+                return {
+                    id: s.id,
+                    name: s.name,
+                    ipv4: ipv4,
+                    ipv6: ipv6,
+                    ipMode: ipMode
+                };
+            } catch (e) {
+                return null;
+            }
+        }).filter(s => s !== null);
+
+        res.send(validServers);
+    } catch (err) {
+        console.log(err);
+        res.status(500).end();
+    }
+};

@@ -12,7 +12,7 @@
         </md-card-header>
         <md-card-content>
             <div layout="column" layout-gt-xs="row">
-                <div flex="50" flex-xs="100">
+                <div flex-gt-xs="50" flex="100">
                     <md-list>
                         <md-list-item>
                             <div class="md-list-item-text">
@@ -27,12 +27,12 @@
                         </md-list-item>
                         <md-list-item ng-if="forward.ipv4">
                             <div class="md-list-item-text">
-                                <p><strong>IPv4地址:</strong> {{forward.ipv4}}</p>
+                                <p style="word-break: break-all; white-space: normal;"><strong>IPv4地址:</strong> {{forward.ipv4}}</p>
                             </div>
                         </md-list-item>
                         <md-list-item ng-if="forward.ipv6">
                             <div class="md-list-item-text">
-                                <p><strong>IPv6地址:</strong> {{forward.ipv6}}</p>
+                                <p style="word-break: break-all; white-space: normal;"><strong>IPv6地址:</strong> {{forward.ipv6}}</p>
                             </div>
                         </md-list-item>
                         <md-list-item ng-if="forward.domain">
@@ -47,7 +47,7 @@
                         </md-list-item>
                     </md-list>
                 </div>
-                <div flex="50" flex-xs="100">
+                <div flex-gt-xs="50" flex="100">
                     <md-list>
                         <md-list-item>
                             <div class="md-list-item-text">
@@ -85,7 +85,102 @@
             </div>
         </md-card-content>
     </md-card>
+    
+    <md-card style="margin-top: 16px;">
+        <md-card-header>
+            <md-card-header-text>
+                <span class="md-headline">端口转发列表</span>
+            </md-card-header-text>
+        </md-card-header>
+        <md-card-content>
+            <div layout="row" layout-xs="column" layout-align="start center" layout-align-xs="start stretch">
+                <md-input-container class="md-block" style="margin: 0; width: 200px;" flex-xs>
+                    <label>搜索端口</label>
+                    <input ng-model="search.port">
+                </md-input-container>
+
+                <md-input-container class="md-block" style="margin: 0 0 0 16px; width: 200px; height: 58px;" flex-xs>
+                    <label>按服务器筛选</label>
+                    <md-select ng-model="search.serverId">
+                        <md-option ng-value="">全部</md-option>
+                        <md-option ng-repeat="server in targetServers" ng-value="server.id">
+                            {{server.name}}
+                        </md-option>
+                    </md-select>
+                </md-input-container>
+
+                <md-input-container class="md-block" style="margin: 0 0 0 16px; width: 200px;" flex-xs>
+                    <label>搜索地址</label>
+                    <input ng-model="search.address">
+                </md-input-container>
+                
+                <md-button class="md-raised md-primary" ng-click="loadPorts()" style="margin: 0 0 0 16px; height: 36px;">
+                    搜索
+                </md-button>
+            </div>
+            
+            <div ng-if="loadingPorts" layout="row" layout-align="center center" style="height: 200px;">
+                <md-progress-circular md-mode="indeterminate" class="md-primary" md-diameter="40"></md-progress-circular>
+            </div>
+            
+            <div style="overflow-x: auto;" ng-if="!loadingPorts">
+                <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid rgba(0,0,0,0.12); height: 48px;">
+                            <th style="text-align: left; padding: 0 16px; color: rgba(0,0,0,0.54); font-size: 12px; font-weight: 500; white-space: nowrap;">端口</th>
+                            <th style="text-align: left; padding: 0 16px; color: rgba(0,0,0,0.54); font-size: 12px; font-weight: 500; white-space: nowrap;">连接地址</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="port in ports" 
+                            ng-click="openPortDialog($event, port)" 
+                            style="height: 48px; border-bottom: 1px solid rgba(0,0,0,0.12); cursor: pointer; transition: background-color 0.2s;"
+                            onmouseover="this.style.backgroundColor='#f5f5f5'"
+                            onmouseout="this.style.backgroundColor='transparent'">
+                            <td style="padding: 0 16px; font-size: 13px;">{{port.port}}</td>
+                            <td style="padding: 0 16px; font-size: 13px;">{{port.host}}</td>
+                        </tr>
+                        <tr ng-if="ports.length === 0">
+                            <td colspan="2" style="text-align: center; padding: 24px; color: rgba(0,0,0,0.54);">无数据</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div layout="row" layout-xs="column" layout-align="end center" layout-align-xs="center center" style="padding: 16px; font-size: 12px; color: rgba(0,0,0,0.54); border-top: 1px solid rgba(0,0,0,0.12);">
+                <div layout="row" layout-align="center center" style="margin-bottom: 0; margin-bottom-xs: 10px;">
+                    <span style="margin-right: 24px;">共 {{total}} 条</span>
+                    
+                    <span style="margin-right: 8px;">每页显示:</span>
+                    <md-select ng-model="query.pageSize" ng-change="loadPorts()" aria-label="Page Size" style="margin: 0 24px 0 0; min-width: 60px;">
+                        <md-option ng-value="10">10</md-option>
+                        <md-option ng-value="20">20</md-option>
+                        <md-option ng-value="50">50</md-option>
+                    </md-select>
+                </div>
+
+                <div layout="row" layout-align="center center">
+                    <span style="margin-right: 24px;">
+                        {{ (query.page - 1) * query.pageSize + 1 }} - {{ (query.page * query.pageSize) > total ? total : (query.page * query.pageSize) }}
+                    </span>
+
+                    <md-button class="md-icon-button" ng-click="prevPage()" ng-disabled="query.page <= 1" aria-label="Previous Page" style="margin: 0;">
+                        <md-icon>keyboard_arrow_left</md-icon>
+                    </md-button>
+                    
+                    <md-button class="md-icon-button" ng-click="nextPage()" ng-disabled="query.page * query.pageSize >= total" aria-label="Next Page" style="margin: 0;">
+                        <md-icon>keyboard_arrow_right</md-icon>
+                    </md-button>
+                </div>
+            </div>
+        </md-card-content>
+
+
+    </md-card>
 </div>
+<md-button class="md-fab md-fab-bottom-right" aria-label="添加端口" ng-click="openPortDialog($event)" style="position: fixed; bottom: 24px; right: 24px;">
+    <md-icon>add</md-icon>
+</md-button>
 <md-button class="md-fab md-fab-bottom-right" aria-label="执行命令" ng-click="openExecuteCommandDialog($event)" style="position: fixed; bottom: 96px; right: 24px;" ng-if="id === 1">
     <md-icon>code</md-icon>
 </md-button>

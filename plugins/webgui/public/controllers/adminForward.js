@@ -130,7 +130,212 @@ app.controller('AdminForwardController', ['$scope', '$http', '$state', 'adminApi
           }
       });
     };
+
+    // Forward Port Module Logic
+    $scope.ports = [];
+    $scope.total = 0;
+    $scope.loadingPorts = true;
+    $scope.query = {
+        page: 1,
+        pageSize: 10
+    };
+    $scope.search = {
+        port: '',
+        address: '',
+        serverId: ''
+    };
+    $scope.targetServers = [];
+
+    // Load all available servers for filter (no port param = all servers)
+    $http.get('/api/admin/forward/targetServers').then(success => {
+        $scope.targetServers = success.data;
+    });
+
+    $scope.loadPorts = () => {
+        $scope.loadingPorts = true;
+        // Ensure page is valid
+        if ($scope.query.page < 1) $scope.query.page = 1;
+        
+        const params = {
+            page: $scope.query.page,
+            pageSize: $scope.query.pageSize,
+            searchPort: $scope.search.port,
+            searchAddress: $scope.search.address,
+            searchServerId: $scope.search.serverId
+        };
+        
+        $http.get(`/api/admin/forward/${forwardId}/ports`, { params }).then(success => {
+            $scope.ports = success.data.data;
+            $scope.total = success.data.total;
+            $scope.loadingPorts = false;
+        }).catch(err => {
+            console.error(err);
+            $scope.loadingPorts = false;
+        });
+    };
+    
+    $scope.prevPage = () => {
+        if ($scope.query.page > 1) {
+            $scope.query.page--;
+            $scope.loadPorts();
+        }
+    };
+
+    $scope.nextPage = () => {
+        if ($scope.query.page * $scope.query.pageSize < $scope.total) {
+            $scope.query.page++;
+            $scope.loadPorts();
+        }
+    };
+    
+    // Initial load
+    $scope.loadPorts();
+
+    $scope.openPortDialog = (ev, portItem) => {
+        const cdn = window.cdn || '';
+        $mdDialog.show({
+            controller: 'ForwardPortDialogController',
+            templateUrl: `${cdn}/public/views/admin/dialogs/forwardPort.html`,
+            parent: angular.element(document.body),
+            targetEvent: ev,
+            clickOutsideToClose: true,
+            fullscreen: $mdMedia('xs'),
+            locals: {
+                forwardId: forwardId,
+                portItem: portItem || null
+            }
+        }).then(() => {
+            $scope.loadPorts();
+        });
+    };
   }
+])
+.controller('ForwardPortDialogController', ['$scope', '$http', '$mdDialog', 'forwardId', 'portItem', '$timeout',
+    function($scope, $http, $mdDialog, forwardId, portItem, $timeout) {
+        $scope.servers = [];
+        $scope.isEdit = !!portItem;
+        $scope.isLoadingServers = false;
+        
+        $scope.form = {
+            port: portItem ? portItem.port : '',
+            host: portItem ? portItem.host : '',
+            selectedServer: null,
+            ipMode: 'ipv4' // Default
+        };
+        
+        // Function to fetch servers based on port
+        const fetchServers = (port) => {
+             if (!port) {
+                 $scope.servers = [];
+                 return;
+             }
+             $scope.isLoadingServers = true;
+             $http.get('/api/admin/forward/targetServers', { params: { port: port } }).then(success => {
+                 $scope.servers = success.data;
+                 $scope.isLoadingServers = false;
+                 
+                 // If editing, try to match the existing host to a server
+                 if ($scope.isEdit && $scope.servers.length > 0 && !$scope.form.selectedServer) {
+                    for (const s of $scope.servers) {
+                        if ((s.ipv4 && s.ipv4.includes($scope.form.host)) || (s.ipv6 && s.ipv6.includes($scope.form.host))) {
+                            $scope.form.selectedServer = s;
+                            // Determine IP mode
+                            if (s.ipv4 && s.ipv4.includes($scope.form.host)) {
+                                $scope.form.ipMode = 'ipv4';
+                            } else {
+                                $scope.form.ipMode = 'ipv6';
+                            }
+                            break;
+                        }
+                    }
+                 }
+             }).catch(err => {
+                 console.error('Failed to load servers', err);
+                 $scope.isLoadingServers = false;
+             });
+        };
+
+        // If editing, load servers immediately for the existing port
+        if ($scope.isEdit && $scope.form.port) {
+            fetchServers($scope.form.port);
+        }
+
+        let portTimeout;
+        $scope.onPortChange = () => {
+             if (portTimeout) $timeout.cancel(portTimeout);
+             portTimeout = $timeout(() => {
+                 if ($scope.form.port) {
+                     // Reset selection when port changes
+                     $scope.form.selectedServer = null;
+                     $scope.form.host = '';
+                     fetchServers($scope.form.port);
+                 } else {
+                     $scope.servers = [];
+                 }
+             }, 500); // Debounce
+        };
+
+        $scope.cancel = () => {
+            $mdDialog.cancel();
+        };
+
+        $scope.onServerChange = () => {
+            // Reset host when server changes
+            $scope.form.host = '';
+            
+            if ($scope.form.selectedServer) {
+                const s = $scope.form.selectedServer;
+                const ipMode = s.ipMode;
+                const hasV4 = s.ipv4 && s.ipv4.length > 0;
+                const hasV6 = s.ipv6 && s.ipv6.length > 0;
+
+                // Smart selection logic based on ipMode
+                if (ipMode === 16 && hasV6) { // IPV6Prefer
+                    $scope.form.ipMode = 'ipv6';
+                } else if (ipMode === 6 && hasV6) { // IPV6Only
+                    $scope.form.ipMode = 'ipv6';
+                } else if (hasV4) { // Default to V4 if available
+                    $scope.form.ipMode = 'ipv4';
+                } else if (hasV6) { // Fallback to V6
+                    $scope.form.ipMode = 'ipv6';
+                }
+
+                // Auto select first available IP address
+                const availableIps = $scope.getAvailableIps();
+                if (availableIps.length > 0) {
+                    $scope.form.host = availableIps[0];
+                }
+            }
+        };
+
+        $scope.getAvailableIps = () => {
+            if (!$scope.form.selectedServer) return [];
+            return $scope.form.ipMode === 'ipv4' ? $scope.form.selectedServer.ipv4 : $scope.form.selectedServer.ipv6;
+        };
+
+        $scope.save = () => {
+            const data = {
+                port: $scope.form.port,
+                host: $scope.form.host
+            };
+
+            if ($scope.isEdit) {
+                $http.put(`/api/admin/forward/${forwardId}/ports/${portItem.port}`, data).then(() => {
+                    $mdDialog.hide();
+                }).catch(err => {
+                    console.error(err);
+                    alert('Error: ' + (err.data || err.statusText));
+                });
+            } else {
+                $http.post(`/api/admin/forward/${forwardId}/ports`, data).then(() => {
+                    $mdDialog.hide();
+                }).catch(err => {
+                    console.error(err);
+                    alert('Error: ' + (err.data || err.statusText));
+                });
+            }
+        };
+    }
 ])
 .controller('ForwardExecuteCommandDialogController', ['$scope', '$http', '$mdDialog', 'forwardId',
   ($scope, $http, $mdDialog, forwardId) => {
