@@ -186,6 +186,77 @@ exports.changeAccountPort = (req, res) => {
   });
 };
 
+exports.switchAccountPort = async (req, res) => {
+  try {
+    const accountId = +req.params.accountId;
+    const accountInfo = await account.getAccount({ id: accountId }).then(s => s[0]);
+    if(!accountInfo) {
+      return Promise.reject('account not found');
+    }
+    accountInfo.data = JSON.parse(accountInfo.data);
+    accountInfo.server = accountInfo.server ? JSON.parse(accountInfo.server) : accountInfo.server;
+
+    // 获取新端口
+    const setting = await knex('webguiSetting').where({ key: 'account' }).first();
+    if (!setting) throw new Error('settings not found');
+    const portConfig = JSON.parse(setting.value).port;
+
+    const candidatePorts = [];
+    for (let i = portConfig.start; i <= portConfig.end; i++) {
+      candidatePorts.push(i);
+    }
+
+    const usedPorts = await knex('account_plugin').select('port');
+    const usedPortSet = new Set(usedPorts.map(u => u.port));
+
+    const availablePorts = candidatePorts.filter(p => !usedPortSet.has(p));
+
+    if (availablePorts.length === 0) {
+      throw new Error('no port');
+    }
+
+    let newPort;
+    if (portConfig.random) {
+      newPort = availablePorts[Math.floor(Math.random() * availablePorts.length)];
+    } else {
+      availablePorts.sort((a, b) => a - b);
+      newPort = availablePorts[0];
+    }
+
+    // 创建新账号
+    const type = accountInfo.type;
+    const newAccountOptions = {
+      port: newPort,
+      password: accountInfo.password,
+      user: accountInfo.userId,
+      server: accountInfo.server ? JSON.stringify(accountInfo.server) : null,
+      multiServerFlow: accountInfo.multiServerFlow,
+      active: accountInfo.active,
+    };
+
+    if (type === 1) {
+      newAccountOptions.flow = accountInfo.data ? accountInfo.data.flow : 0;
+    } else if (type >= 2 && type <= 5) {
+      newAccountOptions.orderId = accountInfo.orderId;
+      newAccountOptions.time = accountInfo.data.create;
+      newAccountOptions.limit = accountInfo.data.limit;
+      newAccountOptions.flow = accountInfo.data.flow;
+      newAccountOptions.autoRemove = accountInfo.autoRemove;
+      newAccountOptions.autoRemoveDelay = accountInfo.autoRemoveDelay;
+    }
+
+    const newAccountId = await account.addAccount(type, newAccountOptions);
+
+    // 删除旧账号
+    await account.delAccount(accountId);
+
+    res.send({ id: newAccountId });
+  } catch(err) {
+    console.log(err);
+    res.status(403).end();
+  }
+};
+
 exports.changeAccountData = (req, res) => {
   const accountId = req.params.accountId;
   account.editAccount(accountId, {

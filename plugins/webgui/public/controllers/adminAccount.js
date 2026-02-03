@@ -647,6 +647,27 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
       }, () => {});
     };
 
+    $scope.switchAccountPort = () => {
+      const confirm = $mdDialog.confirm()
+        .title('切换端口')
+        .textContent('确定要切换端口吗？系统将自动分配新端口，并删除当前账号。')
+        .ok('确定')
+        .cancel('取消');
+
+      $mdDialog.show(confirm).then(() => {
+        alertDialog.loading();
+        $http.post(`/api/admin/account/${ $scope.accountId }/switchPort`).then(success => {
+          alertDialog.close();
+          $scope.toast('切换端口成功');
+          // 跳转到新账号页面
+          $state.go('admin.accountPage', { accountId: success.data.id });
+        }).catch(err => {
+          alertDialog.close();
+          $scope.toast('切换端口失败');
+        });
+      });
+    };
+
     $scope.showUsageTraceDialog = (ev) => {
       $mdDialog.show({
         controller: 'UsageTraceDialogController',

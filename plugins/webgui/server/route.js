@@ -97,6 +97,7 @@ app.get('/api/admin/account/:accountId(\\d+)/ip', isAdmin, admin.getAccountIpFro
 app.post('/api/admin/account', isAdmin, isSuperAdmin, admin.addAccount);
 app.get('/api/admin/account/newPort', isAdmin, isSuperAdmin, admin.newPortForAddAccount);
 app.put('/api/admin/account/:accountId(\\d+)/port', isAdmin, isSuperAdmin, admin.changeAccountPort);
+app.post('/api/admin/account/:accountId(\\d+)/switchPort', isAdmin, isSuperAdmin, admin.switchAccountPort);
 app.put('/api/admin/account/:accountId(\\d+)/data', isAdmin, isSuperAdmin, admin.changeAccountData);
 app.put('/api/admin/account/:accountId(\\d+)/time', isAdmin, isSuperAdmin, admin.changeAccountTime);
 app.post('/api/admin/account/:accountId(\\d+)/renew', isAdmin, isSuperAdmin, admin.renewAccount);
