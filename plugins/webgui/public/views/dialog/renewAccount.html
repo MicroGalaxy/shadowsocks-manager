@@ -31,6 +31,6 @@
     <md-dialog-actions layout="row">
         <span flex></span>
         <md-button ng-click="cancel()">取消</md-button>
-        <md-button class="md-primary md-raised" ng-click="confirm()">确定续费</md-button>
+        <md-button class="md-primary md-raised" ng-click="confirm()" ng-disabled="submitting">{{ submitting ? '续费中...' : '确定续费' }}</md-button>
     </md-dialog-actions>
 </md-dialog>

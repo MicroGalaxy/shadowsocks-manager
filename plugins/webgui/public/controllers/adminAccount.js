@@ -699,10 +699,13 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
     };
 
     $scope.confirm = () => {
+      if ($scope.submitting) return;
+      $scope.submitting = true;
       $http.post(`/api/admin/account/${accountId}/renew`).then(() => {
         $mdToast.showSimple('续费成功');
         $mdDialog.hide();
       }).catch(err => {
+        $scope.submitting = false;
         console.error(err);
         alert('续费失败');
       });
@@ -1294,6 +1297,8 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
     };
 
     $scope.confirm = () => {
+      if ($scope.submitting) return;
+      $scope.submitting = true;
       $http.post(`/api/admin/account/${accountId}/flowPack`, {
         orderId: $scope.selectedOrder.id,
         createTime: $scope.createTime
@@ -1301,6 +1306,7 @@ app.controller('AdminAccountController', ['$scope', '$state', '$mdMedia', '$http
         $mdToast.showSimple('添加流量包成功');
         $mdDialog.hide();
       }).catch(err => {
+        $scope.submitting = false;
         console.error(err);
         alert('添加失败');
       });
