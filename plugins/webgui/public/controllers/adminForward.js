@@ -70,6 +70,7 @@ app.controller('AdminForwardController', ['$scope', '$http', '$state', 'adminApi
 ])
 .controller('AdminForwardPageController', ['$scope', '$http', '$state', '$stateParams', '$mdDialog', '$mdMedia',
   ($scope, $http, $state, $stateParams, $mdDialog, $mdMedia) => {
+    $scope.$mdMedia = $mdMedia;
     // 确保 setTitle 和 setMenuButton 函数存在
     if (!$scope.setTitle) {
         $scope.setTitle = str => { $scope.title = str; };
@@ -223,7 +224,6 @@ app.controller('AdminForwardController', ['$scope', '$http', '$state', 'adminApi
                 targetServers: $scope.targetServers
             }
         }).then(() => {
-            $scope.toast('批量修改成功');
             $scope.loadPorts();
         });
     };
@@ -300,8 +300,13 @@ app.controller('AdminForwardController', ['$scope', '$http', '$state', 'adminApi
 
             $mdDialog.show(confirm).then(() => {
                 $http.post(`/api/admin/forward/${forwardId}/ports/batchEdit`, $scope.form).then(() => {
+                    $mdToast.show(
+                        $mdToast.simple()
+                            .textContent('批量修改成功')
+                            .position('top right')
+                            .hideDelay(3000)
+                    );
                     $mdDialog.hide();
-                    // Show a simple alert or toast if possible, but here we just close
                 }).catch(err => {
                     console.error(err);
                     $mdToast.show(
@@ -426,6 +431,12 @@ app.controller('AdminForwardController', ['$scope', '$http', '$state', 'adminApi
 
             if ($scope.isEdit) {
                 $http.put(`/api/admin/forward/${forwardId}/ports/${portItem.port}`, data).then(() => {
+                    $mdToast.show(
+                        $mdToast.simple()
+                            .textContent('修改成功')
+                            .position('top right')
+                            .hideDelay(3000)
+                    );
                     $mdDialog.hide();
                 }).catch(err => {
                     console.error(err);
@@ -438,6 +449,12 @@ app.controller('AdminForwardController', ['$scope', '$http', '$state', 'adminApi
                 });
             } else {
                 $http.post(`/api/admin/forward/${forwardId}/ports`, data).then(() => {
+                    $mdToast.show(
+                        $mdToast.simple()
+                            .textContent('添加成功')
+                            .position('top right')
+                            .hideDelay(3000)
+                    );
                     $mdDialog.hide();
                 }).catch(err => {
                     console.error(err);

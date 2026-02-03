@@ -94,12 +94,12 @@
         </md-card-header>
         <md-card-content>
             <div layout="row" layout-xs="column" layout-align="start center" layout-align-xs="start stretch">
-                <md-input-container class="md-block" style="margin: 0; width: 200px;" flex-xs>
+                <md-input-container class="md-block" ng-style="{'margin': $mdMedia('xs') ? '0 0 10px 0' : '0', 'width': $mdMedia('xs') ? 'auto' : '200px'}" flex-xs>
                     <label>搜索端口</label>
                     <input ng-model="search.port">
                 </md-input-container>
 
-                <md-input-container class="md-block" style="margin: 0 0 0 16px; width: 200px; height: 58px;" flex-xs>
+                <md-input-container class="md-block" ng-style="{'margin': $mdMedia('xs') ? '0 0 10px 0' : '0 0 0 16px', 'width': $mdMedia('xs') ? 'auto' : '200px', 'height': $mdMedia('xs') ? 'auto' : '58px'}" flex-xs>
                     <label>按服务器筛选</label>
                     <md-select ng-model="search.serverId">
                         <md-option ng-value="">全部</md-option>
@@ -109,19 +109,20 @@
                     </md-select>
                 </md-input-container>
 
-                <md-input-container class="md-block" style="margin: 0 0 0 16px; width: 200px;" flex-xs>
+                <md-input-container class="md-block" ng-style="{'margin': $mdMedia('xs') ? '0 0 10px 0' : '0 0 0 16px', 'width': $mdMedia('xs') ? 'auto' : '200px'}" flex-xs>
                     <label>搜索地址</label>
                     <input ng-model="search.address">
                 </md-input-container>
                 
-                <md-button class="md-raised md-primary" ng-click="loadPorts()" style="margin: 0 0 0 16px; height: 36px;">
+                <md-button class="md-raised md-primary" ng-click="loadPorts()" ng-style="{'margin': $mdMedia('xs') ? '0 0 10px 0' : '0 0 0 16px', 'height': '36px'}">
                     搜索
                 </md-button>
                 
-                <md-button class="md-raised md-warn" ng-click="openBatchEditDialog($event)" style="margin: 0 0 0 16px; height: 36px;">
+                <md-button class="md-raised md-warn" ng-click="openBatchEditDialog($event)" ng-style="{'margin': $mdMedia('xs') ? '0' : '0 0 0 16px', 'height': '36px'}">
                     批量切换
                 </md-button>
             </div>
+
             
             <div ng-if="loadingPorts" layout="row" layout-align="center center" style="height: 200px;">
                 <md-progress-circular md-mode="indeterminate" class="md-primary" md-diameter="40"></md-progress-circular>
