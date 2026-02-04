@@ -359,7 +359,7 @@ exports.getExpiringSoonAccounts = async (req, res) => {
     const expiringSoonAccounts = [];
     
     accounts.account.forEach(a => {
-      if (a.data && a.data.expire && a.data.expire > now && a.data.expire <= sevenDaysLater) {
+      if (a.active && a.data && a.data.expire && a.data.expire > now && a.data.expire <= sevenDaysLater) {
         expiringSoonAccounts.push(a);
       }
     });
@@ -1102,7 +1102,7 @@ exports.getSystemStats = async (req, res) => {
           expiredCount++;
         } else {
           unexpiredCount++;
-          if (data.expire < sevenDaysLater) {
+          if (data.expire < sevenDaysLater && acc.active) {
             expiringSoonCount++;
           }
         }
